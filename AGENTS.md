@@ -24,12 +24,18 @@ EVIDENCE = proof
 - Bind verification claims to exact revisions and reproducible evidence.
 - Use owned, fixture, isolated-lab, or explicitly authorized targets only.
 - Keep secrets out of code, logs, tests, fixtures, evidence, and prompts.
+- A finder must not be the sole verifier of its own security or correctness claim.
+- Keep candidate outcomes distinct: `confirmed`, `needs_validation`, and `rejected`. Do not assign confirmed status or severity when an essential fact is unresolved.
 
 ## Avoid without measured need
 
 Do not add generic orchestrators, prediction/campaign engines, optimizer/capital-allocation layers, multiple authority brains, duplicated schedulers, or additional agent frameworks.
 
 Do not resurrect historical modules merely to regain a feature name.
+
+## Dead-code discipline
+
+Do not delete by intuition. Establish entrypoint reachability, imports, tests, runtime path, and persisted compatibility requirements. Prefer a machine-readable ledger/graph when the cleanup is non-trivial. Unknown code remains `UNKNOWN` until evidence supports another classification.
 
 ## Verification
 
