@@ -10,11 +10,11 @@ SECURITY_MD=PREPARED_ON_HARDENING_BRANCH; absent from current main.
 CONTRIBUTING_MD=PREPARED_ON_HARDENING_BRANCH; absent from current main.
 RELEASE_TAG=LEGACY_ONLY — boqa-v1-quality-bounty-2026-07-13 points to historical commit 0ceaf69745862377afe658946c1222ccf40be1dc; no current GitHub Release represents lean+CORE001.
 PUBLIC_DEMO=NOT_READY — live site is historical; hardening branch will expose a safe fixture-only local CUORE demo, but no verified public demo maps to the accepted implementation.
-CI_TESTS=CORE001 exact-head Browser Smoke run 36092142129 SUCCESS; Real Docker Qualification run 36092142090 SUCCESS. Hardening branch still requires exact-head CI.
+CI_TESTS=CORE001 exact-head Browser Smoke run 36092142129 SUCCESS and Real Docker Qualification run 36092142090 SUCCESS. For the hardening slice, PR #54 exact-head Browser Smoke + Real Docker Qualification are the live promotion source of truth and must both be SUCCESS on the current head.
 DETERMINISTIC_REPLAY=PASS_ON_ACCEPTED_CORE001_EVIDENCE.
 HUMAN_GATE=PASS_ON_ACCEPTED_CORE001_EVIDENCE.
 ACTIVE_MAINTENANCE=YES — active issues/PRs and commits through 2026-09-28; latest controlling log remains LOG67.
-REPO_HYGIENE=PARTIAL — accepted lean cleanup removed 127 dead/superseded/duplicate JS files, but public main still exposes the historical engine-heavy tree.
+REPO_HYGIENE=PARTIAL — accepted lean cleanup removed 127 dead/superseded/duplicate JS files, but public main still exposes the historical engine-heavy tree. External-tool triage is recorded at docs/research/EXTERNAL_TOOL_TRIAGE_2026-09-28.md with zero new runtime dependencies admitted.
 OPENAI_ORG_ID=org-KdoYdnEmMXzusYpXDoqgJdbv
 FORM_TEXTS=DRAFTED_BELOW; not submitted.
 
@@ -70,7 +70,7 @@ BOQA verifies.
 
 ## NEXT_MINIMAL_ACTIONS
 
-1. Run exact-head deterministic/browser/Docker qualification on this hardening branch.
+1. Require PR #54 exact-head Browser Smoke and Real Docker Qualification to be SUCCESS on the current head.
 2. Independently audit that the branch changes docs/demo/metadata only and does not alter authority behavior.
 3. Decide a canonicalization path that brings accepted lean+CORE plus this hardening slice to main without resurrecting historical code.
 4. Create a traceable release/tag from the eventual canonical head.
