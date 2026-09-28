@@ -1,7 +1,7 @@
 {
   "name": "boqa",
   "version": "1.4.0",
-  "description": "Browser Observability & QA \u2014 lean defensive verification kernel",
+  "description": "Browser Observability & QA — lean defensive verification kernel",
   "main": "server.js",
   "scripts": {
     "test": "node scripts/run-all-tests.js && node --test spike/boundary-proof/test/boundary-proof.test.js && python -m unittest discover -s kernel/verified-regression/tests -v",
@@ -16,7 +16,8 @@
     "lab:run-once": "node scripts/local-lab.js run-once",
     "lab:status": "node scripts/local-lab.js status",
     "test:lab": "node test/test-local-lab-runtime.js",
-    "test:lab:docker": "node test/test-local-lab-docker.js"
+    "test:lab:docker": "node test/test-local-lab-docker.js",
+    "demo:cuore": "node scripts/demo-cuore-fixtures.js"
   },
   "keywords": [
     "observability",
