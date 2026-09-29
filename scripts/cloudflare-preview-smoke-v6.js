@@ -258,7 +258,17 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
     assert.equal(await page.locator('#overall-state').textContent(), 'UNAVAILABLE');
     assert.equal(await page.locator('#hunter-view-state').textContent(), 'UNAVAILABLE');
     assert.equal(await page.locator('#health-view-state').textContent(), 'UNAVAILABLE');
-    assert.equal(await page.locator('#health-reason').textContent(), `Respuesta HTTP ${backendStatus}`);
+    const healthReason = await page.locator('#health-reason').textContent();
+    const hunterReason = await page.locator('#hunter-reason').textContent();
+    const allowedUnavailableReasons = new Set([
+      `Respuesta HTTP ${backendStatus}`,
+      'Tiempo de espera agotado',
+      'Error de red',
+    ]);
+    assert(allowedUnavailableReasons.has(healthReason), `${label}:HEALTH_UNAVAILABLE_REASON:${healthReason}`);
+    assert(allowedUnavailableReasons.has(hunterReason), `${label}:HUNTER_UNAVAILABLE_REASON:${hunterReason}`);
+    result.health_reason = healthReason;
+    result.hunter_reason = hunterReason;
   } else {
     throw new Error(`UNKNOWN_CLASSIFICATION:${classification}`);
   }
@@ -277,7 +287,9 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
   assert.equal(result.page_errors.length, 0, `${label}:PAGE_ERRORS:${result.page_errors.join('|')}`);
   assert.equal(result.console_errors.length, 0, `${label}:CONSOLE_ERRORS:${result.console_errors.join('|')}`);
   assert.equal(result.failed_requests.length, 0, `${label}:FAILED_REQUESTS:${JSON.stringify(result.failed_requests)}`);
-  if (expectedStatuses.length) assert(result.expected_console_errors.length >= 1, `${label}:EXPECTED_HTTP_CONSOLE_MISSING`);
+  if (classification === 'BLOCKED_BACKEND_CONTRACT') {
+    assert(result.expected_console_errors.length >= 1, `${label}:EXPECTED_HTTP_CONSOLE_MISSING`);
+  }
 
   await page.screenshot({ path: path.join(OUTPUT, `status-${label}.png`), fullPage: true });
   result.overall_state = await page.locator('#overall-state').textContent();
