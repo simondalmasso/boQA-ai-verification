@@ -6,7 +6,7 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 const worker = fs.readFileSync(path.join(root, 'worker.js'), 'utf8');
-const html = fs.readFileSync(path.join(root, 'dashboard', 'index.html'), 'utf8');
+const html = fs.readFileSync(path.join(root, 'dashboard', 'status', 'index.html'), 'utf8');
 const app = fs.readFileSync(path.join(root, 'dashboard', 'app.js'), 'utf8');
 const state = fs.readFileSync(path.join(root, 'dashboard', 'dashboard-state.js'), 'utf8');
 
