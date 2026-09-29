@@ -96,7 +96,25 @@ async function classifyBackend(evidence) {
   };
 
   const health = await request('/api/health');
-  assert.equal(health.response.status, 200, `/api/health:${health.response.status}`);
+  if (health.response.status !== 200) {
+    const unavailableStatuses = new Set([502, 503, 504, 520, 521, 522, 523, 524, 525, 526, 530]);
+    assert(unavailableStatuses.has(health.response.status), `/api/health:${health.response.status}`);
+    evidence.classification = 'BLOCKED_BACKEND_UNAVAILABLE';
+    evidence.promotion_ready = false;
+    evidence.blocker = 'BACKEND_UNAVAILABLE';
+    evidence.backend_health = {
+      status: health.response.status,
+      version: null,
+      release_sha: null,
+    };
+    evidence.hunter = {
+      status: null,
+      state: null,
+      timestamp_present: false,
+    };
+    return;
+  }
+
   assert.equal(health.json?.status, 'ok');
   evidence.backend_health = {
     status: health.json.status,
@@ -134,12 +152,13 @@ async function classifyBackend(evidence) {
   throw new Error(`UNEXPECTED_HUNTER_STATUS:${hunter.response.status}`);
 }
 
-function wireDiagnostics(page, result, blockedMode) {
+function wireDiagnostics(page, result, expectedStatuses = []) {
+  const expected = new Set(expectedStatuses.map(String));
   page.on('pageerror', (error) => result.page_errors.push(error.message));
   page.on('console', (message) => {
     if (message.type() !== 'error') return;
     const value = message.text();
-    if (blockedMode && /Failed to load resource/.test(value) && /404/.test(value)) {
+    if (/Failed to load resource/.test(value) && [...expected].some((status) => value.includes(status))) {
       result.expected_console_errors.push(value);
       return;
     }
@@ -150,8 +169,7 @@ function wireDiagnostics(page, result, blockedMode) {
   });
 }
 
-async function smokeViewport(browser, viewport, label, classification) {
-  const blockedMode = classification === 'BLOCKED_BACKEND_CONTRACT';
+async function smokeLanding(browser, viewport, label) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   const page = await context.newPage();
   const result = {
@@ -162,35 +180,90 @@ async function smokeViewport(browser, viewport, label, classification) {
     expected_console_errors: [],
     failed_requests: [],
   };
-  wireDiagnostics(page, result, blockedMode);
+  wireDiagnostics(page, result);
 
   const response = await page.goto(PREVIEW_URL, { waitUntil: 'networkidle', timeout: 60_000 });
-  assert(response && response.ok(), `${label}:NAVIGATION_FAILED`);
+  assert(response && response.ok(), `${label}:LANDING_NAVIGATION_FAILED`);
+  assert.equal(await page.locator('h1').count(), 1, `${label}:H1_COUNT`);
+  assert.match(await page.locator('h1').textContent(), /Verification infrastructure with bounded authority and reproducible evidence\./);
+  assert.equal(await page.getByText('Codex proposes. BOQA verifies.', { exact: true }).isVisible(), true);
+  assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('link', { name: 'View on GitHub', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('link', { name: 'Run safe demo', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('link', { name: 'System status', exact: true }).first().isVisible(), true);
+  assert.equal(await page.locator('#safe-demo').count(), 1);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${label}:HORIZONTAL_OVERFLOW`);
 
-  if (blockedMode) {
-    await page.waitForFunction(() => document.getElementById('overall-state')?.textContent === 'DEGRADED', null, { timeout: 30_000 });
-    assert.equal(await page.locator('#overall-reason').textContent(), 'Una fuente requerida no está disponible');
-    assert.equal(await page.locator('#hunter-view-state').textContent(), 'UNAVAILABLE');
-    const hunterReason = await page.locator('#hunter-reason').textContent();
-    assert(
-      ['Respuesta HTTP 404', 'Respuesta JSON inválida'].includes(hunterReason),
-      `${label}:HUNTER_REASON_UNTRUTHFUL:${hunterReason}`,
-    );
-    result.hunter_reason = hunterReason;
-    assert.equal(await page.locator('#health-view-state').textContent(), 'FRESH');
-    assert.equal(await page.locator('#health-status').textContent(), 'ok');
-  } else {
-    await page.waitForFunction(() => document.getElementById('overall-state')?.textContent === 'FRESH', null, { timeout: 30_000 });
-    assert.equal(await page.locator('#overall-reason').textContent(), 'Todas las fuentes están actualizadas');
+  const invariant = await page.locator('.invariant').boundingBox();
+  assert(invariant && invariant.y < viewport.height, `${label}:INVARIANT_OUTSIDE_FIRST_VIEWPORT`);
+  await page.keyboard.press('Tab');
+  assert.equal(await page.evaluate(() => document.activeElement?.classList.contains('skip-link')), true, `${label}:SKIP_LINK_NOT_FOCUSABLE`);
+  assert.equal(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches), true, `${label}:REDUCED_MOTION_NOT_EMULATED`);
+
+  const overflowAtDoubleText = await page.evaluate(() => {
+    document.documentElement.style.fontSize = '200%';
+    const ok = document.documentElement.scrollWidth <= document.documentElement.clientWidth;
+    document.documentElement.style.fontSize = '';
+    return ok;
+  });
+  assert.equal(overflowAtDoubleText, true, `${label}:HORIZONTAL_OVERFLOW_200_PERCENT_TEXT`);
+
+  assert.equal(result.page_errors.length, 0, `${label}:PAGE_ERRORS:${result.page_errors.join('|')}`);
+  assert.equal(result.console_errors.length, 0, `${label}:CONSOLE_ERRORS:${result.console_errors.join('|')}`);
+  assert.equal(result.failed_requests.length, 0, `${label}:FAILED_REQUESTS:${JSON.stringify(result.failed_requests)}`);
+  await page.screenshot({ path: path.join(OUTPUT, `landing-${label}.png`), fullPage: true });
+  result.first_viewport = true;
+  result.horizontal_overflow = false;
+  result.horizontal_overflow_200_percent = false;
+  result.reduced_motion = true;
+  await context.close();
+  return result;
+}
+
+async function smokeStatus(browser, viewport, label, classification, backendStatus) {
+  const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  const expectedStatuses = [];
+  if (classification === 'BLOCKED_BACKEND_CONTRACT') expectedStatuses.push(404);
+  if (classification === 'BLOCKED_BACKEND_UNAVAILABLE' && Number.isInteger(backendStatus)) expectedStatuses.push(backendStatus);
+  const result = {
+    label,
+    viewport,
+    page_errors: [],
+    console_errors: [],
+    expected_console_errors: [],
+    failed_requests: [],
+  };
+  wireDiagnostics(page, result, expectedStatuses);
+
+  const response = await page.goto(`${PREVIEW_URL}/status/`, { waitUntil: 'networkidle', timeout: 60_000 });
+  assert(response && response.ok(), `${label}:STATUS_NAVIGATION_FAILED`);
+  await page.waitForFunction(() => {
+    const value = document.getElementById('overall-state')?.textContent;
+    return value && value !== 'LOADING';
+  }, null, { timeout: 30_000 });
+
+  if (classification === 'PROMOTION_READY') {
+    assert.equal(await page.locator('#overall-state').textContent(), 'FRESH');
     assert.equal(await page.locator('#hunter-view-state').textContent(), 'FRESH');
     assert.equal(await page.locator('#health-view-state').textContent(), 'FRESH');
-    assert.equal(await page.locator('#hunter-state').textContent(), 'ACTIVE');
     assert.equal(await page.locator('#health-status').textContent(), 'ok');
+  } else if (classification === 'BLOCKED_BACKEND_CONTRACT') {
+    assert.equal(await page.locator('#overall-state').textContent(), 'DEGRADED');
+    assert.equal(await page.locator('#hunter-view-state').textContent(), 'UNAVAILABLE');
+    assert.equal(await page.locator('#health-view-state').textContent(), 'FRESH');
+    assert.equal(await page.locator('#health-status').textContent(), 'ok');
+    assert.equal(await page.locator('#hunter-reason').textContent(), 'Respuesta HTTP 404');
+  } else if (classification === 'BLOCKED_BACKEND_UNAVAILABLE') {
+    assert.equal(await page.locator('#overall-state').textContent(), 'UNAVAILABLE');
+    assert.equal(await page.locator('#hunter-view-state').textContent(), 'UNAVAILABLE');
+    assert.equal(await page.locator('#health-view-state').textContent(), 'UNAVAILABLE');
+    assert.equal(await page.locator('#health-reason').textContent(), `Respuesta HTTP ${backendStatus}`);
+  } else {
+    throw new Error(`UNKNOWN_CLASSIFICATION:${classification}`);
   }
 
-  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
-  assert.equal(overflow, false, `${label}:HORIZONTAL_OVERFLOW`);
-
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${label}:HORIZONTAL_OVERFLOW`);
   if (viewport.width <= 520) {
     const sourceBoxes = await page.locator('.source-card').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect()));
     const secondaryBoxes = await page.locator('.unavailable-panel').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect()));
@@ -204,10 +277,10 @@ async function smokeViewport(browser, viewport, label, classification) {
   assert.equal(result.page_errors.length, 0, `${label}:PAGE_ERRORS:${result.page_errors.join('|')}`);
   assert.equal(result.console_errors.length, 0, `${label}:CONSOLE_ERRORS:${result.console_errors.join('|')}`);
   assert.equal(result.failed_requests.length, 0, `${label}:FAILED_REQUESTS:${JSON.stringify(result.failed_requests)}`);
-  if (blockedMode) assert(result.expected_console_errors.length >= 1, `${label}:EXPECTED_404_CONSOLE_MISSING`);
+  if (expectedStatuses.length) assert(result.expected_console_errors.length >= 1, `${label}:EXPECTED_HTTP_CONSOLE_MISSING`);
 
-  await page.screenshot({ path: path.join(OUTPUT, `${label}.png`), fullPage: true });
-  result.overall_state = blockedMode ? 'DEGRADED' : 'FRESH';
+  await page.screenshot({ path: path.join(OUTPUT, `status-${label}.png`), fullPage: true });
+  result.overall_state = await page.locator('#overall-state').textContent();
   result.horizontal_overflow = false;
   await context.close();
   return result;
@@ -231,10 +304,15 @@ async function main() {
     await classifyBackend(evidence);
     await verifyConcealment(evidence);
     browser = await chromium.launch({ headless: true });
-    evidence.viewports = [];
-    evidence.viewports.push(await smokeViewport(browser, { width: 1440, height: 900 }, 'desktop-1440', evidence.classification));
-    evidence.viewports.push(await smokeViewport(browser, { width: 390, height: 844 }, 'mobile-390', evidence.classification));
-    evidence.viewports.push(await smokeViewport(browser, { width: 360, height: 800 }, 'mobile-360', evidence.classification));
+    evidence.landing_viewports = [];
+    evidence.landing_viewports.push(await smokeLanding(browser, { width: 1440, height: 900 }, 'desktop-1440'));
+    evidence.landing_viewports.push(await smokeLanding(browser, { width: 390, height: 844 }, 'mobile-390'));
+    evidence.landing_viewports.push(await smokeLanding(browser, { width: 360, height: 800 }, 'mobile-360'));
+    evidence.status_viewports = [];
+    const backendStatus = Number.isInteger(evidence.backend_health?.status) ? evidence.backend_health.status : null;
+    evidence.status_viewports.push(await smokeStatus(browser, { width: 1440, height: 900 }, 'desktop-1440', evidence.classification, backendStatus));
+    evidence.status_viewports.push(await smokeStatus(browser, { width: 390, height: 844 }, 'mobile-390', evidence.classification, backendStatus));
+    evidence.status_viewports.push(await smokeStatus(browser, { width: 360, height: 800 }, 'mobile-360', evidence.classification, backendStatus));
     evidence.gate_status = 'PASS';
   } catch (error) {
     evidence.gate_status = 'FAIL';
