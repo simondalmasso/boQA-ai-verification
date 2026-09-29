@@ -62,7 +62,8 @@ jobs:
             .deploy_performed == false and
             (
               (.classification == "PROMOTION_READY" and .promotion_ready == true) or
-              (.classification == "BLOCKED_BACKEND_CONTRACT" and .promotion_ready == false and .blocker == "BACKEND_HUNTER_CONTRACT_MISSING")
+              (.classification == "BLOCKED_BACKEND_CONTRACT" and .promotion_ready == false and .blocker == "BACKEND_HUNTER_CONTRACT_MISSING") or
+              (.classification == "BLOCKED_BACKEND_UNAVAILABLE" and .promotion_ready == false and .blocker == "BACKEND_UNAVAILABLE")
             )
           ' "$out/browser/preview-smoke-evidence.json" >/dev/null
           cmp "$out/deployment-before.json" "$out/deployment-after.json"
