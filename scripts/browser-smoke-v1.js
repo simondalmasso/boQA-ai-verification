@@ -61,6 +61,7 @@ function assetResponse(request) {
     ['/landing.css', 'dashboard/landing.css'],
     ['/status', 'dashboard/status/index.html'],
     ['/status/', 'dashboard/status/index.html'],
+    ['/status/index.html', 'dashboard/status/index.html'],
     ['/style.css', 'dashboard/style.css'],
     ['/dashboard-state.js', 'dashboard/dashboard-state.js'],
     ['/app.js', 'dashboard/app.js'],
