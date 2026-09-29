@@ -1,122 +1,124 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#06070a">
-  <meta name="description" content="BOQA — estado verificable del hunter defensivo.">
-  <title>BOQA Hunter</title>
-  <link rel="stylesheet" href="/style.css">
-  <link rel="stylesheet" href="/mobile.css">
-  <script src="/dashboard-state.js" defer></script>
-  <script src="/app.js" defer></script>
+  <meta name="theme-color" content="#080b10">
+  <meta name="description" content="BOQA — open-source software verification infrastructure with bounded authority and reproducible evidence.">
+  <title>BOQA — Open-source software verification infrastructure</title>
+  <link rel="stylesheet" href="/landing.css">
 </head>
-<body data-view-state="LOADING">
-  <a class="skip-link" href="#main">Ir al estado operativo</a>
-  <header class="topbar" aria-label="Cabecera principal">
-    <a class="brand" href="/" aria-label="BOQA inicio">BOQA</a>
-    <span class="product">Control defensivo verificable</span>
-    <div class="overall-pill" aria-live="polite">
-      <span id="overall-state" data-state="LOADING">LOADING</span>
-    </div>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="BOQA home">BOQA</a>
+    <nav aria-label="Primary">
+      <a href="https://github.com/simondalmasso/boqa">GitHub</a>
+      <a href="#safe-demo">Safe demo</a>
+      <a href="/status/">System status</a>
+    </nav>
   </header>
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Open source · software verification</p>
+        <h1 id="hero-title">Verification infrastructure with bounded authority and reproducible evidence.</h1>
+        <p class="lede">BOQA keeps AI assistance separate from authorization and proof. Models can propose; deterministic policy, HumanGate, execution checks, and evidence decide what is accepted.</p>
+        <p class="thesis">Codex proposes. BOQA verifies.</p>
+        <div class="actions" aria-label="Project actions">
+          <a class="button primary" href="https://github.com/simondalmasso/boqa">View on GitHub</a>
+          <a class="button" href="#safe-demo">Run safe demo</a>
+          <a class="button" href="/status/">System status</a>
+        </div>
+      </div>
+
+      <aside class="invariant" aria-labelledby="invariant-title">
+        <p id="invariant-title">Authority invariant</p>
+        <code>MODEL_OUTPUT != AUTHORIZATION</code>
+        <span>Ambiguous scope, policy, or sensitive action fails closed to HumanGate or SKIP.</span>
+      </aside>
+    </section>
+
+    <section class="principles" aria-labelledby="principles-title">
+      <div class="section-heading">
+        <p class="eyebrow">Proof, not posture</p>
+        <h2 id="principles-title">Four constraints define the system.</h2>
+      </div>
+      <div class="principle-grid">
+        <article><span>01</span><h3>Deterministic CUORE</h3><p>Critical policy decisions stay machine-checkable instead of becoming model judgment.</p></article>
+        <article><span>02</span><h3>HumanGate</h3><p>Human authority remains explicit when scope, policy, risk, submission, signing, or spend requires it.</p></article>
+        <article><span>03</span><h3>Exact-head verification</h3><p>Browser and isolated Docker qualification bind evidence to the exact commit under review.</p></article>
+        <article><span>04</span><h3>Reproducible evidence</h3><p>Claims are packaged with replayable artifacts instead of confidence scores or decorative metrics.</p></article>
+      </div>
+    </section>
+
+    <section class="architecture" aria-labelledby="architecture-title">
+      <div class="section-heading">
+        <p class="eyebrow">Authority path</p>
+        <h2 id="architecture-title">Advisory intelligence. Deterministic control.</h2>
+      </div>
+      <ol class="flow" aria-label="BOQA authority and verification flow">
+        <li><strong>Codex / Model</strong><span>advisory</span></li>
+        <li><strong>CUORE</strong><span>deterministic authority</span></li>
+        <li><strong>Policy + Scope</strong><span>explicit constraints</span></li>
+        <li><strong>HumanGate</strong><span>human authority when required</span></li>
+        <li><strong>Execute</strong><span>bounded action</span></li>
+        <li><strong>Verify</strong><span>independent checks</span></li>
+        <li><strong>Evidence</strong><span>reproducible proof</span></li>
+      </ol>
+    </section>
+
+    <section id="safe-demo" class="demo" aria-labelledby="demo-title">
       <div>
-        <p class="eyebrow">Estado operativo</p>
-        <h1 id="hero-title">Sin ruido. Sólo estado real.</h1>
-        <p class="lede">Datos públicos verificables. <strong>N/D</strong> si falta una fuente; <strong>STALE</strong> si perdió vigencia.</p>
+        <p class="eyebrow">Safe local demo</p>
+        <h2 id="demo-title">Inspect CUORE without touching a target.</h2>
+        <p>The demo is fixture-only by contract: no external targets, no submission, no signing, no spend, and <code>target_asset_network_requests=0</code>.</p>
       </div>
-      <dl class="hero-meta">
-        <div><dt>Vista</dt><dd id="overall-reason">Esperando fuentes requeridas</dd></div>
-        <div><dt>Actualizado</dt><dd id="dashboard-updated">N/D</dd></div>
-      </dl>
+      <pre aria-label="Safe demo commands"><code>npm ci
+npm run demo:cuore</code></pre>
     </section>
 
-    <section id="hunt-live" class="hunt-live" data-mode="waiting" aria-label="Actividad en vivo del hunter" aria-live="polite">
-      <div class="hunt-copy">
-        <span>Hunter live</span>
-        <strong id="hunt-live-label">Esperando estado real</strong>
+    <section class="boundary" aria-labelledby="boundary-title">
+      <div class="section-heading">
+        <p class="eyebrow">Safety boundary</p>
+        <h2 id="boundary-title">What BOQA must not do.</h2>
       </div>
-      <div class="hunt-track" style="container-type:inline-size" aria-hidden="true">
-        <i class="hunt-node"></i>
-        <i class="hunt-node"></i>
-        <i class="hunt-node"></i>
-        <i class="hunt-node"></i>
-        <b class="hunt-scanner"></b>
+      <ul>
+        <li>expand its own scope</li>
+        <li>scan unauthorized targets</li>
+        <li>treat model output as proof</li>
+        <li>auto-submit sensitive findings</li>
+        <li>sign or spend without explicit authority</li>
+      </ul>
+    </section>
+
+    <section class="inspect" aria-labelledby="inspect-title">
+      <div>
+        <p class="eyebrow">Inspect the project</p>
+        <h2 id="inspect-title">Code, policy, and evidence stay visible.</h2>
       </div>
-      <small id="hunt-live-detail">Sin datos del runtime.</small>
-    </section>
-
-    <p id="release-change" class="notice" role="status" hidden></p>
-
-    <section class="source-grid" aria-label="Fuentes de verdad">
-      <article class="source-card">
-        <header><span>Hunter runtime</span><b id="hunter-view-state" data-state="LOADING">LOADING</b></header>
-        <dl>
-          <div><dt>Fuente</dt><dd id="hunter-source">/api/hunter/status</dd></div>
-          <div><dt>Timestamp fuente</dt><dd id="hunter-timestamp">N/D</dd></div>
-          <div><dt>Recibido</dt><dd id="hunter-received">N/D</dd></div>
-          <div><dt>Motivo</dt><dd id="hunter-reason">Esperando primera respuesta</dd></div>
-        </dl>
-      </article>
-      <article class="source-card">
-        <header><span>Backend health</span><b id="health-view-state" data-state="LOADING">LOADING</b></header>
-        <dl>
-          <div><dt>Fuente</dt><dd id="health-source">/api/health</dd></div>
-          <div><dt>Timestamp fuente</dt><dd id="health-timestamp">N/D</dd></div>
-          <div><dt>Recibido</dt><dd id="health-received">N/D</dd></div>
-          <div><dt>Motivo</dt><dd id="health-reason">Esperando primera respuesta</dd></div>
-        </dl>
-      </article>
-    </section>
-
-    <section id="empty-state" class="empty-state" aria-live="polite">
-      <strong>Esperando fuentes reales.</strong>
-      <p>BOQA no completa vacíos con ceros ni datos demo.</p>
-    </section>
-
-    <section id="status-grid" class="status-grid" hidden>
-      <article class="panel" aria-labelledby="hunter-title">
-        <header><p>Fuente: /api/hunter/status</p><h2 id="hunter-title">Hunter</h2></header>
-        <dl class="metric-list">
-          <div><dt>Estado declarado</dt><dd id="hunter-state">N/D</dd></div>
-          <div><dt>Heartbeat</dt><dd id="heartbeat-at">N/D</dd></div>
-          <div><dt>Último inicio</dt><dd id="last-started-at">N/D</dd></div>
-          <div><dt>Último ciclo completado</dt><dd id="last-completed-at">N/D</dd></div>
-          <div><dt>Próxima ejecución</dt><dd id="next-scheduled-at">N/D</dd></div>
-        </dl>
-      </article>
-
-      <article class="panel" aria-labelledby="health-title">
-        <header><p>Fuente: /api/health</p><h2 id="health-title">Runtime health</h2></header>
-        <dl class="metric-list">
-          <div><dt>Estado declarado</dt><dd id="health-status">N/D</dd></div>
-          <div><dt>Versión</dt><dd id="health-version">N/D</dd></div>
-          <div><dt>Release SHA</dt><dd id="health-release">N/D</dd></div>
-          <div><dt>Uptime del proceso</dt><dd id="health-uptime">N/D</dd></div>
-        </dl>
-      </article>
-
-      <article class="panel unavailable-panel" aria-labelledby="findings-title">
-        <header><p>Contrato público no disponible</p><h2 id="findings-title">Hallazgos</h2></header>
-        <strong>N/D</strong>
-        <p>Sin un resumen público verificable.</p>
-      </article>
-
-      <article class="panel unavailable-panel" aria-labelledby="qualification-title">
-        <header><p>Evidencia no publicada</p><h2 id="qualification-title">Validación de laboratorio</h2></header>
-        <strong>N/D</strong>
-        <p>CI no se presenta como estado productivo.</p>
-      </article>
+      <div class="inspect-links">
+        <a href="https://github.com/simondalmasso/boqa">Repository <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/simondalmasso/boqa/actions">CI evidence <span aria-hidden="true">↗</span></a>
+        <a href="https://github.com/simondalmasso/boqa/tree/main/docs/openai-codex-oss">OSS readiness <span aria-hidden="true">↗</span></a>
+        <a href="/status/">System status <span aria-hidden="true">→</span></a>
+      </div>
     </section>
   </main>
 
   <footer>
-    <span>BOQA</span>
-    <span>Contratos HTTP públicos · polling 15 s</span>
+    <span class="brand">BOQA</span>
+    <nav aria-label="Project documentation">
+      <a href="https://github.com/simondalmasso/boqa">GitHub</a>
+      <a href="https://github.com/simondalmasso/boqa/blob/main/README.md">README</a>
+      <a href="https://github.com/simondalmasso/boqa/blob/main/SECURITY.md">Security</a>
+      <a href="https://github.com/simondalmasso/boqa/blob/main/CONTRIBUTING.md">Contributing</a>
+      <a href="/status/">System Status</a>
+      <a href="https://github.com/simondalmasso/boqa/blob/main/LICENSE">License</a>
+    </nav>
   </footer>
 </body>
 </html>
