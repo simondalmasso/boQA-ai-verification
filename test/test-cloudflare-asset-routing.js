@@ -14,3 +14,6 @@ assert.match(worker, /if \(isPrivateSurface\(url\.pathname\)\)/, 'Worker must in
 assert(worker.indexOf('if (isPrivateSurface(url.pathname))') < worker.indexOf('env.ASSETS.fetch(request)'), 'private interception must run before asset lookup');
 
 console.log('Cloudflare asset routing: PASS');
+
+assert.match(worker, /url\.pathname === '\/status' \|\| url\.pathname === '\/status\/'/, 'Worker must normalize the public status route to its index asset');
+assert.match(worker, /assetUrl\.pathname = '\/status\/index\.html'/, 'Worker must fetch the status index asset explicitly');
