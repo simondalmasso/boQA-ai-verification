@@ -71,7 +71,7 @@ npm run test:verified-regression
 npm run test:lab
 ```
 
-The accepted CORE001 exact head `0f756f682df915b8b97c84e38bcb8288b53d2009` has successful Browser Smoke and Real Docker Qualification runs recorded in GitHub Actions.
+The canonical release line is promoted only after Browser Smoke and Real Docker Qualification pass on the exact candidate head. Release/readiness evidence is kept in GitHub Actions and `docs/openai-codex-oss/`.
 
 ## Architecture
 
