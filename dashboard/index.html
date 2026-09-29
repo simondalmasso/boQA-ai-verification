@@ -28,18 +28,20 @@
         <h1 id="hero-title">Verification infrastructure with bounded authority and reproducible evidence.</h1>
         <p class="lede">BOQA keeps AI assistance separate from authorization and proof. Models can propose; deterministic policy, HumanGate, execution checks, and evidence decide what is accepted.</p>
         <p class="thesis">Codex proposes. BOQA verifies.</p>
+      </div>
+
+      <div class="hero-side">
+        <aside class="invariant" aria-labelledby="invariant-title">
+          <p id="invariant-title">Authority invariant</p>
+          <code>MODEL_OUTPUT != AUTHORIZATION</code>
+          <span>Ambiguous scope, policy, or sensitive action fails closed to HumanGate or SKIP.</span>
+        </aside>
         <div class="actions" aria-label="Project actions">
           <a class="button primary" href="https://github.com/simondalmasso/boqa">View on GitHub</a>
           <a class="button" href="#safe-demo">Run safe demo</a>
           <a class="button" href="/status/">System status</a>
         </div>
       </div>
-
-      <aside class="invariant" aria-labelledby="invariant-title">
-        <p id="invariant-title">Authority invariant</p>
-        <code>MODEL_OUTPUT != AUTHORIZATION</code>
-        <span>Ambiguous scope, policy, or sensitive action fails closed to HumanGate or SKIP.</span>
-      </aside>
     </section>
 
     <section class="principles" aria-labelledby="principles-title">
