@@ -284,6 +284,15 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
   }
 
   await page.waitForTimeout(200);
+  if (classification === 'BLOCKED_BACKEND_UNAVAILABLE') {
+    result.expected_failed_requests = result.failed_requests.filter((item) =>
+      ['/api/health', '/api/hunter/status'].includes(item.path) && /ERR_ABORTED/.test(item.error)
+    );
+    result.failed_requests = result.failed_requests.filter((item) =>
+      !(['/api/health', '/api/hunter/status'].includes(item.path) && /ERR_ABORTED/.test(item.error))
+    );
+    assert(result.expected_failed_requests.length >= 1, `${label}:EXPECTED_BACKEND_ABORT_MISSING`);
+  }
   assert.equal(result.page_errors.length, 0, `${label}:PAGE_ERRORS:${result.page_errors.join('|')}`);
   assert.equal(result.console_errors.length, 0, `${label}:CONSOLE_ERRORS:${result.console_errors.join('|')}`);
   assert.equal(result.failed_requests.length, 0, `${label}:FAILED_REQUESTS:${JSON.stringify(result.failed_requests)}`);
