@@ -58,6 +58,9 @@ function assetResponse(request) {
   const files = new Map([
     ['/', 'dashboard/index.html'],
     ['/index.html', 'dashboard/index.html'],
+    ['/landing.css', 'dashboard/landing.css'],
+    ['/status', 'dashboard/status/index.html'],
+    ['/status/', 'dashboard/status/index.html'],
     ['/style.css', 'dashboard/style.css'],
     ['/dashboard-state.js', 'dashboard/dashboard-state.js'],
     ['/app.js', 'dashboard/app.js'],
@@ -152,12 +155,66 @@ function wireDiagnostics(page, result, options = {}) {
   });
 }
 
-async function publicSmoke(browser, viewport, label) {
+async function landingSmoke(browser, viewport, label) {
   const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
   const page = await context.newPage();
   const result = { label, viewport, page_errors: [], console_errors: [] };
   wireDiagnostics(page, result);
+
   const response = await page.goto(EDGE_URL, { waitUntil: 'networkidle' });
+  assert(response && response.ok(), `${label}:LANDING_NAVIGATION_FAILED`);
+
+  assert.equal(await page.locator('h1').count(), 1, `${label}:H1_COUNT`);
+  assert.match(await page.locator('h1').textContent(), /Verification infrastructure with bounded authority and reproducible evidence\./);
+  assert.equal(await page.getByText('Codex proposes. BOQA verifies.', { exact: true }).isVisible(), true);
+  assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('link', { name: 'View on GitHub', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('link', { name: 'Run safe demo', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('link', { name: 'System status', exact: true }).first().isVisible(), true);
+  assert.equal(await page.locator('#safe-demo').count(), 1);
+  assert.equal(await page.locator('main').count(), 1);
+  assert.equal(await page.locator('header').count() > 0, true);
+  assert.equal(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches), true, `${label}:REDUCED_MOTION_NOT_EMULATED`);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true, `${label}:HORIZONTAL_OVERFLOW`);
+
+  const firstViewport = await page.locator('.hero').boundingBox();
+  assert(firstViewport && firstViewport.y < viewport.height, `${label}:HERO_OUTSIDE_FIRST_VIEWPORT`);
+  const invariant = await page.locator('.invariant').boundingBox();
+  assert(invariant && invariant.y < viewport.height, `${label}:INVARIANT_OUTSIDE_FIRST_VIEWPORT`);
+
+  await page.keyboard.press('Tab');
+  assert.equal(await page.evaluate(() => document.activeElement?.classList.contains('skip-link')), true, `${label}:SKIP_LINK_NOT_FOCUSABLE`);
+
+  const overflowAtDoubleText = await page.evaluate(() => {
+    document.documentElement.style.fontSize = '200%';
+    const ok = document.documentElement.scrollWidth <= document.documentElement.clientWidth;
+    document.documentElement.style.fontSize = '';
+    return ok;
+  });
+  assert.equal(overflowAtDoubleText, true, `${label}:HORIZONTAL_OVERFLOW_200_PERCENT_TEXT`);
+
+  assert.equal(result.page_errors.length, 0, `${label}:PAGEERROR:${result.page_errors.join('|')}`);
+  assert.equal(result.console_errors.length, 0, `${label}:CONSOLE:${result.console_errors.join('|')}`);
+  await page.screenshot({ path: path.join(OUTPUT, `${label}.png`), fullPage: true });
+
+  result.first_viewport = true;
+  result.github_visible = true;
+  result.safe_demo_visible = true;
+  result.system_status_visible = true;
+  result.model_output_not_authorization_visible = true;
+  result.horizontal_overflow = false;
+  result.horizontal_overflow_200_percent = false;
+  result.reduced_motion = true;
+  await context.close();
+  return result;
+}
+
+async function statusSmoke(browser, viewport, label) {
+  const context = await browser.newContext({ viewport, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  const result = { label, viewport, page_errors: [], console_errors: [] };
+  wireDiagnostics(page, result);
+  const response = await page.goto(EDGE_URL + '/status/', { waitUntil: 'networkidle' });
   assert(response && response.ok(), `${label}:PUBLIC_NAVIGATION_FAILED`);
   await page.waitForFunction(() => document.getElementById('overall-state')?.textContent === 'FRESH', null, { timeout: 20_000 });
   assert.equal(await page.locator('#hunter-state').textContent(), 'ACTIVE');
@@ -172,7 +229,7 @@ async function publicSmoke(browser, viewport, label) {
   assert.equal(await page.evaluate(() => document.activeElement?.classList.contains('skip-link')), true, `${label}:SKIP_LINK_NOT_FOCUSABLE`);
   assert.equal(result.page_errors.length, 0, `${label}:PAGEERROR:${result.page_errors.join('|')}`);
   assert.equal(result.console_errors.length, 0, `${label}:CONSOLE:${result.console_errors.join('|')}`);
-  await page.screenshot({ path: path.join(OUTPUT, `${label}.png`), fullPage: true });
+  await page.screenshot({ path: path.join(OUTPUT, `status-${label}.png`), fullPage: true });
   result.overall_state = 'FRESH';
   result.hunter_state = 'ACTIVE';
   result.health_status = 'ok';
@@ -316,12 +373,20 @@ async function main() {
     });
     browser = await chromium.launch({ headless: true });
     evidence.public = [];
-    evidence.public.push(await publicSmoke(browser, { width: 1440, height: 900 }, 'desktop-1440'));
-    evidence.public.push(await publicSmoke(browser, { width: 390, height: 844 }, 'mobile-390'));
-    evidence.public.push(await publicSmoke(browser, { width: 360, height: 800 }, 'mobile-360'));
+    evidence.public.push(await landingSmoke(browser, { width: 1440, height: 900 }, 'desktop-1440'));
+    evidence.public.push(await landingSmoke(browser, { width: 390, height: 844 }, 'mobile-390'));
+    evidence.public.push(await landingSmoke(browser, { width: 360, height: 800 }, 'mobile-360'));
+    evidence.status = [];
+    evidence.status.push(await statusSmoke(browser, { width: 1440, height: 900 }, 'desktop-1440'));
+    evidence.status.push(await statusSmoke(browser, { width: 390, height: 844 }, 'mobile-390'));
+    evidence.status.push(await statusSmoke(browser, { width: 360, height: 800 }, 'mobile-360'));
     evidence.private = await privateSmoke(browser, billingPin);
-    evidence.page_errors = evidence.public.reduce((sum, item) => sum + item.page_errors.length, 0) + evidence.private.page_errors.length;
-    evidence.console_errors = evidence.public.reduce((sum, item) => sum + item.console_errors.length, 0) + evidence.private.console_errors.length;
+    evidence.page_errors = evidence.public.reduce((sum, item) => sum + item.page_errors.length, 0)
+      + evidence.status.reduce((sum, item) => sum + item.page_errors.length, 0)
+      + evidence.private.page_errors.length;
+    evidence.console_errors = evidence.public.reduce((sum, item) => sum + item.console_errors.length, 0)
+      + evidence.status.reduce((sum, item) => sum + item.console_errors.length, 0)
+      + evidence.private.console_errors.length;
     evidence.expected_auth_console_errors = evidence.private.expected_auth_console_errors.length;
     evidence.status = 'PASS';
   } catch (error) {

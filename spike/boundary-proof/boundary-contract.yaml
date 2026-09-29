@@ -1,0 +1,7 @@
+finding:
+  path: "/api/invoices/481"
+resource:
+  id: "481"
+expected_owner: "actor_a"
+prohibited_actor: "actor_b"
+private_marker: "BOQA_TENANT_A_7F39"
