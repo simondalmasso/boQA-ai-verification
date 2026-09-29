@@ -212,7 +212,15 @@ export default {
     }
 
     if (env && env.ASSETS) {
-      return secureAssetResponse(await env.ASSETS.fetch(request), url.pathname);
+      let assetRequest = request;
+      let assetPath = url.pathname;
+      if (url.pathname === '/status' || url.pathname === '/status/') {
+        const assetUrl = new URL(request.url);
+        assetUrl.pathname = '/status/index.html';
+        assetRequest = new Request(assetUrl.toString(), request);
+        assetPath = assetUrl.pathname;
+      }
+      return secureAssetResponse(await env.ASSETS.fetch(assetRequest), assetPath);
     }
 
     return new Response('BOQA Worker — no assets bound', {
