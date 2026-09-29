@@ -29,10 +29,14 @@ for (const phrase of [
   assert(landing.includes(phrase), 'missing principle: ' + phrase);
 }
 
+const flowStart = landing.indexOf('<ol class="flow"');
+const flowEnd = landing.indexOf('</ol>', flowStart);
+assert(flowStart >= 0 && flowEnd > flowStart, 'architecture flow must exist');
+const architectureHtml = landing.slice(flowStart, flowEnd);
 const architecture = ['Codex / Model', 'CUORE', 'Policy + Scope', 'HumanGate', 'Execute', 'Verify', 'Evidence'];
 let previous = -1;
 for (const label of architecture) {
-  const current = landing.indexOf(label);
+  const current = architectureHtml.indexOf(label);
   assert(current > previous, 'architecture order invalid at: ' + label);
   previous = current;
 }
