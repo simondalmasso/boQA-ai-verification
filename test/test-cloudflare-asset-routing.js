@@ -11,7 +11,7 @@ const worker = fs.readFileSync(path.join(root, 'worker.js'), 'utf8');
 assert.match(wrangler, /\[assets\][\s\S]*run_worker_first\s*=\s*true/, 'Cloudflare must invoke the Worker before serving any static asset');
 assert.match(wrangler, /binding\s*=\s*"ASSETS"/, 'Worker must retain the explicit assets binding');
 assert.match(worker, /if \(isPrivateSurface\(url\.pathname\)\)/, 'Worker must intercept private paths');
-assert(worker.indexOf('if (isPrivateSurface(url.pathname))') < worker.indexOf('env.ASSETS.fetch(request)'), 'private interception must run before asset lookup');
+assert(worker.indexOf('if (isPrivateSurface(url.pathname))') < worker.indexOf('env.ASSETS.fetch('), 'private interception must run before asset lookup');
 
 console.log('Cloudflare asset routing: PASS');
 
