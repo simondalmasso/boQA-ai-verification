@@ -36,6 +36,11 @@ jobs:
           fetch-depth: 1
           persist-credentials: false
 
+      - name: Setup Node.js 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+
       - name: Verify exact main identity
         shell: bash
         run: |
@@ -83,94 +88,66 @@ jobs:
             .deploy_performed == false
           ' "$evidence" >/dev/null
 
-          version_id="$(jq -r '.version_id' "$candidate")"
-          preview_url="$(jq -r '.preview_url' "$candidate")"
           {
             echo "PREVIEW_RUN_ID=$run_id"
             echo "PREVIEW_ARTIFACT_ID=$artifact_id"
-            echo "VERSION_ID=$version_id"
-            echo "PREVIEW_URL=$preview_url"
+            echo "PREVIEW_VERSION_ID=$(jq -r '.version_id' "$candidate")"
+            echo "PREVIEW_URL=$(jq -r '.preview_url' "$candidate")"
           } >> "$GITHUB_ENV"
 
-      - name: Verify Cloudflare version before promotion
+      - name: Snapshot deployment before
         shell: bash
         run: |
           set -Eeuo pipefail
           : "${CLOUDFLARE_ACCOUNT_ID:?missing account id}"
           : "${CLOUDFLARE_API_TOKEN:?missing api token}"
-          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
-          auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
-
           mkdir -p output/production-deploy
-          curl -fsS "${auth[@]}" "$api/workers/workers/$WORKER_NAME/versions/$VERSION_ID" > output/production-deploy/version-before.json
-          jq -e --arg id "$VERSION_ID" '.success == true and .result.id == $id' output/production-deploy/version-before.json >/dev/null
+          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
+          curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "$api/workers/scripts/$WORKER_NAME/deployments"             > output/production-deploy/deployments-before.json
 
-          curl -fsS "${auth[@]}" "$api/workers/scripts/$WORKER_NAME/deployments" > output/production-deploy/deployments-before.json
-
-      - name: Promote exact verified version to production
+      - name: Deploy exact main with static assets
         shell: bash
         run: |
           set -Eeuo pipefail
-          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
-          auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
-          body="$(jq -cn --arg version "$VERSION_ID" --arg sha "$EXPECTED_SHA" '{
-            strategy:"percentage",
-            versions:[{version_id:$version,percentage:100}],
-            annotations:{
-              "workers/message":("BOQA canonical "+$sha),
-              "workers/triggered_by":"github-actions"
-            }
-          }')"
-
-          curl -fsS "${auth[@]}" -H 'Content-Type: application/json' -X POST -d "$body"             "$api/workers/scripts/$WORKER_NAME/deployments" > output/production-deploy/deployment-create.json
-          jq -e --arg version "$VERSION_ID" '
-            .success == true and
-            (.result.versions | length == 1) and
-            .result.versions[0].version_id == $version and
-            .result.versions[0].percentage == 100
-          ' output/production-deploy/deployment-create.json >/dev/null
+          npx --yes wrangler@4.45.0 deploy --config "$GITHUB_WORKSPACE/wrangler.toml"             | tee output/production-deploy/wrangler-deploy.log
 
       - name: Verify production surfaces
         shell: bash
         run: |
           set -Eeuo pipefail
           prod="https://boqa.simondalmasso44.workers.dev"
-          mkdir -p output/production-deploy
 
           for _ in $(seq 1 30); do
             if curl -fsS "$prod/" -o output/production-deploy/root.html &&
-               grep -F 'Codex proposes. BOQA verifies.' output/production-deploy/root.html >/dev/null &&
-               grep -F 'MODEL_OUTPUT != AUTHORIZATION' output/production-deploy/root.html >/dev/null; then
+               curl -fsS "$prod/status/" -o output/production-deploy/status.html; then
               break
             fi
             sleep 2
           done
+
+          cmp dashboard/index.html output/production-deploy/root.html
+          cmp dashboard/status/index.html output/production-deploy/status.html
           grep -F 'Codex proposes. BOQA verifies.' output/production-deploy/root.html >/dev/null
           grep -F 'MODEL_OUTPUT != AUTHORIZATION' output/production-deploy/root.html >/dev/null
-
-          curl -fsS "$prod/status/" -o output/production-deploy/status.html
           grep -F 'id="overall-state"' output/production-deploy/status.html >/dev/null
-          grep -F 'Estado operativo' output/production-deploy/status.html >/dev/null
-
           curl -fsS "$prod/landing.css" -o /dev/null
 
           api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
-          auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
-          curl -fsS "${auth[@]}" "$api/workers/scripts/$WORKER_NAME/deployments" > output/production-deploy/deployments-after.json
-          jq -e --arg version "$VERSION_ID" '
-            .success == true and
-            .result.deployments[0].versions[0].version_id == $version and
-            .result.deployments[0].versions[0].percentage == 100
-          ' output/production-deploy/deployments-after.json >/dev/null
+          curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "$api/workers/scripts/$WORKER_NAME/deployments"             > output/production-deploy/deployments-after.json
 
-          jq -n             --arg sha "$EXPECTED_SHA"             --arg version "$VERSION_ID"             --arg preview_run "$PREVIEW_RUN_ID"             --arg preview_artifact "$PREVIEW_ARTIFACT_ID"             '{
-              schema_version:1,
+          deployed_version="$(jq -r '.result.deployments[0].versions[0].version_id // empty' output/production-deploy/deployments-after.json)"
+          test -n "$deployed_version"
+
+          jq -n             --arg sha "$EXPECTED_SHA"             --arg version "$deployed_version"             --arg preview_version "$PREVIEW_VERSION_ID"             --arg preview_run "$PREVIEW_RUN_ID"             --arg preview_artifact "$PREVIEW_ARTIFACT_ID"             '{
+              schema_version:2,
               canonical_main_sha:$sha,
               deployed_version_id:$version,
+              verified_preview_version_id:$preview_version,
               source_preview_run_id:$preview_run,
               source_preview_artifact_id:$preview_artifact,
-              root_landing:true,
-              status_preserved:true,
+              deployment_mode:"wrangler-deploy-code-plus-assets",
+              root_byte_equal:true,
+              status_byte_equal:true,
               production_verified:true
             }' > output/production-deploy/evidence.json
 
