@@ -59,6 +59,8 @@ function assetResponse(request) {
     ['/', 'dashboard/index.html'],
     ['/index.html', 'dashboard/index.html'],
     ['/landing.css', 'dashboard/landing.css'],
+    ['/favicon.svg', 'dashboard/favicon.svg'],
+    ['/og-boqa.png', 'dashboard/og-boqa.png'],
     ['/status', 'dashboard/status/index.html'],
     ['/status/', 'dashboard/status/index.html'],
     ['/style.css', 'dashboard/style.css'],
@@ -75,7 +77,9 @@ function assetResponse(request) {
   const contentType = extension === '.html' ? 'text/html; charset=utf-8'
     : extension === '.css' ? 'text/css; charset=utf-8'
       : extension === '.js' ? 'application/javascript; charset=utf-8'
-        : 'application/octet-stream';
+        : extension === '.svg' ? 'image/svg+xml'
+          : extension === '.png' ? 'image/png'
+            : 'application/octet-stream';
   return new Response(fs.readFileSync(path.join(ROOT, relative)), {
     status: 200,
     headers: { 'Content-Type': contentType },
@@ -168,7 +172,7 @@ async function landingSmoke(browser, viewport, label) {
   assert.match(await page.locator('h1').textContent(), /Verification infrastructure with bounded authority and reproducible evidence\./);
   assert.equal(await page.getByText('Codex proposes. BOQA verifies.', { exact: true }).isVisible(), true);
   assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);
-  assert.equal(await page.getByRole('link', { name: 'View on GitHub', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('link', { name: 'View GitHub', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'Run safe demo', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'System status', exact: true }).first().isVisible(), true);
   assert.equal(await page.locator('#safe-demo').count(), 1);
