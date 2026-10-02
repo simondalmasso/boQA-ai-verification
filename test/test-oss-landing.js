@@ -91,7 +91,7 @@ assert.match(css, /@media\s*\(max-width:\s*640px\)/i);
 assert.match(css, /\.verification-trace/);
 
 assert.match(favicon, /<svg[^>]+viewBox=["']0 0 32 32["']/);
-assert.doesNotMatch(favicon, /https?:\/\//i);
+assert.doesNotMatch(favicon, /(?:href|src)=["']https?:\/\//i, 'favicon must not load remote resources');
 
 assert.equal(og[0], 0x89);
 assert.equal(og.toString('ascii', 1, 4), 'PNG');
