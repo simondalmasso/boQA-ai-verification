@@ -188,7 +188,7 @@ async function smokeLanding(browser, viewport, label) {
   assert.match(await page.locator('h1').textContent(), /Verification infrastructure with bounded authority and reproducible evidence\./);
   assert.equal(await page.getByText('Codex proposes. BOQA verifies.', { exact: true }).isVisible(), true);
   assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);
-  assert.equal(await page.getByRole('link', { name: 'View on GitHub', exact: true }).isVisible(), true);
+  assert.equal(await page.getByRole('link', { name: 'View GitHub', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'Run safe demo', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'System status', exact: true }).first().isVisible(), true);
   assert.equal(await page.locator('#safe-demo').count(), 1);
