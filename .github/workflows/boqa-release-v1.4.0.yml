@@ -47,6 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           remote_sha="$(git ls-remote "https://github.com/$GITHUB_REPOSITORY.git" refs/tags/v1.4.0 | awk '{print $1}')"
-          test -n "$remote_sha"\n          git merge-base --is-ancestor "$remote_sha" "$GITHUB_SHA"
+          test -n "$remote_sha"
+          git merge-base --is-ancestor "$remote_sha" "$GITHUB_SHA"
           echo "RELEASE_TAG=v1.4.0"
           echo "RELEASE_SHA=$remote_sha"
