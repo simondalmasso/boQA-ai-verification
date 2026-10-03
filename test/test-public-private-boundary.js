@@ -45,6 +45,9 @@ async function run() {
   const publicWorker = workerModule.default;
   assert(publicWorker && typeof publicWorker.fetch === 'function');
 
+  let deeplyEncodedPrivate = '/%63obros.html';
+  for (let pass = 0; pass < 12; pass += 1) deeplyEncodedPrivate = deeplyEncodedPrivate.replace(/%/g, '%25');
+
   const privatePaths = [
     '/cobros',
     '/cobros/',
@@ -67,6 +70,7 @@ async function run() {
     '/%2561pi%252fprivate%252fbilling%252fdata',
     '/api//private//billing//data',
     '/api/%255cprivate%255cbilling%255cdata',
+    deeplyEncodedPrivate,
   ];
 
   for (const pathname of privatePaths) {
