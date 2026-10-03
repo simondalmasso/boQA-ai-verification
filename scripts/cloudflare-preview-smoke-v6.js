@@ -185,8 +185,10 @@ async function smokeLanding(browser, viewport, label) {
   const response = await page.goto(PREVIEW_URL, { waitUntil: 'networkidle', timeout: 60_000 });
   assert(response && response.ok(), `${label}:LANDING_NAVIGATION_FAILED`);
   assert.equal(await page.locator('h1').count(), 1, `${label}:H1_COUNT`);
-  assert.match(await page.locator('h1').textContent(), /Verification infrastructure with bounded authority and reproducible evidence\./);
-  assert.equal(await page.getByText('Codex proposes. BOQA verifies.', { exact: true }).isVisible(), true);
+  const heroTitle = (await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim();
+  assert.equal(heroTitle, 'Verification infrastructure for AI-assisted software work.');
+  const thesis = (await page.locator('.thesis').innerText()).replace(/\s+/g, ' ').trim();
+  assert.equal(thesis, 'Codex proposes. BOQA verifies.');
   assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'View GitHub', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'Run safe demo', exact: true }).isVisible(), true);
@@ -327,6 +329,7 @@ async function main() {
     browser = await chromium.launch({ headless: true });
     evidence.landing_viewports = [];
     evidence.landing_viewports.push(await smokeLanding(browser, { width: 1440, height: 900 }, 'desktop-1440'));
+    evidence.landing_viewports.push(await smokeLanding(browser, { width: 430, height: 900 }, 'mobile-430'));
     evidence.landing_viewports.push(await smokeLanding(browser, { width: 390, height: 844 }, 'mobile-390'));
     evidence.landing_viewports.push(await smokeLanding(browser, { width: 360, height: 800 }, 'mobile-360'));
     evidence.status_viewports = [];

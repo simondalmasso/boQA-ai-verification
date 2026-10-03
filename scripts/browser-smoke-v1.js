@@ -169,13 +169,23 @@ async function landingSmoke(browser, viewport, label) {
   assert(response && response.ok(), `${label}:LANDING_NAVIGATION_FAILED`);
 
   assert.equal(await page.locator('h1').count(), 1, `${label}:H1_COUNT`);
-  assert.match(await page.locator('h1').textContent(), /Verification infrastructure with bounded authority and reproducible evidence\./);
-  assert.equal(await page.getByText('Codex proposes. BOQA verifies.', { exact: true }).isVisible(), true);
+  const heroTitle = (await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim();
+  assert.equal(heroTitle, 'Verification infrastructure for AI-assisted software work.');
+  const thesis = (await page.locator('.thesis').innerText()).replace(/\s+/g, ' ').trim();
+  assert.equal(thesis, 'Codex proposes. BOQA verifies.');
   assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'View GitHub', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'Run safe demo', exact: true }).isVisible(), true);
   assert.equal(await page.getByRole('link', { name: 'System status', exact: true }).first().isVisible(), true);
   assert.equal(await page.locator('#safe-demo').count(), 1);
+  const og = await page.evaluate(() => new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve({ naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight });
+    image.onerror = () => reject(new Error('OG_IMAGE_DECODE_FAILED'));
+    image.src = '/og-boqa.png?browser-smoke=1';
+  }));
+  assert.equal(og.naturalWidth, 1200, `${label}:OG_WIDTH`);
+  assert.equal(og.naturalHeight, 630, `${label}:OG_HEIGHT`);
   assert.equal(await page.locator('main').count(), 1);
   assert.equal(await page.locator('header').count() > 0, true);
   assert.equal(await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches), true, `${label}:REDUCED_MOTION_NOT_EMULATED`);
@@ -378,6 +388,7 @@ async function main() {
     browser = await chromium.launch({ headless: true });
     evidence.public = [];
     evidence.public.push(await landingSmoke(browser, { width: 1440, height: 900 }, 'desktop-1440'));
+    evidence.public.push(await landingSmoke(browser, { width: 430, height: 900 }, 'mobile-430'));
     evidence.public.push(await landingSmoke(browser, { width: 390, height: 844 }, 'mobile-390'));
     evidence.public.push(await landingSmoke(browser, { width: 360, height: 800 }, 'mobile-360'));
     evidence.status = [];

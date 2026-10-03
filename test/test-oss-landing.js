@@ -9,6 +9,8 @@ const landing = fs.readFileSync(path.join(root, 'dashboard', 'index.html'), 'utf
 const status = fs.readFileSync(path.join(root, 'dashboard', 'status', 'index.html'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'dashboard', 'landing.css'), 'utf8');
 const smoke = fs.readFileSync(path.join(root, 'scripts', 'browser-smoke-v1.js'), 'utf8');
+const previewSmoke = fs.readFileSync(path.join(root, 'scripts', 'cloudflare-preview-smoke-v6.js'), 'utf8');
+const browserWorkflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'boqa-browser-smoke-v1.yml'), 'utf8');
 const favicon = fs.readFileSync(path.join(root, 'dashboard', 'favicon.svg'), 'utf8');
 const og = fs.readFileSync(path.join(root, 'dashboard', 'og-boqa.png'));
 
@@ -22,9 +24,18 @@ assert.match(landing, /property=["']og:image:height["'][^>]+content=["']630["']/
 assert.match(landing, /name=["']twitter:card["'][^>]+content=["']summary_large_image["']/i);
 
 assert.match(landing, />BOQA<\/span>/);
-assert.match(landing, /Verification infrastructure with bounded authority\./);
-assert.match(landing, /Codex proposes\.\s*BOQA verifies\./);
+assert.match(landing, /Verification infrastructure(?:<br>|\s+)for AI-assisted software work\./);
+assert.match(landing, /Codex proposes\.(?:<br>|\s*)BOQA verifies\./);
+assert.match(landing, /Models can suggest tests, fixes and reproductions\./);
+assert.match(landing, /Deterministic policy, HumanGate and reproducible evidence decide what is accepted\./);
 assert.match(landing, /MODEL_OUTPUT\s*!=\s*AUTHORIZATION/);
+
+for (const label of ['How it works', 'Evidence', 'Safe demo', 'GitHub', 'v1.4.0']) {
+  assert(landing.includes(`>${label}<`), 'missing header navigation label: ' + label);
+}
+assert.match(landing, /href=["']#how-it-works["']/);
+assert.match(landing, /href=["']#evidence["']/);
+assert.match(landing, /href=["']#safe-demo["']/);
 
 for (const [label, href] of [
   ['View GitHub', 'https://github.com/simondalmasso/boqa'],
@@ -40,18 +51,30 @@ const traceStart = landing.indexOf('class="verification-trace"');
 const traceEnd = landing.indexOf('</aside>', traceStart);
 assert(traceStart >= 0 && traceEnd > traceStart, 'verification trace must exist above the fold');
 const trace = landing.slice(traceStart, traceEnd);
-for (const label of ['MODEL', 'CUORE', 'POLICY', 'HUMANGATE', 'VERIFY', 'EVIDENCE']) {
+for (const label of ['MODEL', 'CUORE', 'POLICY / SCOPE', 'HUMANGATE', 'EXECUTE', 'VERIFY', 'EVIDENCE']) {
   assert(trace.includes(label), 'missing trace stage: ' + label);
 }
-for (const evidence of ['v1.4.0', 'exact-head', 'Browser PASS', 'Docker PASS', 'target_asset_network_requests=0']) {
+for (const evidence of ['v1.4.0', 'exact-head', 'target_asset_network_requests=0']) {
   assert(trace.includes(evidence), 'missing verified evidence: ' + evidence);
 }
+assert.match(trace, /browser[\s\S]*PASS/i, 'missing browser PASS evidence');
+assert.match(trace, /docker[\s\S]*PASS/i, 'missing docker PASS evidence');
 
+assert.match(landing, /AI output is useful\. It is not authority\./);
+for (const label of ['BOUND AUTHORITY', 'FAIL CLOSED', 'PROVE THE RESULT']) {
+  assert(landing.includes(label), 'missing Why BOQA block: ' + label);
+}
+assert.match(landing, /id=["']how-it-works["']/);
+assert.match(landing, /id=["']evidence["']/);
 assert.match(landing, /npm ci/);
 assert.match(landing, /npm run demo:cuore/);
-assert.match(landing, /fixture-only/i);
-assert.match(landing, /no external targets/i);
+assert.match(landing, /Fixture-only/);
+assert.match(landing, /No external targets/);
+assert.match(landing, /No submission/);
+assert.match(landing, /No signing/);
+assert.match(landing, /No spend/);
 assert.match(landing, /target_asset_network_requests=0/);
+assert(landing.includes('Read the demo source'), 'missing demo source CTA');
 
 for (const boundary of [
   'expand its own scope',
@@ -68,6 +91,8 @@ for (const href of [
   'https://github.com/simondalmasso/boqa/blob/main/README.md',
   'https://github.com/simondalmasso/boqa/blob/main/SECURITY.md',
   'https://github.com/simondalmasso/boqa/blob/main/CONTRIBUTING.md',
+  'https://github.com/simondalmasso/boqa/blob/main/LICENSE',
+  'https://github.com/simondalmasso/boqa/blob/main/scripts/demo-cuore-fixtures.js',
   'https://github.com/simondalmasso/boqa/releases/tag/v1.4.0',
   '/status/',
 ]) {
@@ -89,6 +114,8 @@ assert.match(css, /:focus-visible/);
 assert.match(css, /overflow-wrap:\s*anywhere|word-break:\s*break-word/i);
 assert.match(css, /@media\s*\(max-width:\s*640px\)/i);
 assert.match(css, /\.verification-trace/);
+assert.match(css, /@keyframes\s+authority-progress/i);
+assert.match(css, /prefers-reduced-motion:\s*reduce[\s\S]*animation:\s*none/i);
 
 assert.match(favicon, /<svg[^>]+viewBox=["']0 0 32 32["']/);
 assert.doesNotMatch(favicon, /(?:href|src)=["']https?:\/\//i, 'favicon must not load remote resources');
@@ -102,5 +129,13 @@ assert.match(smoke, /\['\/status',\s*'dashboard\/status\/index\.html'\]/);
 assert.match(smoke, /\['\/status\/',\s*'dashboard\/status\/index\.html'\]/);
 assert.match(smoke, /async function landingSmoke\(/);
 assert.match(smoke, /async function statusSmoke\(/);
+assert.match(smoke, /Verification infrastructure for AI-assisted software work\./);
+assert.match(smoke, /width:\s*430,\s*height:\s*900/);
+assert.match(previewSmoke, /Verification infrastructure for AI-assisted software work\./);
+assert.match(previewSmoke, /width:\s*430,\s*height:\s*900/);
+assert.match(smoke, /og-boqa\.png/);
+assert.match(smoke, /naturalWidth[\s\S]*1200/);
+assert.match(smoke, /naturalHeight[\s\S]*630/);
+assert.match(browserWorkflow, /mobile-430\.png/);
 
 console.log('OSS landing polish contract: PASS');

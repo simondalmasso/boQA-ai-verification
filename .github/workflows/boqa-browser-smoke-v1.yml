@@ -51,7 +51,7 @@ jobs:
         run: |
           set -Eeuo pipefail
           cd output/browser-smoke
-          sha256sum browser-smoke-evidence.json desktop-1440.png mobile-390.png mobile-360.png private-anonymous-mobile.png server.log > SHA256SUMS
+          sha256sum browser-smoke-evidence.json desktop-1440.png mobile-430.png mobile-390.png mobile-360.png private-anonymous-mobile.png server.log > SHA256SUMS
           sha256sum -c SHA256SUMS
       - name: Upload browser smoke evidence
         if: always()

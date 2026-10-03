@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0a0d11">
+  <meta name="theme-color" content="#090b0e">
   <meta name="description" content="BOQA is open-source software verification infrastructure with bounded authority, HumanGate, exact-head checks, and reproducible evidence.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://boqa.simondalmasso44.workers.dev/">
@@ -32,101 +32,158 @@
       <span>BOQA</span>
     </a>
     <nav aria-label="Primary">
-      <a href="https://github.com/simondalmasso/boqa/releases/tag/v1.4.0">v1.4.0</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#safe-demo">Safe demo</a>
       <a href="https://github.com/simondalmasso/boqa">GitHub</a>
-      <a href="/status/">System status</a>
+      <a href="https://github.com/simondalmasso/boqa/releases/tag/v1.4.0">v1.4.0</a>
     </nav>
   </header>
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-top">
-        <div class="hero-copy">
-          <p class="eyebrow">Open-source software verification</p>
-          <span class="hero-name">BOQA</span>
-          <h1 id="hero-title" aria-label="Verification infrastructure with bounded authority.">Verification infrastructure with bounded authority<span class="sr-only"> and reproducible evidence.</span></h1>
-          <p class="thesis">Codex proposes. BOQA verifies.</p>
+      <div class="hero-copy">
+        <p class="eyebrow">Open-source software verification</p>
+        <span class="hero-name">BOQA</span>
+        <h1 id="hero-title">Verification infrastructure<br>for AI-assisted software work.</h1>
+        <p class="thesis">Codex proposes.<br>BOQA verifies.</p>
+        <p class="hero-summary">Models can suggest tests, fixes and reproductions.<br>Deterministic policy, HumanGate and reproducible evidence decide what is accepted.</p>
+        <div class="actions" aria-label="Project actions">
+          <a class="button primary" href="https://github.com/simondalmasso/boqa">View GitHub</a>
+          <a class="button secondary" href="#safe-demo">Run safe demo</a>
+          <a class="text-link" href="/status/">System status <span aria-hidden="true">↗</span></a>
         </div>
-
-        <div class="hero-side">
-          <p class="hero-summary">Models can propose tests, triage, and reproductions. Deterministic policy, HumanGate, and independent evidence decide what is accepted.</p>
-          <div class="invariant" aria-label="Authority invariant">
-            <span>Authority invariant</span>
-            <code>MODEL_OUTPUT != AUTHORIZATION</code>
-          </div>
-          <div class="actions" aria-label="Project actions">
-            <a class="button primary" href="https://github.com/simondalmasso/boqa">View GitHub</a>
-            <a class="button" href="#safe-demo">Run safe demo</a>
-            <a class="button" href="/status/">System status</a>
-          </div>
+        <div class="invariant" aria-label="Authority invariant">
+          <span>Authority invariant</span>
+          <code>MODEL_OUTPUT != AUTHORIZATION</code>
         </div>
       </div>
 
       <aside class="verification-trace" aria-labelledby="trace-title">
         <header class="trace-header">
           <div>
-            <p class="eyebrow">Release-backed evidence</p>
-            <h2 id="trace-title">Verification trace</h2>
+            <p class="panel-kicker">BOQA verification system</p>
+            <h2 id="trace-title">Authority path</h2>
           </div>
-          <a href="https://github.com/simondalmasso/boqa/releases/tag/v1.4.0">v1.4.0</a>
+          <span class="release-badge">v1.4.0</span>
         </header>
-
         <ol class="trace-flow" aria-label="MODEL to EVIDENCE verification flow">
-          <li><span>MODEL</span></li>
-          <li><span>CUORE</span></li>
-          <li><span>POLICY</span></li>
-          <li><span>HUMANGATE</span></li>
-          <li><span>VERIFY</span></li>
-          <li><span>EVIDENCE</span></li>
+          <li><span>MODEL</span><small>proposes</small></li>
+          <li><span>CUORE</span><small>normalizes</small></li>
+          <li><span>POLICY / SCOPE</span><small>bounds</small></li>
+          <li><span>HUMANGATE</span><small>escalates</small></li>
+          <li><span>EXECUTE</span><small>runs</small></li>
+          <li><span>VERIFY</span><small>checks</small></li>
+          <li><span>EVIDENCE</span><small>records</small></li>
         </ol>
-
-        <div class="evidence-strip" aria-label="Verified release evidence">
-          <span>v1.4.0</span>
-          <span>exact-head</span>
-          <span class="pass">Browser PASS</span>
-          <span class="pass">Docker PASS</span>
-          <span>target_asset_network_requests=0</span>
-        </div>
+        <dl class="evidence-grid" aria-label="Verified release evidence">
+          <div><dt>release</dt><dd>v1.4.0</dd></div>
+          <div><dt>browser</dt><dd class="pass">PASS</dd></div>
+          <div><dt>docker</dt><dd class="pass">PASS</dd></div>
+          <div><dt>scope</dt><dd>exact-head</dd></div>
+          <div class="network-row"><dt>network</dt><dd>target_asset_network_requests=0</dd></div>
+        </dl>
       </aside>
     </section>
 
-    <section id="safe-demo" class="demo-safety" aria-labelledby="demo-title">
-      <div class="demo-copy">
-        <p class="eyebrow">Safe local demo</p>
-        <h2 id="demo-title">Inspect CUORE without touching a target.</h2>
-        <p>Fixture-only by contract: no external targets, no submission, no signing, no spend.</p>
-        <pre aria-label="Safe demo commands"><code>npm ci
-npm run demo:cuore</code></pre>
-        <p class="demo-proof"><code>target_asset_network_requests=0</code></p>
+    <section class="why" aria-labelledby="why-title">
+      <div class="section-heading">
+        <p class="eyebrow">Why BOQA</p>
+        <h2 id="why-title">AI output is useful. It is not authority.</h2>
       </div>
-
-      <div class="boundary" aria-labelledby="boundary-title">
-        <p class="eyebrow">Safety boundary</p>
-        <h2 id="boundary-title">Authority stays bounded.</h2>
-        <ul>
-          <li>Never expand its own scope.</li>
-          <li>Never scan unauthorized targets.</li>
-          <li>Never treat model output as proof.</li>
-          <li>Never auto-submit sensitive findings.</li>
-          <li>Never sign or spend without explicit authority.</li>
-        </ul>
+      <div class="principles">
+        <article>
+          <span class="principle-index">01</span>
+          <h3>BOUND AUTHORITY</h3>
+          <p>Model output cannot expand scope.</p>
+        </article>
+        <article>
+          <span class="principle-index">02</span>
+          <h3>FAIL CLOSED</h3>
+          <p>Ambiguity reaches HumanGate or stops.</p>
+        </article>
+        <article>
+          <span class="principle-index">03</span>
+          <h3>PROVE THE RESULT</h3>
+          <p>Acceptance attaches to exact revisions and reproducible evidence.</p>
+        </article>
       </div>
     </section>
 
-    <section class="inspect" aria-labelledby="inspect-title">
-      <div class="inspect-copy">
-        <p class="eyebrow">Inspect the project</p>
-        <h2 id="inspect-title">Code, policy, release, and evidence stay visible.</h2>
-        <p>No adoption counters, synthetic scores, or hidden authority.</p>
+    <section id="how-it-works" class="how" aria-labelledby="how-title">
+      <div class="section-heading compact">
+        <p class="eyebrow">How it works</p>
+        <h2 id="how-title">A bounded path from proposal to proof.</h2>
       </div>
-      <div class="inspect-links">
-        <a href="https://github.com/simondalmasso/boqa"><span>GitHub repository</span><span aria-hidden="true">↗</span></a>
-        <a href="https://github.com/simondalmasso/boqa/releases/tag/v1.4.0"><span>Release v1.4.0</span><span aria-hidden="true">↗</span></a>
-        <a href="https://github.com/simondalmasso/boqa/actions"><span>CI evidence</span><span aria-hidden="true">↗</span></a>
-        <a href="https://github.com/simondalmasso/boqa/blob/main/README.md"><span>README</span><span aria-hidden="true">↗</span></a>
-        <a href="https://github.com/simondalmasso/boqa/blob/main/SECURITY.md"><span>Security</span><span aria-hidden="true">↗</span></a>
-        <a href="https://github.com/simondalmasso/boqa/blob/main/CONTRIBUTING.md"><span>Contributing</span><span aria-hidden="true">↗</span></a>
+      <ol class="system-sequence">
+        <li><strong>MODEL</strong><span>Suggests work; never grants authority.</span></li>
+        <li><strong>CUORE</strong><span>Normalizes inputs deterministically.</span></li>
+        <li><strong>POLICY / SCOPE</strong><span>Constrains what may proceed.</span></li>
+        <li><strong>HUMANGATE</strong><span>Receives ambiguity and sensitive decisions.</span></li>
+        <li><strong>EXECUTE</strong><span>Runs only within the accepted boundary.</span></li>
+        <li><strong>VERIFY</strong><span>Qualifies behavior against exact revisions.</span></li>
+        <li><strong>EVIDENCE</strong><span>Records what was actually proven.</span></li>
+      </ol>
+    </section>
+
+    <section id="safe-demo" class="safe-demo" aria-labelledby="demo-title">
+      <div class="section-heading compact">
+        <p class="eyebrow">Safe demo</p>
+        <h2 id="demo-title">Run the verification path locally.</h2>
+        <p>Fixture-only by contract. The demo does not touch an external target.</p>
       </div>
+      <div class="demo-layout">
+        <div class="terminal" aria-label="Safe demo commands">
+          <div class="terminal-bar"><span>local / fixture-only</span><span>bash</span></div>
+          <pre><code><span class="prompt">$</span> npm ci
+<span class="prompt">$</span> npm run demo:cuore</code></pre>
+          <a href="https://github.com/simondalmasso/boqa/blob/main/scripts/demo-cuore-fixtures.js">Read the demo source <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="demo-contract" aria-label="Safe demo contract">
+          <span>Fixture-only</span>
+          <span>No external targets</span>
+          <span>No submission</span>
+          <span>No signing</span>
+          <span>No spend</span>
+          <code>target_asset_network_requests=0</code>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" class="evidence" aria-labelledby="evidence-title">
+      <div class="section-heading">
+        <p class="eyebrow">Evidence</p>
+        <h2 id="evidence-title">Release-backed, exact-head, inspectable.</h2>
+      </div>
+      <div class="evidence-layout">
+        <dl class="release-proof">
+          <div><dt>current release</dt><dd><a href="https://github.com/simondalmasso/boqa/releases/tag/v1.4.0">v1.4.0 ↗</a></dd></div>
+          <div><dt>qualification</dt><dd>exact-head</dd></div>
+          <div><dt>Browser Smoke</dt><dd class="pass">PASS</dd></div>
+          <div><dt>Docker qualification</dt><dd class="pass">PASS</dd></div>
+          <div><dt>fixture network</dt><dd>target_asset_network_requests=0</dd></div>
+        </dl>
+        <div class="evidence-links">
+          <a href="https://github.com/simondalmasso/boqa/actions"><span>CI runs</span><span aria-hidden="true">↗</span></a>
+          <a href="https://github.com/simondalmasso/boqa/blob/main/SECURITY.md"><span>SECURITY</span><span aria-hidden="true">↗</span></a>
+          <a href="https://github.com/simondalmasso/boqa/blob/main/CONTRIBUTING.md"><span>CONTRIBUTING</span><span aria-hidden="true">↗</span></a>
+          <a href="https://github.com/simondalmasso/boqa/blob/main/README.md"><span>README</span><span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="safety" aria-labelledby="safety-title">
+      <div class="section-heading compact">
+        <p class="eyebrow">Safety boundary</p>
+        <h2 id="safety-title">BOQA cannot:</h2>
+      </div>
+      <ul class="policy-list">
+        <li>expand its own scope</li>
+        <li>scan unauthorized targets</li>
+        <li>treat model output as proof</li>
+        <li>auto-submit sensitive findings</li>
+        <li>sign or spend without explicit authority</li>
+      </ul>
     </section>
   </main>
 
@@ -140,11 +197,13 @@ npm run demo:cuore</code></pre>
       <span>BOQA</span>
     </a>
     <nav aria-label="Project documentation">
+      <a href="https://github.com/simondalmasso/boqa">GitHub</a>
       <a href="https://github.com/simondalmasso/boqa/blob/main/README.md">README</a>
-      <a href="https://github.com/simondalmasso/boqa/blob/main/SECURITY.md">Security</a>
-      <a href="https://github.com/simondalmasso/boqa/blob/main/CONTRIBUTING.md">Contributing</a>
-      <a href="https://github.com/simondalmasso/boqa/blob/main/LICENSE">License</a>
-      <a href="/status/">System Status</a>
+      <a href="https://github.com/simondalmasso/boqa/blob/main/SECURITY.md">SECURITY</a>
+      <a href="https://github.com/simondalmasso/boqa/blob/main/CONTRIBUTING.md">CONTRIBUTING</a>
+      <a href="https://github.com/simondalmasso/boqa/blob/main/LICENSE">LICENSE</a>
+      <a href="https://github.com/simondalmasso/boqa/releases/tag/v1.4.0">Release</a>
+      <a href="/status/">System status</a>
     </nav>
   </footer>
 </body>
