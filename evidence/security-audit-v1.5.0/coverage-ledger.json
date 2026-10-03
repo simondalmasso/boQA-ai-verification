@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "profile": "scoped_quick",
-  "audited_source_ref": "4f8c4059a9912257cf12cefb61a5d92f3c18f8e1",
+  "audited_source_ref": "89b96eeacafc22f266476b03f716ab08594feb38",
   "run_date": "2026-10-03",
   "execution_policy": "source-first_no-production-probing_no-external-targets",
   "scope_paths": [
