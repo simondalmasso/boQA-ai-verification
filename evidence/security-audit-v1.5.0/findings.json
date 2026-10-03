@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "audited_source_ref": "0886d86defa054477425d482714e02dbf9c7a1c2",
+  "confirmed_release_blockers": 0,
+  "confirmed_count": 0,
+  "needs_validation_count": 0,
+  "rejected_count": 8,
+  "candidates": [
+    {
+      "id": "C01",
+      "classification": "rejected",
+      "claim": "A public request might reach a mutable backend action without the stronger route-specific authorization check.",
+      "independent_verifier": "server/route inventory and route-local authorization contract",
+      "evidence": [
+        "server.js",
+        "routes/hunter-v1.js",
+        "worker.js"
+      ],
+      "reason": "The public edge exposes read-only API methods; the mutable hunter action has an additional configured strong-auth gate."
+    },
+    {
+      "id": "C02",
+      "classification": "rejected",
+      "claim": "Advisory capability metadata might become execution authority.",
+      "independent_verifier": "call-site enumeration for RadarEngine.scanFixtures and DecisionKernel consumer review",
+      "evidence": [
+        "cuore/core.js",
+        "cuore/radar.js",
+        "scripts/demo-cuore-fixtures.js"
+      ],
+      "reason": "The current canonical caller is fixture-only and the decision kernel has no execution sink."
+    },
+    {
+      "id": "C03",
+      "classification": "rejected",
+      "claim": "A HumanGate approval might apply to a different proposed action.",
+      "independent_verifier": "test/test-security-boundary-audit.js",
+      "evidence": [
+        "cuore/human-gate.js",
+        "test/test-security-boundary-audit.js"
+      ],
+      "reason": "Gate and resume identities change when proposed_action changes; resolving one gate does not resolve the other."
+    },
+    {
+      "id": "C04",
+      "classification": "rejected",
+      "claim": "Browser execution might escape the configured origin boundary.",
+      "independent_verifier": "browser scope regression contracts",
+      "evidence": [
+        "agent/playwright-runner.js",
+        "lib/browser-network-scope.js",
+        "test/test-browser-scope-guard.js",
+        "test/test-security-boundary-audit.js"
+      ],
+      "reason": "Initial target, HTTP subrequests and WebSocket connections are constrained to the allowed-origin set."
+    },
+    {
+      "id": "C05",
+      "classification": "rejected",
+      "claim": "Sensitive browser observations might persist unredacted in evidence.",
+      "independent_verifier": "EventBus normalization review plus test/test-security-boundary-audit.js",
+      "evidence": [
+        "agent/playwright-runner.js",
+        "bus.js",
+        "test/test-security-boundary-audit.js"
+      ],
+      "reason": "Persistent and broadcast event sinks receive normalized redacted fields/payloads."
+    },
+    {
+      "id": "C06",
+      "classification": "rejected",
+      "claim": "Public responses might lack a common browser security policy.",
+      "independent_verifier": "test/test-public-security-headers.js",
+      "evidence": [
+        "worker.js",
+        "dashboard/status/index.html",
+        "test/test-public-security-headers.js"
+      ],
+      "reason": "The candidate applies a common policy to public HTML/assets/JSON and preserves stricter private CSP."
+    },
+    {
+      "id": "C07",
+      "classification": "rejected",
+      "claim": "Private routes might be reachable through path normalization variants.",
+      "independent_verifier": "test/test-public-private-boundary.js",
+      "evidence": [
+        "worker.js",
+        "test/test-public-private-boundary.js"
+      ],
+      "reason": "Normalization and concealment happen before public asset/API routing and excessive encoding fails closed."
+    },
+    {
+      "id": "C08",
+      "classification": "rejected",
+      "claim": "Release evidence might accept ancestry instead of exact tag/main equality.",
+      "independent_verifier": "test/test-release-v1.5.0-contract.js",
+      "evidence": [
+        ".github/workflows/boqa-release-v1.5.0.yml",
+        "test/test-release-v1.5.0-contract.js"
+      ],
+      "reason": "v1.5.0 requires explicit dispatch and exact remote main/tag equality; ancestry checks are forbidden."
+    }
+  ],
+  "hardening_only": [
+    "The general compatibility authorization fallback should not be used as the sole guard for future mutable routes.",
+    "Unused in-page auth-preview instrumentation should be removed or redesigned before any future bridge consumes it.",
+    "The GitLab mirror workflow should eventually pin checkout to a commit SHA.",
+    "Wrangler is invoked at an exact version; exact Worker-version identity remains the release artifact-integrity control."
+  ]
+}
