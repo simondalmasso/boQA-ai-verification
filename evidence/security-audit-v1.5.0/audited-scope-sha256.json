@@ -27,12 +27,12 @@
     "dashboard/index.html": "490620e8ba63dbacd81c8d64cd5386376ae1b3f0c0ef3df7068baa4f9e18ddb8",
     "dashboard/landing.css": "852acdf4ece32d173617f3831981bab82a3e271101b3a289128f3a612024615b",
     "dashboard/mobile.css": "5efc6d6b35592df7926f3dca4ba2f97f2a2c0dcf30a964e9fe2a57c9f976763d",
-    "dashboard/og-boqa.png": "810cce34d7b85d0300af2ba47cee6ada20e4b75db9656aa620068c43d4528db9",
+    "dashboard/og-boqa.png": "de94d1f3e86e4e9352abfb630463b7eeaa0308a73a3aa52c3ad2f150e9c39612",
     "dashboard/og-boqa-source.svg": "6e348e12400740392854674226a97b2703c556acc42203a1ae7ded8319f80a79",
     "dashboard/status/index.html": "f4c3592a01539438aa0d3188a0ba70fbffe5fd5c51e1b40ecdd1e6dcc9af8cc7",
     "dashboard/style.css": "65ff7ca7dc81892b5e4ff1ad8ecbfbf33fa644db4c18aa98a6046ddb4fa45864",
     "Dockerfile": "0bfdb98d5444cc2b935a71fec89de4f5b494137cbfb1f465d4340643a853d1be",
-    "docs/openai-codex-oss/READINESS.md": "61c7ed68471da978ee84f6d63fcf321852d86c41a5716057ddc77dee83432f19",
+    "docs/openai-codex-oss/READINESS.md": "bf65cd35b0931d1db541dc4d6bed5dafcd8155f51e6ec3334adfd6ba04f80614",
     "kernel/verified-regression/lab/case_A.json": "81bfc0b45039d4f307a7390ee83e8a640b52b73fcf39be82bd22f6fff0862e78",
     "kernel/verified-regression/lab/case_A_fixed.json": "4ddc4ed3616de46425eb4baae18843535b1f88e195dd6a984e5975846203142c",
     "kernel/verified-regression/lab/case_B.json": "525f132930b177c41ea2601f6d8265f858697c8d65fe2494f7059dc1c90bf349",
@@ -47,7 +47,7 @@
     "lib/billing-auth.js": "3a4f665d328da3655ecaa2b474095e059e691b375b58ac6ebc9d9b08e812e9e5",
     "lib/browser-network-scope.js": "c75c13a9e75a9bf67a195b5ffc14c1f457df1f86d9494bb50dfbe1f3a855e605",
     "lib/middleware.js": "b34229e4f90cf23cdb249cc96bc3de667a9fb0615bda57bc04f879f76ffd67d5",
-    "package.json": "4135001d1d0c10a274fcf5bb22352a65d98517649c56fe328ee1d3988d76f63d",
+    "package.json": "af44d6c045421fa62827c1d05a394c39e359b13cef2c3b7349a9ede77156f9bf",
     "package-lock.json": "ab5281d01edf5b7fefabd7ee21d2308559e39a1dfb58a6b3da8138ced9ad51aa",
     "scripts/browser-smoke-v1.js": "ebbe2cb977192073f94eb1ffe1d5f6d7423b7381d18e67637d3173768623db1c",
     "scripts/check-publication.js": "410ba3c21138a7f842d3eb0f88a0aa7c00fe9f5007e27abd6c04fef004fa0d44",
@@ -60,5 +60,5 @@
     "worker.js": "19cbdea5931407e3cb96b6934638f47a69b7e4b21a05913d170d819e37467aa7",
     "wrangler.toml": "009e798e49622b66d91d8bdb28310efce830b7e7d7fd929e845fffcc7a08979c"
   },
-  "audited_source_ref": "d5e1cd54ed0cc850c57f8b79b7bb6a4b7532c12f"
+  "audited_source_ref": "4f8c4059a9912257cf12cefb61a5d92f3c18f8e1"
 }
