@@ -1,7 +1,7 @@
 # BOQA v1.5.0 — Scoped Security Audit Report
 
 **Profile:** scoped quick  
-**Audited source:** `71bdbf9db6f616da022aab43e337254f1c262935`  
+**Audited source:** `754a65811bd4b482708c4e46930a8af0bfe926e6`  
 **Result:** `NO_CONFIRMED_RELEASE_BLOCKER`
 
 This report applies only to the v1.5.0 security/release scope. It is not an exhaustive security-audit claim. The audited scope is cryptographically bound by `audited-scope-sha256.json`; `test/test-security-audit-scope-binding.js` fails if any audited runtime/workflow/public-boundary file changes without an audit refresh.
@@ -69,3 +69,7 @@ The final seal was refreshed against `559b2733968f9e1ac462975a54bbb09848ad23a9` 
 ### Production deploy Node compatibility refresh
 
 The production workflow was revalidated after changing only its GitHub Actions Node runtime from 20 to 22 so pinned `wrangler@4.112.0` can execute. The preview-version promotion, exact-SHA checks, public/private surface verification, and authority/runtime code are unchanged.
+
+### Public API upstream-error normalization refresh
+
+The audit seal was refreshed after one bounded Worker hardening change: non-JSON upstream 5xx responses are normalized to BOQA `504` JSON instead of proxying provider HTML through public API routes. Public security headers remain applied; JSON backend responses, authorization, route exposure, CUORE, HumanGate and execution scope are unchanged.
