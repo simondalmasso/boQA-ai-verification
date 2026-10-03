@@ -62,7 +62,7 @@ jobs:
           test -n "$run_id"
 
           artifacts="$(curl -fsSL "${auth[@]}" "$api/actions/runs/$run_id/artifacts?per_page=100")"
-          artifact_id="$(jq -r '.artifacts | map(select(.expired == false and (.name | startswith("boqa-cloudflare-preview-v6-")))) | first | .id // empty' <<<"$artifacts")"
+          artifact_id="$(jq -r '.artifacts | map(select(.expired == false and (.name | startswith("boqa-cloudflare-preview-v6-")))) | sort_by(.created_at) | last | .id // empty' <<<"$artifacts")"
           test -n "$artifact_id"
 
           mkdir -p output/production-deploy/preview
@@ -105,49 +105,107 @@ jobs:
           api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
           curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "$api/workers/scripts/$WORKER_NAME/deployments"             > output/production-deploy/deployments-before.json
 
-      - name: Deploy exact main with static assets
+      - name: Promote exact verified preview version
         shell: bash
         run: |
           set -Eeuo pipefail
-          npx --yes wrangler@4.45.0 deploy --config "$GITHUB_WORKSPACE/wrangler.toml"             | tee output/production-deploy/wrangler-deploy.log
+          test -n "$PREVIEW_VERSION_ID"
+          npx --yes wrangler@4.112.0 versions deploy "$PREVIEW_VERSION_ID@100%" --yes --config "$GITHUB_WORKSPACE/wrangler.toml"             | tee output/production-deploy/wrangler-versions-deploy.log
 
       - name: Verify production surfaces
         shell: bash
         run: |
           set -Eeuo pipefail
           prod="https://boqa.simondalmasso44.workers.dev"
+          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
+
+          mkdir -p output/production-deploy/headers output/production-deploy/public
 
           for _ in $(seq 1 30); do
-            if curl -fsS "$prod/" -o output/production-deploy/root.html &&
-               curl -fsS "$prod/status/" -o output/production-deploy/status.html; then
+            curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"               "$api/workers/scripts/$WORKER_NAME/deployments"               > output/production-deploy/deployments-after.json
+            deployed_version="$(jq -r '.result.deployments[0].versions[0].version_id // empty' output/production-deploy/deployments-after.json)"
+            if [ "$deployed_version" = "$PREVIEW_VERSION_ID" ]; then
               break
             fi
             sleep 2
           done
 
-          cmp dashboard/index.html output/production-deploy/root.html
-          cmp dashboard/status/index.html output/production-deploy/status.html
-          grep -F 'Codex proposes. BOQA verifies.' output/production-deploy/root.html >/dev/null
-          grep -F 'MODEL_OUTPUT != AUTHORIZATION' output/production-deploy/root.html >/dev/null
-          grep -F 'id="overall-state"' output/production-deploy/status.html >/dev/null
-          curl -fsS "$prod/landing.css" -o /dev/null
-
-          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
-          curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"             "$api/workers/scripts/$WORKER_NAME/deployments"             > output/production-deploy/deployments-after.json
-
           deployed_version="$(jq -r '.result.deployments[0].versions[0].version_id // empty' output/production-deploy/deployments-after.json)"
-          test -n "$deployed_version"
+          test "$deployed_version" = "$PREVIEW_VERSION_ID"
 
-          jq -n             --arg sha "$EXPECTED_SHA"             --arg version "$deployed_version"             --arg preview_version "$PREVIEW_VERSION_ID"             --arg preview_run "$PREVIEW_RUN_ID"             --arg preview_artifact "$PREVIEW_ARTIFACT_ID"             '{
-              schema_version:2,
+          fetch_public() {
+            name="$1"
+            url="$2"
+            curl -fsS -D "output/production-deploy/headers/$name.txt" "$url" -o "output/production-deploy/public/$name"
+          }
+
+          assert_public_headers() {
+            file="$1"
+            grep -qi '^strict-transport-security: max-age=31536000; includeSubDomains' "$file"
+            grep -qi '^content-security-policy:.*default-src.*self' "$file"
+            grep -qi '^content-security-policy:.*frame-ancestors.*none' "$file"
+            grep -qi '^x-content-type-options: nosniff' "$file"
+            grep -qi '^x-frame-options: DENY' "$file"
+            grep -qi '^referrer-policy: no-referrer' "$file"
+            grep -qi '^permissions-policy:' "$file"
+          }
+
+          fetch_public root "$prod/"
+          fetch_public status "$prod/status/"
+          fetch_public landing_css "$prod/landing.css"
+          fetch_public favicon "$prod/favicon.svg"
+          fetch_public og "$prod/og-boqa.png"
+          fetch_public health "$prod/health"
+
+          cmp dashboard/index.html output/production-deploy/public/root
+          cmp dashboard/status/index.html output/production-deploy/public/status
+          cmp dashboard/landing.css output/production-deploy/public/landing_css
+          cmp dashboard/favicon.svg output/production-deploy/public/favicon
+          cmp dashboard/og-boqa.png output/production-deploy/public/og
+
+          grep -F 'Codex proposes. BOQA verifies.' output/production-deploy/public/root >/dev/null
+          grep -F 'MODEL_OUTPUT != AUTHORIZATION' output/production-deploy/public/root >/dev/null
+          grep -F 'v1.5.0' output/production-deploy/public/root >/dev/null
+          grep -F 'id="overall-state"' output/production-deploy/public/status >/dev/null
+
+          for header_file in root status landing_css favicon og health; do
+            assert_public_headers "output/production-deploy/headers/$header_file.txt"
+          done
+
+          api_health_status="$(curl -sS -D output/production-deploy/headers/api_health.txt -o output/production-deploy/public/api_health -w '%{http_code}' "$prod/api/health")"
+          hunter_status="$(curl -sS -D output/production-deploy/headers/hunter_status.txt -o output/production-deploy/public/hunter_status -w '%{http_code}' "$prod/api/hunter/status")"
+          case "$api_health_status" in 200|503|504) ;; *) echo "API_HEALTH_STATUS_UNEXPECTED=$api_health_status"; exit 1 ;; esac
+          case "$hunter_status" in 200|503|504) ;; *) echo "HUNTER_STATUS_UNEXPECTED=$hunter_status"; exit 1 ;; esac
+          node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" output/production-deploy/public/api_health
+          node -e "JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8'))" output/production-deploy/public/hunter_status
+          assert_public_headers output/production-deploy/headers/api_health.txt
+          assert_public_headers output/production-deploy/headers/hunter_status.txt
+
+          private_status="$(curl --path-as-is -sS -D output/production-deploy/headers/private.txt -o output/production-deploy/public/private -w '%{http_code}' "$prod/api/private/billing")"
+          encoded_private_status="$(curl --path-as-is -sS -o /dev/null -w '%{http_code}' "$prod/%2563obros.html")"
+          post_public_status="$(curl -sS -X POST -o /dev/null -w '%{http_code}' "$prod/api/hunter/status")"
+          test "$private_status" = "404"
+          test "$encoded_private_status" = "404"
+          test "$post_public_status" = "404"
+          grep -qi "^content-security-policy: default-src 'none';" output/production-deploy/headers/private.txt
+          grep -qi '^x-frame-options: DENY' output/production-deploy/headers/private.txt
+
+          jq -n             --arg sha "$EXPECTED_SHA"             --arg version "$deployed_version"             --arg preview_version "$PREVIEW_VERSION_ID"             --arg preview_run "$PREVIEW_RUN_ID"             --arg preview_artifact "$PREVIEW_ARTIFACT_ID"             --arg api_health_status "$api_health_status"             --arg hunter_status "$hunter_status"             '{
+              schema_version:3,
               canonical_main_sha:$sha,
               deployed_version_id:$version,
               verified_preview_version_id:$preview_version,
               source_preview_run_id:$preview_run,
               source_preview_artifact_id:$preview_artifact,
-              deployment_mode:"wrangler-deploy-code-plus-assets",
+              deployment_mode:"verified-preview-version-100-percent",
               root_byte_equal:true,
               status_byte_equal:true,
+              assets_byte_equal:true,
+              public_security_headers_verified:true,
+              private_surface_concealment_verified:true,
+              public_api_read_only_verified:true,
+              api_health_status:($api_health_status|tonumber),
+              hunter_status:($hunter_status|tonumber),
               production_verified:true
             }' > output/production-deploy/evidence.json
 
