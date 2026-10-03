@@ -30,7 +30,8 @@ function applyPublicSecurityHeaders(headers = new Headers(), overrides = {}) {
   for (const [name, value] of Object.entries(PUBLIC_SECURITY_HEADERS)) {
     secured.set(name, value);
   }
-  for (const [name, value] of Object.entries(overrides)) {
+  const overrideHeaders = overrides instanceof Headers ? overrides : new Headers(overrides);
+  for (const [name, value] of overrideHeaders.entries()) {
     secured.set(name, value);
   }
   return secured;
