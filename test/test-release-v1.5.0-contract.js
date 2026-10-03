@@ -51,5 +51,15 @@ for (const header of ['Strict-Transport-Security', 'Content-Security-Policy', 'X
   assert(productionLower.includes(header.toLowerCase()), 'missing production header verification: ' + header);
 }
 assert(production.includes('/api/private/billing'), 'hidden private surface must be verified');
+assert.doesNotMatch(
+  production,
+  /find output\/production-deploy[\s\S]*> output\/production-deploy\/SHA256SUMS[\s\S]*cd output\/production-deploy[\s\S]*sha256sum -c SHA256SUMS/,
+  'production evidence checksums must not record prefixed paths then validate from inside the directory'
+);
+assert.match(
+  production,
+  /cd output\/production-deploy[\s\S]*find \. -type f[\s\S]*sha256sum > SHA256SUMS[\s\S]*sha256sum -c SHA256SUMS/,
+  'production evidence checksums must be generated and verified from the same directory'
+);
 
 console.log('v1.5.0 release contract: PASS');
