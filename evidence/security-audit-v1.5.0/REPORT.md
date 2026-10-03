@@ -61,3 +61,7 @@ These notes do not demonstrate a current trust-boundary violation and do not blo
 ## External methodology
 
 Cloudflare security-audit-skill and selected cc-thinking-skills were used externally as audit methodology only. No runtime dependency or vendored audit framework was added. InsForge and the other explicitly rejected integrations remain outside v1.5.0. NVIDIA/OpenShell remains a post-release optional-backend spike only, with `OPENSHELL_ADVISOR_OUTPUT != AUTHORIZATION`.
+
+## Post-audit delta refresh
+
+The final seal was refreshed against `559b2733968f9e1ac462975a54bbb09848ad23a9` after independently reviewing the only post-audit scoped deltas: full-history checkout for audit/source-binding gates and the exact v1.5.0 release workflow checkout depth. The compose v1.5.0 alignment is covered by the publication-integrity regression. No CUORE, HumanGate, Worker runtime, browser scope, private boundary, or execution-authority code changed in that delta.
