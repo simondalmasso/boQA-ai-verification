@@ -5,7 +5,8 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-const root = path.resolve(__dirname, '..');
+function verifyAudit(rootDir) {
+const root = path.resolve(rootDir);
 const auditDir = path.join(root, 'evidence', 'security-audit-v1.5.0');
 
 function readJson(name) {
@@ -49,3 +50,11 @@ console.log('SECURITY_AUDIT=NO_CONFIRMED_RELEASE_BLOCKER');
 console.log('CONFIRMED=0');
 console.log('NEEDS_VALIDATION=' + findings.needs_validation_count);
 console.log('AUDITED_SOURCE_REF=' + findings.audited_source_ref);
+return { findings, coverage, scope };
+}
+
+if (require.main === module) {
+  verifyAudit(path.resolve(__dirname, '..'));
+}
+
+module.exports = { verifyAudit };
