@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "profile": "scoped_quick",
+  "audited_source_ref": "0886d86defa054477425d482714e02dbf9c7a1c2",
+  "run_date": "2026-10-03",
+  "execution_policy": "source-first_no-production-probing_no-external-targets",
+  "scope_paths": [
+    "worker.js",
+    "server.js",
+    "lib/middleware.js",
+    "lib/billing-auth.js",
+    "agent/playwright-runner.js",
+    "bus.js",
+    "cuore/",
+    "kernel/verified-regression/",
+    ".github/workflows/",
+    "dashboard/",
+    "release-path"
+  ],
+  "units": [
+    {
+      "id": "AI-AUTH-01",
+      "domain": "AI-AND-LLM",
+      "surface": "CUORE capability and model/tool authority",
+      "status": "covered",
+      "evidence": [
+        "cuore/core.js",
+        "cuore/radar.js",
+        "scripts/demo-cuore-fixtures.js"
+      ],
+      "candidates": [
+        "C02"
+      ]
+    },
+    {
+      "id": "HUMAN-01",
+      "domain": "AI-AND-LLM",
+      "surface": "HumanGate exact action binding",
+      "status": "covered",
+      "evidence": [
+        "cuore/human-gate.js",
+        "test/test-security-boundary-audit.js"
+      ],
+      "candidates": [
+        "C03"
+      ]
+    },
+    {
+      "id": "WEB-AUTH-01",
+      "domain": "WEB-PROTOCOL-AND-AUTH",
+      "surface": "public API mutation and backend authentication",
+      "status": "covered",
+      "evidence": [
+        "worker.js",
+        "server.js",
+        "routes/hunter-v1.js",
+        "lib/middleware.js"
+      ],
+      "candidates": [
+        "C01"
+      ]
+    },
+    {
+      "id": "PRIVATE-01",
+      "domain": "WEB-PROTOCOL-AND-AUTH",
+      "surface": "private-path concealment and normalization",
+      "status": "covered",
+      "evidence": [
+        "worker.js",
+        "test/test-public-private-boundary.js"
+      ],
+      "candidates": [
+        "C07"
+      ]
+    },
+    {
+      "id": "CLIENT-01",
+      "domain": "CLIENT-SIDE",
+      "surface": "browser target and egress scope",
+      "status": "covered",
+      "evidence": [
+        "agent/playwright-runner.js",
+        "lib/browser-network-scope.js",
+        "test/test-browser-scope-guard.js",
+        "test/test-security-boundary-audit.js"
+      ],
+      "candidates": [
+        "C04"
+      ]
+    },
+    {
+      "id": "CLIENT-02",
+      "domain": "CLIENT-SIDE",
+      "surface": "credential capture to evidence",
+      "status": "covered",
+      "evidence": [
+        "agent/playwright-runner.js",
+        "bus.js",
+        "agent/instrumentation.js",
+        "test/test-security-boundary-audit.js"
+      ],
+      "candidates": [
+        "C05"
+      ]
+    },
+    {
+      "id": "PUBLIC-HEADERS-01",
+      "domain": "CLIENT-SIDE",
+      "surface": "public response security policy",
+      "status": "covered",
+      "evidence": [
+        "worker.js",
+        "dashboard/status/index.html",
+        "test/test-public-security-headers.js"
+      ],
+      "candidates": [
+        "C06"
+      ]
+    },
+    {
+      "id": "RELEASE-01",
+      "domain": "SUPPLY-CHAIN-AND-RELEASE",
+      "surface": "tag/main equality and explicit publication authority",
+      "status": "covered",
+      "evidence": [
+        ".github/workflows/boqa-release-v1.5.0.yml",
+        "test/test-release-v1.5.0-contract.js"
+      ],
+      "candidates": [
+        "C08"
+      ]
+    },
+    {
+      "id": "DEPLOY-01",
+      "domain": "CLOUD-AND-DEPLOYMENT",
+      "surface": "preview artifact to production identity",
+      "status": "covered_source_pending_runtime_gate",
+      "evidence": [
+        ".github/workflows/boqa-cloudflare-preview-v6.yml",
+        ".github/workflows/boqa-production-deploy-v1.yml",
+        "test/test-release-v1.5.0-contract.js"
+      ],
+      "candidates": []
+    },
+    {
+      "id": "REGRESSION-01",
+      "domain": "SUPPLY-CHAIN-AND-RELEASE",
+      "surface": "verified regression kernel and isolated Docker qualification",
+      "status": "covered",
+      "evidence": [
+        "kernel/verified-regression/",
+        ".github/workflows/boqa-real-docker-qualification-v1.yml"
+      ],
+      "candidates": []
+    }
+  ],
+  "coverage_limitations": [
+    "No live production endpoint was probed during the security audit; production headers, active version attachment, and private-route behavior are verified later by the explicit production deployment workflow.",
+    "No external target or production identity was used.",
+    "The environment blocked an attempted stricter local Docker audit verifier; no weaker network-enabled target-controlled execution was substituted.",
+    "Cloudflare account-level settings, token scope, and live control-plane drift are outside source visibility; the deployment workflow verifies only the repository-controlled facts it can observe.",
+    "This is a scoped quick audit, not an exhaustive security audit of every historical/non-canonical file."
+  ]
+}
