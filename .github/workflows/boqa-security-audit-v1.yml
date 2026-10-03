@@ -1,0 +1,42 @@
+name: BOQA Security Audit Gate V1
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Reproducible install
+        run: npm ci
+
+      - name: Verify audit evidence and exact scope binding
+        run: npm run check:security-audit
+
+      - name: Independent authority and trust-boundary verifiers
+        run: |
+          set -Eeuo pipefail
+          node test/test-security-boundary-audit.js
+          node test/test-public-security-headers.js
+          node test/test-public-private-boundary.js
+          node test/test-browser-network-scope.js
+          node test/test-event-evidence-redaction.js
+          node test/test-release-v1.5.0-contract.js
