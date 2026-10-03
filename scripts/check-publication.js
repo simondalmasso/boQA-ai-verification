@@ -96,6 +96,7 @@ const currentReleaseSurfaces = [
   'dashboard/index.html',
   '.env.example',
   'Dockerfile',
+  'compose.yaml',
   'scripts/run-all-tests.js',
   'docs/openai-codex-oss/READINESS.md',
 ];
