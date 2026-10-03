@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * BOQA v1.4.0 — Test runner
+ * BOQA v1.5.0 — Test runner
  *
  * Executes every test-*.js file under test/ as a standalone Node.js process,
  * captures stdout/stderr/exit-code, and prints a summary.
@@ -37,7 +37,7 @@ if (testFiles.length === 0) {
 }
 
 console.log(`\n========================================`);
-console.log(` BOQA v1.4.0 — Test Runner`);
+console.log(` BOQA v1.5.0 — Test Runner`);
 console.log(` ${testFiles.length} tests discovered`);
 console.log(`========================================\n`);
 
