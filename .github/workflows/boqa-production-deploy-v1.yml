@@ -209,8 +209,11 @@ jobs:
               production_verified:true
             }' > output/production-deploy/evidence.json
 
-          find output/production-deploy -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > output/production-deploy/SHA256SUMS
-          (cd output/production-deploy && sha256sum -c SHA256SUMS)
+          (
+            cd output/production-deploy
+            find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS
+            sha256sum -c SHA256SUMS
+          )
 
       - name: Upload production evidence
         if: always()
