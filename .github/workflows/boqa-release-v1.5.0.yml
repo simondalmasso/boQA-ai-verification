@@ -63,28 +63,11 @@ jobs:
           BOQA_READINESS_DATE=2026-10-03 npm run check:publication
           demo="$(npm run demo:cuore)"
           printf '%s\n' "$demo"
-          grep -F 'target_asset_network_requests=0' <<<"$demo" >/dev/null
+          grep -F '"target_asset_network_requests": 0' <<<"$demo" >/dev/null
+          echo 'target_asset_network_requests=0'
 
       - name: Verify bounded security audit evidence
-        shell: bash
-        run: |
-          set -Eeuo pipefail
-          node <<'NODE'
-          const fs = require('fs');
-          const findings = JSON.parse(fs.readFileSync('evidence/security-audit-v1.5.0/findings.json', 'utf8'));
-          const coverage = JSON.parse(fs.readFileSync('evidence/security-audit-v1.5.0/coverage-ledger.json', 'utf8'));
-          if (findings.schema_version !== 1) throw new Error('SECURITY_FINDINGS_SCHEMA');
-          if (findings.confirmed_release_blockers !== 0) throw new Error('CONFIRMED_SECURITY_RELEASE_BLOCKER');
-          if (!Array.isArray(findings.candidates)) throw new Error('SECURITY_CANDIDATES_MISSING');
-          for (const candidate of findings.candidates) {
-            if (!['confirmed', 'needs_validation', 'rejected'].includes(candidate.classification)) {
-              throw new Error('INVALID_SECURITY_CLASSIFICATION');
-            }
-            if (!candidate.independent_verifier) throw new Error('INDEPENDENT_VERIFIER_MISSING');
-          }
-          if (!Array.isArray(coverage.coverage_limitations)) throw new Error('COVERAGE_LIMITATIONS_MISSING');
-          console.log('SECURITY_AUDIT=PASS');
-          NODE
+        run: npm run check:security-audit
 
       - name: Require exact-head qualification runs
         shell: bash
@@ -105,6 +88,8 @@ jobs:
           require_successful_run boqa-browser-smoke-v1.yml BROWSER_RUN_ID
           require_successful_run boqa-real-docker-qualification-v1.yml DOCKER_RUN_ID
           require_successful_run boqa-cloudflare-preview-v6.yml PREVIEW_RUN_ID
+          require_successful_run boqa-publication-integrity-v1.yml PUBLICATION_RUN_ID
+          require_successful_run boqa-security-audit-v1.yml SECURITY_AUDIT_RUN_ID
 
       - name: Require exact production evidence
         shell: bash
