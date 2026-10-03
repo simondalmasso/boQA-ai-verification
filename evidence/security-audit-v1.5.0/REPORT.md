@@ -1,7 +1,7 @@
 # BOQA v1.5.0 — Scoped Security Audit Report
 
 **Profile:** scoped quick  
-**Audited source:** `375237d1d2624d43f529ebe71414ecb02ed351a4`  
+**Audited source:** `71bdbf9db6f616da022aab43e337254f1c262935`  
 **Result:** `NO_CONFIRMED_RELEASE_BLOCKER`
 
 This report applies only to the v1.5.0 security/release scope. It is not an exhaustive security-audit claim. The audited scope is cryptographically bound by `audited-scope-sha256.json`; `test/test-security-audit-scope-binding.js` fails if any audited runtime/workflow/public-boundary file changes without an audit refresh.
@@ -65,3 +65,7 @@ Cloudflare security-audit-skill and selected cc-thinking-skills were used extern
 ## Post-audit delta refresh
 
 The final seal was refreshed against `559b2733968f9e1ac462975a54bbb09848ad23a9` after independently reviewing the only post-audit scoped deltas: full-history checkout for audit/source-binding gates and the exact v1.5.0 release workflow checkout depth. The compose v1.5.0 alignment is covered by the publication-integrity regression. No CUORE, HumanGate, Worker runtime, browser scope, private boundary, or execution-authority code changed in that delta.
+
+### Production deploy Node compatibility refresh
+
+The production workflow was revalidated after changing only its GitHub Actions Node runtime from 20 to 22 so pinned `wrangler@4.112.0` can execute. The preview-version promotion, exact-SHA checks, public/private surface verification, and authority/runtime code are unchanged.
