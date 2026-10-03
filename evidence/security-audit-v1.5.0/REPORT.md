@@ -4,7 +4,7 @@
 **Audited source:** `0886d86defa054477425d482714e02dbf9c7a1c2`  
 **Result:** `NO_CONFIRMED_RELEASE_BLOCKER`
 
-This report applies only to the v1.5.0 security/release scope. It is not an exhaustive security-audit claim.
+This report applies only to the v1.5.0 security/release scope. It is not an exhaustive security-audit claim. The audited scope is cryptographically bound by `audited-scope-sha256.json`; `test/test-security-audit-scope-binding.js` fails if any audited runtime/workflow/public-boundary file changes without an audit refresh.
 
 ## Result
 
