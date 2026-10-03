@@ -23,6 +23,7 @@ function fixture(overrides = {}) {
     'dashboard/index.html': '<a href="https://github.com/simondalmasso/boqa/releases/tag/v1.5.0">v1.5.0</a> MODEL_OUTPUT != AUTHORIZATION Codex proposes. BOQA verifies.',
     'README.md': 'MODEL_OUTPUT != AUTHORIZATION\nCodex proposes.\nBOQA verifies.\nNo broad adoption claim.',
     'docs/openai-codex-oss/READINESS.md': 'LAST_CHECK=2026-10-03\nAPPLICATION_STATUS=READY\nRELEASE_TAG=v1.5.0 — canonical release line; a published tag is valid only when it equals exact canonical main.\n',
+    'compose.yaml': 'services:\n  boqa:\n    image: boqa:1.5.0\n',
   };
   Object.assign(files, overrides);
   for (const [rel, value] of Object.entries(files)) write(root, rel, value);
@@ -58,6 +59,7 @@ assert(fs.existsSync(checker), 'publication checker must exist');
 
 expectFailure({ 'package.json': JSON.stringify({ name: 'boqa', version: '1.4.0' }) }, 'stale package version');
 expectFailure({ 'dashboard/index.html': '<a href="/releases/tag/v1.4.0">v1.4.0</a> MODEL_OUTPUT != AUTHORIZATION Codex proposes. BOQA verifies.' }, 'stale release link');
+expectFailure({ 'compose.yaml': 'services:\n  boqa:\n    image: boqa:1.4.0-fixed\n' }, 'stale compose image');
 expectFailure({ 'docs/openai-codex-oss/READINESS.md': 'LAST_CHECK=2026-09-29\nAPPLICATION_STATUS=READY\nRELEASE_TAG=v1.5.0\n' }, 'stale readiness date');
 expectFailure({ 'dashboard/index.html': '<a href="/releases/tag/v1.5.0">v1.5.0</a> Codex proposes. BOQA verifies.' }, 'missing invariant');
 expectFailure({ 'README.md': 'MODEL_OUTPUT != AUTHORIZATION\nCodex proposes.\nBOQA verifies.\n10,000 users served.' }, 'unsupported adoption claim');
