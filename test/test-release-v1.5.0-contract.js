@@ -25,4 +25,18 @@ assert.match(workflow, /npm run check:publication/);
 assert.match(workflow, /npm run demo:cuore/);
 assert.match(workflow, /target_asset_network_requests=0/);
 
+const production = fs.readFileSync(path.join(root, '.github', 'workflows', 'boqa-production-deploy-v1.yml'), 'utf8');
+assert.match(production, /versions deploy/);
+assert.match(production, /PREVIEW_VERSION_ID/);
+assert.match(production, /100%/);
+assert.doesNotMatch(production, /wrangler@[^\s]+ deploy --config/);
+assert.match(production, /deployed_version[\s\S]*PREVIEW_VERSION_ID/);
+for (const surface of ['/health', '/api/health', '/api/hunter/status', '/og-boqa.png', '/favicon.svg']) {
+  assert(production.includes(surface), 'missing production verification surface: ' + surface);
+}
+for (const header of ['Strict-Transport-Security', 'Content-Security-Policy', 'X-Frame-Options', 'Permissions-Policy']) {
+  assert(production.includes(header), 'missing production header verification: ' + header);
+}
+assert(production.includes('/api/private/billing'), 'hidden private surface must be verified');
+
 console.log('v1.5.0 release contract: PASS');
