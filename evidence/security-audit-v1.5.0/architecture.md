@@ -4,6 +4,7 @@ Audit profile: scoped / quick
 Audited source ref: `0886d86defa054477425d482714e02dbf9c7a1c2`
 Methodology reference: Cloudflare security-audit-skill (external methodology only; not vendored, not a runtime dependency)
 Thinking aids: scientific-method, red-team, pre-mortem, via-negativa, map-territory, reversibility (external AUD tooling only)
+Scope binding: `evidence/security-audit-v1.5.0/audited-scope-sha256.json` + `test/test-security-audit-scope-binding.js`
 
 ## Scope
 
