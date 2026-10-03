@@ -36,6 +36,9 @@ jobs:
       - name: Publication integrity
         run: npm run check:publication
 
+      - name: Verify bounded security-audit evidence
+        run: node scripts/check-security-audit-evidence.js
+
       - name: Fixture-only CUORE demo
         run: npm run demo:cuore
 
