@@ -178,6 +178,17 @@ footer{display:flex;justify-content:space-between;gap:32px;align-items:flex-star
 @media(max-width:640px){
   .hero-name{margin-top:12px}
 }
+@media(max-width:380px){
+  .site-header{padding:12px 0}
+  main{padding-top:24px}
+  .hero-name{margin:8px 0 12px}
+  h1{font-size:2.35rem;line-height:.96}
+  .thesis{margin-top:16px;font-size:1.2rem}
+  .hero-summary{margin-top:14px;font-size:.9rem;line-height:1.4}
+  .actions{margin-top:18px;gap:8px}
+  .button{min-height:42px;padding:8px 12px}
+  .invariant{margin-top:18px}
+}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{transition-duration:.01ms!important}
