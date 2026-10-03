@@ -83,8 +83,12 @@ assert.match(workflow, /npm audit/);
 assert.match(workflow, /npm run check:publication/);
 assert.match(workflow, /npm run demo:cuore/);
 assert.match(workflow, /target_asset_network_requests=0/);
-assert.match(workflow, /findings\.json/);
-assert.match(workflow, /confirmed_release_blockers/);
-assert.match(workflow, /coverage-ledger\.json/);
+
+const publicationChecker = fs.readFileSync(checker, 'utf8');
+assert.match(publicationChecker, /check-security-audit-evidence/);
+const auditChecker = fs.readFileSync(path.join(projectRoot, 'scripts', 'check-security-audit-evidence.js'), 'utf8');
+assert.match(auditChecker, /findings\.json/);
+assert.match(auditChecker, /confirmed_release_blockers/);
+assert.match(auditChecker, /coverage-ledger\.json/);
 
 console.log('publication integrity contract: PASS');
