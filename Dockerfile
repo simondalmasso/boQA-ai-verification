@@ -1,7 +1,7 @@
-# BOQA v1.4.0 — Production Docker Image
+# BOQA v1.5.0 — Production Docker Image
 # URGENT-3: Containerization for Northflank deployment
 #
-# Build: docker build -t boqa:1.4.0-fixed .
+# Build: docker build -t boqa:1.5.0 .
 # Production requires BOQA_API_KEY and BOQA_HMAC_SECRET as external variables.
 
 FROM node:20-slim
