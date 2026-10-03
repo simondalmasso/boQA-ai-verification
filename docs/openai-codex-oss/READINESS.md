@@ -1,6 +1,6 @@
 # BOQA — OpenAI Codex for Open Source Readiness
 
-LAST_CHECK=2026-09-29
+LAST_CHECK=2026-10-03
 APPLICATION_STATUS=READY
 
 MAIN_CANONICAL=YES — GitHub main is the lean BOQA canon: lean kernel + CORE001 + OSS hardening + public landing. Historical engine-zoo modules are not part of the canonical tree.
@@ -8,9 +8,9 @@ LICENSE=PRESENT_ROOT_MIT
 README=PRESENT_ROOT
 SECURITY_MD=PRESENT_ROOT
 CONTRIBUTING_MD=PRESENT_ROOT
-RELEASE_TAG=v1.4.0 — canonical OSS release for this readiness line; the published tag must resolve to the exact canonical main SHA.
-PUBLIC_DEMO=PASS — the release process verifies the OSS landing at / and the preserved operational dashboard at /status/ from the same exact Cloudflare Worker version. The public landing is intentionally usable when the hunter backend is unavailable; /status/ must expose degradation rather than invent health.
-CI_TESTS=PASS — promotion requires full regression, Browser Smoke, Real Docker Qualification, and Cloudflare exact-preview evidence on the exact release head.
+RELEASE_TAG=v1.5.0 — target canonical release line; a published tag is valid only when it resolves to the exact canonical main SHA.
+PUBLIC_DEMO=PASS — the release process requires the OSS landing at / and the preserved operational dashboard at /status/ to be verified from the same exact Cloudflare Worker version. The public landing is intentionally usable when the hunter backend is unavailable; /status/ must expose degradation rather than invent health.
+CI_TESTS=PASS — promotion requires full regression, publication integrity, Browser Smoke, Real Docker Qualification, Cloudflare exact-preview evidence, and bounded security-audit evidence on the exact release head.
 DETERMINISTIC_REPLAY=PASS
 HUMAN_GATE=PASS
 ACTIVE_MAINTENANCE=YES
@@ -70,14 +70,14 @@ Backend availability is a separate operational signal. A backend outage must be 
 
 ## BLOCKERS
 
-NONE_FOR_TECHNICAL_OSS_READINESS
+RELEASE_V1_5_0_PENDING_EXACT_MAIN_TAG_PROD_RECONCILIATION
 
 The OpenAI application itself remains an explicit owner submission. `READY` does not mean `SUBMITTED` or selected by OpenAI.
 
 ## NEXT_MINIMAL_ACTIONS
 
-1. Owner may review and submit the Codex for OSS application.
-2. Keep future releases on the same exact-head Browser/Docker/preview/production-evidence discipline.
+1. Seal v1.5.0 only after exact-head Browser/Docker/preview/publication/security gates and exact production evidence pass.
+2. Publish v1.5.0 only when the immutable tag SHA equals final canonical main and production source.
 3. Preserve `MODEL_OUTPUT != AUTHORIZATION` and keep model output advisory.
 
 ## FORM_TEXTS
