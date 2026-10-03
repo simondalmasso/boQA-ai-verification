@@ -70,14 +70,15 @@ Backend availability is a separate operational signal. A backend outage must be 
 
 ## BLOCKERS
 
-RELEASE_V1_5_0_PENDING_EXACT_MAIN_TAG_PROD_RECONCILIATION
+SOURCE_BLOCKERS=NONE
+RELEASE_SEAL_REQUIREMENT=MAIN=TAG=PROD
 
 The OpenAI application itself remains an explicit owner submission. `READY` does not mean `SUBMITTED` or selected by OpenAI.
 
 ## NEXT_MINIMAL_ACTIONS
 
-1. Seal v1.5.0 only after exact-head Browser/Docker/preview/publication/security gates and exact production evidence pass.
-2. Publish v1.5.0 only when the immutable tag SHA equals final canonical main and production source.
+1. For v1.5.0, execute exact-head Browser/Docker/preview/publication/security gates and exact production evidence before tag publication.
+2. Treat a release as sealed only when the immutable tag SHA equals canonical main and production source.
 3. Preserve `MODEL_OUTPUT != AUTHORIZATION` and keep model output advisory.
 
 ## FORM_TEXTS
