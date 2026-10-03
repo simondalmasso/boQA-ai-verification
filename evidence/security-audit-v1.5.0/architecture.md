@@ -1,7 +1,7 @@
 # BOQA v1.5.0 — Bounded Security Audit Architecture
 
 Audit profile: scoped / quick
-Audited source ref: `71bdbf9db6f616da022aab43e337254f1c262935`
+Audited source ref: `754a65811bd4b482708c4e46930a8af0bfe926e6`
 Methodology reference: Cloudflare security-audit-skill (external methodology only; not vendored, not a runtime dependency)
 Thinking aids: scientific-method, red-team, pre-mortem, via-negativa, map-territory, reversibility (external AUD tooling only)
 Scope binding: `evidence/security-audit-v1.5.0/audited-scope-sha256.json` + `test/test-security-audit-scope-binding.js`
