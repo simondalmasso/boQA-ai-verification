@@ -37,6 +37,8 @@ assert.match(securityWorkflow, /test\/test-security-boundary-audit\.js/);
 
 const production = fs.readFileSync(path.join(root, '.github', 'workflows', 'boqa-production-deploy-v1.yml'), 'utf8');
 assert.match(production, /versions deploy/);
+assert.match(production, /node-version:\s*['\"]?22['\"]?/);
+assert.doesNotMatch(production, /node-version:\s*['\"]?20['\"]?/);
 assert.match(production, /PREVIEW_VERSION_ID/);
 assert.match(production, /100%/);
 assert.doesNotMatch(production, /wrangler@[^\s]+ deploy --config/);
