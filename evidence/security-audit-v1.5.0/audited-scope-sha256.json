@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "d5e1cd54ed0cc850c57f8b79b7bb6a4b7532c12f",
   "files": {
+    ".env.example": "d1fd14d5cb8946f57a5528be788f2cb66612a8a5cca1d05a79b4d9beab7ba943",
     ".github/workflows/boqa-boundary-regression-compiler.yml": "565df6d1b7ca9b2663748abc86fc87e3c7686a0cb34dd51335483b68a0adfa37",
     ".github/workflows/boqa-browser-smoke-v1.yml": "b5740833b2c29ea518c5c00bf2a61b9d1895188b86726a79dfd4abb5c092b32e",
     ".github/workflows/boqa-cloudflare-preview-v6.yml": "6168f63e6b663fc8ba38bd3fc1c305160f771f7f7ce39b19410caee4adad1543",
@@ -13,6 +13,7 @@
     ".github/workflows/mirror-gitlab.yml": "c77c650d36a0569531d673dc113709bfaf5fea3e2d55c6c1155a26bbe561f75a",
     "agent/playwright-runner.js": "ee7be70c9a0f2812d744a67852419c4df76f27ccd3c34e4cee968e23a08e5518",
     "bus.js": "e27e1a205f6e369e636e88f70faa06731ad397035135b0b444cee82384203ec4",
+    "compose.yaml": "6a681b49c6c55e7478d14f22f79e2aabd8886b93476569ae690e1fd4498dcd8b",
     "cuore/core.js": "fc641579adfac8dd3f3bb5eda9578e5d9dec36bc41744ee76b24b02a87613de0",
     "cuore/fixtures/agent-market.json": "a2145153434947ba42681ffa6ddcfc95cf60c79481162dbd4a71d3d883f06763",
     "cuore/fixtures/conventional-bounty.json": "57aa0f54ab20c3b6e1e5ec05f62a3a101b67eaaf5a330c878dcc4b7733875003",
@@ -26,12 +27,14 @@
     "dashboard/index.html": "490620e8ba63dbacd81c8d64cd5386376ae1b3f0c0ef3df7068baa4f9e18ddb8",
     "dashboard/landing.css": "852acdf4ece32d173617f3831981bab82a3e271101b3a289128f3a612024615b",
     "dashboard/mobile.css": "5efc6d6b35592df7926f3dca4ba2f97f2a2c0dcf30a964e9fe2a57c9f976763d",
-    "dashboard/og-boqa-source.svg": "6e348e12400740392854674226a97b2703c556acc42203a1ae7ded8319f80a79",
     "dashboard/og-boqa.png": "810cce34d7b85d0300af2ba47cee6ada20e4b75db9656aa620068c43d4528db9",
+    "dashboard/og-boqa-source.svg": "6e348e12400740392854674226a97b2703c556acc42203a1ae7ded8319f80a79",
     "dashboard/status/index.html": "f4c3592a01539438aa0d3188a0ba70fbffe5fd5c51e1b40ecdd1e6dcc9af8cc7",
     "dashboard/style.css": "65ff7ca7dc81892b5e4ff1ad8ecbfbf33fa644db4c18aa98a6046ddb4fa45864",
-    "kernel/verified-regression/lab/case_A_fixed.json": "4ddc4ed3616de46425eb4baae18843535b1f88e195dd6a984e5975846203142c",
+    "Dockerfile": "0bfdb98d5444cc2b935a71fec89de4f5b494137cbfb1f465d4340643a853d1be",
+    "docs/openai-codex-oss/READINESS.md": "61c7ed68471da978ee84f6d63fcf321852d86c41a5716057ddc77dee83432f19",
     "kernel/verified-regression/lab/case_A.json": "81bfc0b45039d4f307a7390ee83e8a640b52b73fcf39be82bd22f6fff0862e78",
+    "kernel/verified-regression/lab/case_A_fixed.json": "4ddc4ed3616de46425eb4baae18843535b1f88e195dd6a984e5975846203142c",
     "kernel/verified-regression/lab/case_B.json": "525f132930b177c41ea2601f6d8265f858697c8d65fe2494f7059dc1c90bf349",
     "kernel/verified-regression/lab/case_C.json": "edefb4d2ec11394c6060df53b0e6ef6fff53a45c84d388afaa83e49ffd89a8e6",
     "kernel/verified-regression/pipeline.py": "09de002afc6a9b94518227bc7f812971582aa9c96c18a2f599ce9d5d82c5085c",
@@ -42,10 +45,20 @@
     "kernel/verified-regression/seeds/case_C.json": "d38276e60085881f8fff5357cf85806fa30f5b914211d9a603673c44e748d647",
     "kernel/verified-regression/tests/test_pipeline.py": "7a00caa5bfd637d7a878de73f00a6fa360267aa0beee75c28deb6f6a78a086da",
     "lib/billing-auth.js": "3a4f665d328da3655ecaa2b474095e059e691b375b58ac6ebc9d9b08e812e9e5",
+    "lib/browser-network-scope.js": "c75c13a9e75a9bf67a195b5ffc14c1f457df1f86d9494bb50dfbe1f3a855e605",
     "lib/middleware.js": "b34229e4f90cf23cdb249cc96bc3de667a9fb0615bda57bc04f879f76ffd67d5",
+    "package.json": "4135001d1d0c10a274fcf5bb22352a65d98517649c56fe328ee1d3988d76f63d",
+    "package-lock.json": "ab5281d01edf5b7fefabd7ee21d2308559e39a1dfb58a6b3da8138ced9ad51aa",
+    "scripts/browser-smoke-v1.js": "ebbe2cb977192073f94eb1ffe1d5f6d7423b7381d18e67637d3173768623db1c",
     "scripts/check-publication.js": "410ba3c21138a7f842d3eb0f88a0aa7c00fe9f5007e27abd6c04fef004fa0d44",
     "scripts/check-security-audit-evidence.js": "1e1d13ef17c4dadf71eba91462ac9d3de292e600041bdff1b52ddada5fc41153",
+    "scripts/cloudflare-preview-build-v6.sh": "cb91a9e12850bd5fde68eab4039cd42a3d7d42d717f894f79715546489fdd32f",
+    "scripts/cloudflare-preview-smoke-v6.js": "8ef086af4cfc1308db58fd17e92bfe054dfdcc2336cc892f64e29de957a8bbd3",
+    "scripts/demo-cuore-fixtures.js": "355f128878364c36cad21970f7fc1a26621a3b8a3b88614f863abedec77f42b8",
+    "scripts/run-all-tests.js": "bb372e01aabf90ac860144c429d4d683a3e93e3f93beb0b09efb5a32a39baa51",
     "server.js": "e0450a3d6253331cee67275bc2d89473fd5d3a97221eb9bef0a1bbbf9f074445",
-    "worker.js": "19cbdea5931407e3cb96b6934638f47a69b7e4b21a05913d170d819e37467aa7"
-  }
+    "worker.js": "19cbdea5931407e3cb96b6934638f47a69b7e4b21a05913d170d819e37467aa7",
+    "wrangler.toml": "009e798e49622b66d91d8bdb28310efce830b7e7d7fd929e845fffcc7a08979c"
+  },
+  "audited_source_ref": "d5e1cd54ed0cc850c57f8b79b7bb6a4b7532c12f"
 }
