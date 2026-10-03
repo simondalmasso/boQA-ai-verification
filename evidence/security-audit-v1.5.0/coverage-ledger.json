@@ -160,5 +160,7 @@
     "The environment blocked an attempted stricter local Docker audit verifier; no weaker network-enabled target-controlled execution was substituted.",
     "Cloudflare account-level settings, token scope, and live control-plane drift are outside source visibility; the deployment workflow verifies only the repository-controlled facts it can observe.",
     "This is a scoped quick audit, not an exhaustive security audit of every historical/non-canonical file."
-  ]
+  ],
+  "audited_scope_manifest": "evidence/security-audit-v1.5.0/audited-scope-sha256.json",
+  "scope_binding_status": "enforced_by_regression_test"
 }
