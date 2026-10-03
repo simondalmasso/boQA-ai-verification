@@ -1,11 +1,12 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "0886d86defa054477425d482714e02dbf9c7a1c2",
+  "audited_source_ref": "d5e1cd54ed0cc850c57f8b79b7bb6a4b7532c12f",
   "files": {
     ".github/workflows/boqa-boundary-regression-compiler.yml": "565df6d1b7ca9b2663748abc86fc87e3c7686a0cb34dd51335483b68a0adfa37",
     ".github/workflows/boqa-browser-smoke-v1.yml": "b5740833b2c29ea518c5c00bf2a61b9d1895188b86726a79dfd4abb5c092b32e",
     ".github/workflows/boqa-cloudflare-preview-v6.yml": "6168f63e6b663fc8ba38bd3fc1c305160f771f7f7ce39b19410caee4adad1543",
     ".github/workflows/boqa-production-deploy-v1.yml": "8bccf440c1336f0562466699db5712bcaf96e5747d4ee4b479ce814326dc8cc3",
+    ".github/workflows/boqa-publication-integrity-v1.yml": "7c31e18c92f1afb8881e3b2da398e8f497e2df12e6e138439fa97038b8b5a493",
     ".github/workflows/boqa-real-docker-qualification-v1.yml": "345a96d0a18387b246f157af1efb558b066ef5939dbb0371ee7c71a388fbdb9f",
     ".github/workflows/boqa-real-docker-soak-v1.yml": "b7f7f0bb30d4b86af4df580ea0aaa5164a763a4b892bfc5683fbb180391dcf2e",
     ".github/workflows/boqa-release-v1.5.0.yml": "61b03ee841eb8e377ff33473199cb8aade9bddebbc98749f20870ff7e9b1aa02",
@@ -25,12 +26,12 @@
     "dashboard/index.html": "490620e8ba63dbacd81c8d64cd5386376ae1b3f0c0ef3df7068baa4f9e18ddb8",
     "dashboard/landing.css": "852acdf4ece32d173617f3831981bab82a3e271101b3a289128f3a612024615b",
     "dashboard/mobile.css": "5efc6d6b35592df7926f3dca4ba2f97f2a2c0dcf30a964e9fe2a57c9f976763d",
-    "dashboard/og-boqa.png": "810cce34d7b85d0300af2ba47cee6ada20e4b75db9656aa620068c43d4528db9",
     "dashboard/og-boqa-source.svg": "6e348e12400740392854674226a97b2703c556acc42203a1ae7ded8319f80a79",
+    "dashboard/og-boqa.png": "810cce34d7b85d0300af2ba47cee6ada20e4b75db9656aa620068c43d4528db9",
     "dashboard/status/index.html": "f4c3592a01539438aa0d3188a0ba70fbffe5fd5c51e1b40ecdd1e6dcc9af8cc7",
     "dashboard/style.css": "65ff7ca7dc81892b5e4ff1ad8ecbfbf33fa644db4c18aa98a6046ddb4fa45864",
-    "kernel/verified-regression/lab/case_A.json": "81bfc0b45039d4f307a7390ee83e8a640b52b73fcf39be82bd22f6fff0862e78",
     "kernel/verified-regression/lab/case_A_fixed.json": "4ddc4ed3616de46425eb4baae18843535b1f88e195dd6a984e5975846203142c",
+    "kernel/verified-regression/lab/case_A.json": "81bfc0b45039d4f307a7390ee83e8a640b52b73fcf39be82bd22f6fff0862e78",
     "kernel/verified-regression/lab/case_B.json": "525f132930b177c41ea2601f6d8265f858697c8d65fe2494f7059dc1c90bf349",
     "kernel/verified-regression/lab/case_C.json": "edefb4d2ec11394c6060df53b0e6ef6fff53a45c84d388afaa83e49ffd89a8e6",
     "kernel/verified-regression/pipeline.py": "09de002afc6a9b94518227bc7f812971582aa9c96c18a2f599ce9d5d82c5085c",
@@ -42,6 +43,8 @@
     "kernel/verified-regression/tests/test_pipeline.py": "7a00caa5bfd637d7a878de73f00a6fa360267aa0beee75c28deb6f6a78a086da",
     "lib/billing-auth.js": "3a4f665d328da3655ecaa2b474095e059e691b375b58ac6ebc9d9b08e812e9e5",
     "lib/middleware.js": "b34229e4f90cf23cdb249cc96bc3de667a9fb0615bda57bc04f879f76ffd67d5",
+    "scripts/check-publication.js": "410ba3c21138a7f842d3eb0f88a0aa7c00fe9f5007e27abd6c04fef004fa0d44",
+    "scripts/check-security-audit-evidence.js": "1e1d13ef17c4dadf71eba91462ac9d3de292e600041bdff1b52ddada5fc41153",
     "server.js": "e0450a3d6253331cee67275bc2d89473fd5d3a97221eb9bef0a1bbbf9f074445",
     "worker.js": "19cbdea5931407e3cb96b6934638f47a69b7e4b21a05913d170d819e37467aa7"
   }
