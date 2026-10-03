@@ -82,6 +82,12 @@ function normalizePathname(pathname) {
     if (next === decoded) break;
     decoded = next;
   }
+  try {
+    const furtherDecoded = decodeURIComponent(decoded);
+    if (furtherDecoded !== decoded) return '/__boqa_excessive_encoding__';
+  } catch (_) {
+    // Malformed percent encoding cannot be decoded further.
+  }
   return decoded
     .replace(/\\/g, '/')
     .replace(/\/{2,}/g, '/')
@@ -92,6 +98,7 @@ function isPrivateSurface(pathname) {
   // This normalized classifier supersedes legacy literal checks such as
   // pathname === '/cobros.html' while preserving a fail-closed boundary.
   const normalized = normalizePathname(pathname);
+  if (normalized === '/__boqa_excessive_encoding__') return true;
   return normalized === '/cobros' ||
     normalized === '/cobros/' ||
     normalized.endsWith('/cobros.html') ||
