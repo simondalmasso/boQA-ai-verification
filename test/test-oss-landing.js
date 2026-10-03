@@ -13,6 +13,7 @@ const previewSmoke = fs.readFileSync(path.join(root, 'scripts', 'cloudflare-prev
 const browserWorkflow = fs.readFileSync(path.join(root, '.github', 'workflows', 'boqa-browser-smoke-v1.yml'), 'utf8');
 const favicon = fs.readFileSync(path.join(root, 'dashboard', 'favicon.svg'), 'utf8');
 const og = fs.readFileSync(path.join(root, 'dashboard', 'og-boqa.png'));
+const ogSource = fs.readFileSync(path.join(root, 'dashboard', 'og-boqa-source.svg'), 'utf8');
 
 assert.match(landing, /<html\s+lang=["']en["']/i);
 assert.match(landing, /<title>BOQA — Verification infrastructure with bounded authority<\/title>/);
@@ -124,6 +125,11 @@ assert.equal(og[0], 0x89);
 assert.equal(og.toString('ascii', 1, 4), 'PNG');
 assert.equal(og.readUInt32BE(16), 1200, 'OG image width must be 1200');
 assert.equal(og.readUInt32BE(20), 630, 'OG image height must be 630');
+assert.match(ogSource, /v1\.5\.0/);
+assert.doesNotMatch(ogSource, /v1\.4\.0/);
+assert.match(ogSource, /MODEL_OUTPUT != AUTHORIZATION/);
+assert.match(ogSource, /Codex proposes\./);
+assert.match(ogSource, /BOQA verifies\./);
 
 assert.match(smoke, /\['\/status',\s*'dashboard\/status\/index\.html'\]/);
 assert.match(smoke, /\['\/status\/',\s*'dashboard\/status\/index\.html'\]/);
