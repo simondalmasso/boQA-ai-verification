@@ -1,0 +1,15 @@
+name: BOQA Publication Integrity Gate V1
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  publication-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo publication-integrity
