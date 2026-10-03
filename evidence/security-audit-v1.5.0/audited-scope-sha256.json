@@ -6,11 +6,11 @@
     ".github/workflows/boqa-browser-smoke-v1.yml": "fa4bb5fd347c06c6fe4984a0b66ca9a1fbc8be1731f51d8f0809c54b8b199b6d",
     ".github/workflows/boqa-cloudflare-preview-v6.yml": "05686b3ff6686d68708d5ae231250bcca40e845e0fad436e32eefa5d041e7930",
     ".github/workflows/boqa-production-deploy-v1.yml": "e1fd7dec39cf072b1a6642694e879fab5658d8110895c61af7da2d1fa2c21409",
-    ".github/workflows/boqa-publication-integrity-v1.yml": "79fc9793c30fa4920c49398ff3bf862ccb30d4fefb3fb6c3785ad4756acbfa56",
-    ".github/workflows/boqa-real-docker-qualification-v1.yml": "f68f678359c96e52b55779978857b3c813fb0d7ec2a571555057014b1a290771",
+    ".github/workflows/boqa-publication-integrity-v1.yml": "85d1856cf0b8859bb9062cff9bf208fef348315c62dbe7c8f2cf15f146657a5b",
+    ".github/workflows/boqa-real-docker-qualification-v1.yml": "2522b5b2cf6b3da53dd4f2f4c1d0f4fb345884b822f521efb6364cd01a57e5ab",
     ".github/workflows/boqa-real-docker-soak-v1.yml": "d2dd866a7f0d2fcd182cba86da29f4c668d5f3fdee909fc1f355b33878e9cfba",
-    ".github/workflows/boqa-release-v1.5.0.yml": "ed147b5280829b3f366378c8c12b5a12c28500dda535a694d08705c941d2888f",
-    ".github/workflows/boqa-security-audit-v1.yml": "2a80ddf235a78d88d246677719f61e69ebcbc0be2cf0c7c2023512864f088676",
+    ".github/workflows/boqa-release-v1.5.0.yml": "22d79f15b46281456b5d1877868217565fcf574d5b6c2194699075e4900d0289",
+    ".github/workflows/boqa-security-audit-v1.yml": "ed4fb79b2915579f4235db627770bca73b3732e6d230c0ec2b30513c2a1818a6",
     ".github/workflows/mirror-gitlab.yml": "4356db9901b040c906c35f409c219448032d45a1d5b0646e898a107ec328ee07",
     "agent/playwright-runner.js": "73e5fcfe65192073b16cb4169b7a43e000235ae61d395987e9dbaaff97a99edd",
     "bus.js": "885260cfcc952535505e0a894d64a7ef8c1b2125b46d38ac11d4e1a21e38df45",
@@ -61,5 +61,5 @@
     "worker.js": "9c76c21075019ed15061537493bf254189b02fc8b4d385b9787ed62530180093",
     "wrangler.toml": "3a908aee74df2f2bdaa775fa33beaeeae2d6984530f766e219b03643b2c8c309"
   },
-  "audited_source_ref": "375237d1d2624d43f529ebe71414ecb02ed351a4"
+  "audited_source_ref": "559b2733968f9e1ac462975a54bbb09848ad23a9"
 }
