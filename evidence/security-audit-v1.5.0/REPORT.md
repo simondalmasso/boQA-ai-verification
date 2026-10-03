@@ -1,7 +1,7 @@
 # BOQA v1.5.0 — Scoped Security Audit Report
 
 **Profile:** scoped quick  
-**Audited source:** `d5e1cd54ed0cc850c57f8b79b7bb6a4b7532c12f`  
+**Audited source:** `4f8c4059a9912257cf12cefb61a5d92f3c18f8e1`  
 **Result:** `NO_CONFIRMED_RELEASE_BLOCKER`
 
 This report applies only to the v1.5.0 security/release scope. It is not an exhaustive security-audit claim. The audited scope is cryptographically bound by `audited-scope-sha256.json`; `test/test-security-audit-scope-binding.js` fails if any audited runtime/workflow/public-boundary file changes without an audit refresh.
