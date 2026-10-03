@@ -40,7 +40,9 @@ jobs:
         run: node scripts/check-security-audit-evidence.js
 
       - name: Fixture-only CUORE demo
-        run: npm run demo:cuore
-
-      - name: Require zero target network requests
-        run: npm run demo:cuore | grep -F 'target_asset_network_requests=0'
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npm run demo:cuore | tee /tmp/boqa-demo.log
+          grep -F '"target_asset_network_requests": 0' /tmp/boqa-demo.log >/dev/null
+          echo 'target_asset_network_requests=0'
