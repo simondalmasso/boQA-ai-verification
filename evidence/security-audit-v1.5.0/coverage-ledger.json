@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "profile": "scoped_quick",
-  "audited_source_ref": "0886d86defa054477425d482714e02dbf9c7a1c2",
+  "audited_source_ref": "d5e1cd54ed0cc850c57f8b79b7bb6a4b7532c12f",
   "run_date": "2026-10-03",
   "execution_policy": "source-first_no-production-probing_no-external-targets",
   "scope_paths": [
@@ -124,7 +124,8 @@
       "status": "covered",
       "evidence": [
         ".github/workflows/boqa-release-v1.5.0.yml",
-        "test/test-release-v1.5.0-contract.js"
+        "test/test-release-v1.5.0-contract.js",
+        ".github/workflows/boqa-publication-integrity-v1.yml"
       ],
       "candidates": [
         "C08"
