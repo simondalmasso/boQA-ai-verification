@@ -7,6 +7,7 @@ Decision vocabulary:
 - `DISTILL_NOW` — copy a narrow method/pattern into BOQA documentation/process; do not add runtime dependency.
 - `BENCHMARK_LATER` — potentially useful challenger/evaluation target; isolate and measure before any admission.
 - `WATCH_READ_ONLY` — useful as ecosystem/radar/reference input only.
+- `ADOPT_POST_RELEASE_OPTIONAL_EXECUTION_BACKEND` — strategically strong but explicitly deferred until after the current canonical release; optional backend only, never an authority source.
 - `REJECT` — irrelevant, duplicates accepted architecture, expands authority, introduces avoidable risk, or conflicts with BOQA scope.
 
 Non-negotiable:
@@ -26,6 +27,7 @@ No item below is authorized for production integration merely because it appears
 | Source | Decision | BOQA use |
 |---|---|---|
 | cloudflare/security-audit-skill | DISTILL_NOW | Adopt source-first trust-boundary mapping, coverage ledger, fresh independent verifier, confirmed/needs_validation/rejected separation, and sandbox-before-target-code principles. Do not vendor its full orchestration. |
+| NVIDIA/OpenShell | ADOPT_POST_RELEASE_OPTIONAL_EXECUTION_BACKEND | Strategic fit is very high for execution isolation, but v1.5.0 keeps current Docker qualification canonical. After v1.5.0 is sealed, evaluate only as an optional backend behind CUORE-authorized normalized actions; `OPENSHELL_ADVISOR_OUTPUT != AUTHORIZATION`. |
 | obra/superpowers | DISTILL_NOW | Keep TDD, systematic debugging, planning, and verification-before-completion methods. Already aligned with BOQA engineering discipline; do not add as runtime. |
 | Graphify-Labs/graphify | DISTILL_NOW | Use deterministic AST/reachability/impact ideas for dead-code classification and cleanup evidence. Prefer local deterministic graph extraction over a new persistent knowledge layer. |
 | addyosmani/agent-skills | DISTILL_NOW | Curate only engineering/review patterns that improve tests, review, performance, accessibility, or maintenance. Do not vendor a catalog. |
@@ -42,7 +44,7 @@ No item below is authorized for production integration merely because it appears
 |---|---|---|
 | Virtuals ACP offerings | WATCH_READ_ONLY | Future agent-market metadata radar/provider research. Discovery never equals authorization; no autonomous acceptance/submission from listing data. |
 | Cloudflare Dashboard | WATCH_READ_ONLY | Existing control plane only. Do not turn Cloudflare Worker into a heavy browser/Docker executor. |
-| mvanhorn/last30days-skill | WATCH_READ_ONLY | Research methodology only. BOQA radar should use narrow authoritative sources rather than importing a broad social/web research pipeline. |
+| mvanhorn/last30days-skill | WATCH_READ_ONLY | Maintainer research methodology only. BOQA radar should use narrow authoritative sources rather than importing a broad social/web research pipeline. |
 | K-Dense-AI/scientific-agent-skills | WATCH_READ_ONLY | Skill packaging/provenance/test conventions are useful; scientific catalog is out of BOQA scope. Do not vendor. |
 | trimstray/the-book-of-secret-knowledge | WATCH_READ_ONLY | Reference catalog only; too broad and heterogeneous for runtime or skill-registry admission. |
 | WaterCrawl | WATCH_READ_ONLY | Could inform future public-metadata ingestion, but BOQA already has narrower radar requirements; no crawler dependency now. |
@@ -60,6 +62,17 @@ No item below is authorized for production integration merely because it appears
 | Stagehand website | BENCHMARK_LATER | Same disposition as browserbase/stagehand; documentation/reference only. |
 | Mindgard AI pentesting comparison | WATCH_READ_ONLY | Market/research reference for AI-specific red-team categories; vendor comparisons are not BOQA architecture authority. |
 | EC-Council pentesting/AI-tools article | WATCH_READ_ONLY | High-level methodology/reference only; no direct integration. |
+
+
+## Explicitly deferred or rejected before v1.5.0
+
+| Source | Decision | Reason |
+|---|---|---|
+| Agent-Reach | REJECT_AS_RUNTIME | Generalized scraping, shell, cookie/login, and network capabilities expand BOQA execution authority and target surface before the release boundary is sealed. |
+| InsForge | REJECT_AS_RUNTIME | No database, auth, storage, or backend replacement is required for v1.5.0; adding one would introduce architecture for no current problem. |
+| Decision 2.0 | REJECT_AS_AUTHORITY | Probabilistic decision models must not enter CUORE or deterministic authorization. A future advisory-only comparison could emit proposals that BOQA independently verifies. |
+| Agent Beacon | WATCH_READ_ONLY | Potential post-release session observability reference; do not add telemetry, privacy, or storage surface before v1.5.0. |
+| Prism Legal OS | DISTILL_NOW | Publication-discipline idea only. BOQA independently implements its own zero-dependency publication check; no Prism code or dependency is copied. |
 
 ## Security/autonomous-pentest projects — do not integrate into current runtime
 
@@ -116,5 +129,28 @@ Methods worth incorporating into BOQA's own process:
 4. DONE/success must be independently verified;
 5. benchmark candidates on exact tasks with latency/cost/protocol-call/evidence boundaries;
 6. retain one deterministic authority plane and one canonical memory/evidence story.
+
+## OpenShell post-release spike contract
+
+Only after `v1.5.0` is sealed with `MAIN=TAG=PROD` and `BLOCKERS=NONE`, open a separate bounded spike:
+
+`spike/openshell-execution-backend-v1`
+
+Target architecture:
+
+`CUORE → normalized authorized action → execution backend interface → DockerBackend | OpenShellBackend → evidence → BOQA verifier`
+
+Hard invariants:
+
+- `CUORE_AUTHORITY_UNCHANGED=YES`
+- `HUMANGATE_UNCHANGED=YES`
+- `CURRENT_DOCKER_BACKEND_UNCHANGED=YES`
+- `OPENSHELL_OPTIONAL=YES`
+- `NEW_DEFAULT_NETWORK_ACCESS=0`
+- `RAW_CREDENTIAL_EXPOSURE=0`
+- `POLICY_EXPANSION_REQUIRES_BOQA_AUTHORITY=YES`
+- `OPENSHELL_ADVISOR_OUTPUT != AUTHORIZATION`
+
+Any policy expansion must follow: denial/proposal → normalized capability delta → CUORE validation → HumanGate when authority expands → OpenShell policy prover → activation → evidence. The spike may compare filesystem surface, network surface, process privileges, credential exposure, reproducibility, evidence quality, and operational complexity on one identical controlled fixture. OpenShell events may supplement BOQA evidence but cannot serve as sole proof.
 
 This triage is intentionally conservative. A future tool can move from WATCH/BENCHMARK to admission only when a concrete BOQA requirement cannot be satisfied simply by the existing lean kernel.
