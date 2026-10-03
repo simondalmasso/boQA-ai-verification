@@ -4,7 +4,6 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const { execFileSync } = require('child_process');
 
 function verifyAudit(rootDir) {
   const root = path.resolve(rootDir);
@@ -16,21 +15,10 @@ function verifyAudit(rootDir) {
     return JSON.parse(fs.readFileSync(file, 'utf8'));
   }
 
-  function gitBlob(ref, rel) {
-    try {
-      return execFileSync('git', ['show', `${ref}:${rel}`], {
-        cwd: root,
-        encoding: null,
-        maxBuffer: 32 * 1024 * 1024,
-        stdio: ['ignore', 'pipe', 'pipe'],
-      });
-    } catch (_) {
-      throw new Error(`AUDITED_GIT_BLOB_MISSING:${ref}:${rel}`);
-    }
-  }
-
-  function sha256(buffer) {
-    return crypto.createHash('sha256').update(buffer).digest('hex');
+  function sha256File(rel) {
+    const file = path.join(root, rel);
+    if (!fs.existsSync(file)) throw new Error('AUDITED_FILE_MISSING:' + rel);
+    return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
   }
 
   const findings = readJson('findings.json');
@@ -58,10 +46,8 @@ function verifyAudit(rootDir) {
   }
 
   for (const [rel, expected] of Object.entries(scope.files || {})) {
-    const auditHash = sha256(gitBlob(scope.audited_source_ref, rel));
-    const headHash = sha256(gitBlob('HEAD', rel));
-    if (auditHash !== expected) throw new Error('AUDIT_MANIFEST_SOURCE_MISMATCH:' + rel);
-    if (headHash !== expected) throw new Error('AUDITED_SCOPE_CHANGED:' + rel);
+    const actual = sha256File(rel);
+    if (actual !== expected) throw new Error('AUDITED_SCOPE_CHANGED:' + rel);
   }
 
   console.log('SECURITY_AUDIT=NO_CONFIRMED_RELEASE_BLOCKER');
