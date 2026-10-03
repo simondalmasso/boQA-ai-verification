@@ -26,6 +26,7 @@ const SENSITIVE_FIELD_KEYS = new Set([
   'xapikey', 'xcsrftoken', 'xauthtoken', 'xaccesstoken', 'xrefreshtoken', 'xboqasig',
   'apikey', 'csrftoken', 'authtoken', 'accesstoken', 'refreshtoken', 'idtoken',
   'password', 'passwd', 'secret', 'privatekey', 'seedphrase', 'signature', 'pin',
+  'token', 'credential', 'credentials', 'clientsecret', 'sessiontoken',
   'valuepreview', 'valueprefix', 'headerpreview',
 ]);
 
