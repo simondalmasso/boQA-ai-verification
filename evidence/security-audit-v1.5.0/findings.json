@@ -106,5 +106,7 @@
     "Unused in-page auth-preview instrumentation should be removed or redesigned before any future bridge consumes it.",
     "The GitLab mirror workflow should eventually pin checkout to a commit SHA.",
     "Wrangler is invoked at an exact version; exact Worker-version identity remains the release artifact-integrity control."
-  ]
+  ],
+  "audited_scope_manifest": "evidence/security-audit-v1.5.0/audited-scope-sha256.json",
+  "audited_scope_binding": "required_by_test/test-security-audit-scope-binding.js"
 }
