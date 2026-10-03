@@ -34,8 +34,9 @@ assert.match(production, /deployed_version[\s\S]*PREVIEW_VERSION_ID/);
 for (const surface of ['/health', '/api/health', '/api/hunter/status', '/og-boqa.png', '/favicon.svg']) {
   assert(production.includes(surface), 'missing production verification surface: ' + surface);
 }
+const productionLower = production.toLowerCase();
 for (const header of ['Strict-Transport-Security', 'Content-Security-Policy', 'X-Frame-Options', 'Permissions-Policy']) {
-  assert(production.includes(header), 'missing production header verification: ' + header);
+  assert(productionLower.includes(header.toLowerCase()), 'missing production header verification: ' + header);
 }
 assert(production.includes('/api/private/billing'), 'hidden private surface must be verified');
 
