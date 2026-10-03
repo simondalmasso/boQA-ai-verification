@@ -19,6 +19,68 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
+
+const REDACTED = '[REDACTED]';
+const SENSITIVE_FIELD_KEYS = new Set([
+  'authorization', 'cookie', 'setcookie',
+  'xapikey', 'xcsrftoken', 'xauthtoken', 'xaccesstoken', 'xrefreshtoken', 'xboqasig',
+  'apikey', 'csrftoken', 'authtoken', 'accesstoken', 'refreshtoken', 'idtoken',
+  'password', 'passwd', 'secret', 'privatekey', 'seedphrase', 'signature', 'pin',
+  'valuepreview', 'valueprefix', 'headerpreview',
+]);
+
+function normalizedSensitiveKey(key) {
+  return String(key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function isSensitiveField(key) {
+  return SENSITIVE_FIELD_KEYS.has(normalizedSensitiveKey(key));
+}
+
+function redactStructured(value, keyHint = '') {
+  if (isSensitiveField(keyHint)) return REDACTED;
+  if (Array.isArray(value)) return value.map((item) => redactStructured(item));
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, item]) => [
+        key,
+        isSensitiveField(key) ? REDACTED : redactStructured(item, key),
+      ])
+    );
+  }
+  return value;
+}
+
+function redactPayload(payload) {
+  if (payload === null || payload === undefined) return payload;
+  if (typeof payload !== 'string') return redactStructured(payload);
+
+  const trimmed = payload.trim();
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return JSON.stringify(redactStructured(JSON.parse(payload)));
+    } catch (_) {}
+  }
+
+  if (payload.includes('=')) {
+    try {
+      const params = new URLSearchParams(payload);
+      let changed = false;
+      for (const key of [...params.keys()]) {
+        if (isSensitiveField(key)) {
+          params.set(key, REDACTED);
+          changed = true;
+        }
+      }
+      if (changed) return params.toString();
+    } catch (_) {}
+  }
+
+  return payload
+    .replace(/\bBearer\s+[^\s,;]+/gi, 'Bearer [REDACTED]')
+    .replace(/\bBasic\s+[^\s,;]+/gi, 'Basic [REDACTED]');
+}
+
 const EVENT_TYPES = new Set([
   'network_request', 'network_response', 'network_failure',
   'websocket_open', 'websocket_message_in', 'websocket_message_out', 'websocket_close',
@@ -251,10 +313,10 @@ class EventBus extends EventEmitter {
       url: raw.url || null,
       method: raw.method || null,
       status: raw.status || null,
-      headers: raw.headers || null,
-      payload: raw.payload || null,
+      headers: raw.headers ? redactStructured(raw.headers) : null,
+      payload: redactPayload(raw.payload),
       source: raw.source || 'playwright',
-      meta: raw.meta || {},
+      meta: redactStructured(raw.meta || {}),
     });
   }
 
