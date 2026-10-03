@@ -12,6 +12,7 @@ function argValue(name, fallback = null) {
   return at >= 0 && process.argv[at + 1] ? process.argv[at + 1] : fallback;
 }
 
+const customRootProvided = process.argv.includes('--root');
 const root = path.resolve(argValue('--root', process.cwd()));
 const expectedReadinessDate = argValue(
   '--readiness-date',
@@ -131,6 +132,15 @@ if (canonicalSha || releaseTagSha) {
     fail('release_sha_comparison_incomplete', 'both BOQA_CANONICAL_SHA and BOQA_RELEASE_TAG_SHA are required');
   } else if (canonicalSha !== releaseTagSha) {
     fail('release_tag_sha_mismatch', `canonical=${canonicalSha} tag=${releaseTagSha}`);
+  }
+}
+
+if (!customRootProvided) {
+  try {
+    const { verifyAudit } = require('./check-security-audit-evidence');
+    verifyAudit(root);
+  } catch (error) {
+    fail('security_audit_evidence_invalid', error.message);
   }
 }
 
