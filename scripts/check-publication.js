@@ -94,6 +94,7 @@ if (!new RegExp(`^RELEASE_TAG=${EXPECTED_TAG}\\b`, 'm').test(readiness)) {
 
 const currentReleaseSurfaces = [
   'dashboard/index.html',
+  'dashboard/og-boqa-source.svg',
   '.env.example',
   'Dockerfile',
   'compose.yaml',
