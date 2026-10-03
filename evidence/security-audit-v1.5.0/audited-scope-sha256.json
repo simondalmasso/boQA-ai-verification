@@ -58,8 +58,8 @@
     "scripts/demo-cuore-fixtures.js": "d7cc3f461bf0d522fbdea0c3c62c4d600ef786445540c08b943e4a209654807a",
     "scripts/run-all-tests.js": "a52a481e6d8dec2b229802a6de4f0315592d95aa59b32a376d57aa1f3f5ca9a7",
     "server.js": "63e2893f1b67fb84b89ee0865755d986836bc2c3cfcdd98e6f87fb14fbc91308",
-    "worker.js": "9c76c21075019ed15061537493bf254189b02fc8b4d385b9787ed62530180093",
+    "worker.js": "f78f6505dff8c17cbc351a0656aac8ca19729299c517ef22a3771c04abaea2d2",
     "wrangler.toml": "3a908aee74df2f2bdaa775fa33beaeeae2d6984530f766e219b03643b2c8c309"
   },
-  "audited_source_ref": "71bdbf9db6f616da022aab43e337254f1c262935"
+  "audited_source_ref": "754a65811bd4b482708c4e46930a8af0bfe926e6"
 }
