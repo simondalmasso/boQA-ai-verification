@@ -3,6 +3,39 @@
  * No demo data is generated at the edge.
  */
 
+const PUBLIC_CSP = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self'",
+  "img-src 'self' data:",
+  "connect-src 'self'",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'none'",
+  "upgrade-insecure-requests",
+].join('; ');
+
+const PUBLIC_SECURITY_HEADERS = Object.freeze({
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Content-Security-Policy': PUBLIC_CSP,
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'no-referrer',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+});
+
+function applyPublicSecurityHeaders(headers = new Headers(), overrides = {}) {
+  const secured = headers instanceof Headers ? headers : new Headers(headers);
+  for (const [name, value] of Object.entries(PUBLIC_SECURITY_HEADERS)) {
+    secured.set(name, value);
+  }
+  for (const [name, value] of Object.entries(overrides)) {
+    secured.set(name, value);
+  }
+  return secured;
+}
+
 async function computeHmacSignature(secret, method, path, ts, bodyStr) {
   const payload = method.toUpperCase() + path + String(ts) + bodyStr;
   const encoder = new TextEncoder();
@@ -18,13 +51,13 @@ async function computeHmacSignature(secret, method, path, ts, bodyStr) {
 }
 
 function jsonResponse(payload, status = 200, headers = {}) {
+  const responseHeaders = applyPublicSecurityHeaders(new Headers({
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store, max-age=0',
+  }), headers);
   return new Response(JSON.stringify(payload), {
     status,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store, max-age=0',
-      ...headers,
-    },
+    headers: responseHeaders,
   });
 }
 
@@ -70,17 +103,15 @@ function isPrivateSurface(pathname) {
 
 function hiddenPrivateResponse(pathname) {
   const normalized = normalizePathname(pathname);
-  const headers = {
+  const headers = applyPublicSecurityHeaders(new Headers({
     'Cache-Control': 'no-store, max-age=0',
     'Pragma': 'no-cache',
     'Expires': '0',
-    'X-Content-Type-Options': 'nosniff',
     'X-Robots-Tag': 'noindex, nofollow, noarchive',
-    'Referrer-Policy': 'no-referrer',
-    'Content-Security-Policy': "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
     'Cross-Origin-Resource-Policy': 'same-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
-  };
+  }), {
+    'Content-Security-Policy': "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+  });
   if (normalized.startsWith('/api/')) {
     return jsonResponse({ error: 'not_found' }, 404, headers);
   }
@@ -148,11 +179,10 @@ async function proxyToBackend(request, env) {
       return jsonResponse({ error: 'websocket_not_supported_via_worker', fallback: 'http_polling' }, 426);
     }
 
-    const headers = new Headers(backendResponse.headers);
+    const headers = applyPublicSecurityHeaders(new Headers(backendResponse.headers));
     headers.delete('Transfer-Encoding');
     headers.set('Cache-Control', 'no-store, max-age=0');
     headers.set('Pragma', 'no-cache');
-    headers.set('X-Content-Type-Options', 'nosniff');
     return new Response(backendResponse.body, {
       status: backendResponse.status,
       statusText: backendResponse.statusText,
@@ -171,8 +201,7 @@ function secureAssetResponse(assetResponse, pathname) {
     headers.set('Pragma', 'no-cache');
     headers.set('Expires', '0');
   }
-  headers.set('X-Content-Type-Options', 'nosniff');
-  headers.set('Referrer-Policy', 'no-referrer');
+  applyPublicSecurityHeaders(headers);
   return new Response(assetResponse.body, {
     status: assetResponse.status,
     statusText: assetResponse.statusText,
@@ -217,7 +246,7 @@ export default {
 
     return new Response('BOQA Worker — no assets bound', {
       status: 404,
-      headers: { 'Cache-Control': 'no-store, max-age=0' },
+      headers: applyPublicSecurityHeaders(new Headers({ 'Cache-Control': 'no-store, max-age=0' })),
     });
   },
 };
