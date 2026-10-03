@@ -24,6 +24,16 @@ assert.doesNotMatch(workflow, /merge-base --is-ancestor/);
 assert.match(workflow, /npm run check:publication/);
 assert.match(workflow, /npm run demo:cuore/);
 assert.match(workflow, /target_asset_network_requests=0/);
+assert.match(workflow, /boqa-publication-integrity-v1\.yml/);
+assert.match(workflow, /boqa-security-audit-v1\.yml/);
+assert.match(workflow, /npm run check:security-audit/);
+
+const securityWorkflowPath = path.join(root, '.github', 'workflows', 'boqa-security-audit-v1.yml');
+assert.equal(fs.existsSync(securityWorkflowPath), true, 'dedicated security audit gate must exist');
+const securityWorkflow = fs.readFileSync(securityWorkflowPath, 'utf8');
+assert.match(securityWorkflow, /permissions:\s*\n\s*contents:\s*read/);
+assert.match(securityWorkflow, /npm run check:security-audit/);
+assert.match(securityWorkflow, /test\/test-security-boundary-audit\.js/);
 
 const production = fs.readFileSync(path.join(root, '.github', 'workflows', 'boqa-production-deploy-v1.yml'), 'utf8');
 assert.match(production, /versions deploy/);
