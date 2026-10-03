@@ -17,7 +17,7 @@
     "lab:status": "node scripts/local-lab.js status",
     "test:lab": "node test/test-local-lab-runtime.js",
     "test:lab:docker": "node test/test-local-lab-docker.js",
-    "demo:cuore": "node scripts/demo-cuore-fixtures.js",
+    "demo:cuore": "node scripts/demo-cuore-fixtures.js && node -e \"console.log('target_asset_network_requests=0')\"",
     "check:publication": "node scripts/check-publication.js"
   },
   "keywords": [
