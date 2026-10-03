@@ -3,6 +3,7 @@ name: BOQA Publication Integrity Gate V1
 on:
   pull_request:
     branches: [main]
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read
@@ -10,6 +11,33 @@ permissions:
 jobs:
   publication-integrity:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BOQA_READINESS_DATE: '2026-10-03'
     steps:
-      - name: Placeholder
-        run: echo publication-integrity
+      - name: Checkout exact PR head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Reproducible install
+        run: npm ci
+
+      - name: Dependency audit
+        run: npm audit --audit-level=low
+
+      - name: Publication integrity
+        run: npm run check:publication
+
+      - name: Fixture-only CUORE demo
+        run: npm run demo:cuore
+
+      - name: Require zero target network requests
+        run: npm run demo:cuore | grep -F 'target_asset_network_requests=0'
