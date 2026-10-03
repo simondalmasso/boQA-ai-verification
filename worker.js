@@ -187,6 +187,16 @@ async function proxyToBackend(request, env) {
       return jsonResponse({ error: 'websocket_not_supported_via_worker', fallback: 'http_polling' }, 426);
     }
 
+    const backendContentType = (backendResponse.headers.get('content-type') || '').toLowerCase();
+    if (backendResponse.status >= 500 && !backendContentType.includes('application/json')) {
+      const retryAfter = backendResponse.headers.get('retry-after');
+      return jsonResponse(
+        { error: 'backend_unreachable' },
+        504,
+        retryAfter ? { 'Retry-After': retryAfter } : {}
+      );
+    }
+
     const headers = applyPublicSecurityHeaders(new Headers(backendResponse.headers));
     headers.delete('Transfer-Encoding');
     headers.set('Cache-Control', 'no-store, max-age=0');
