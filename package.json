@@ -1,6 +1,6 @@
 {
   "name": "boqa",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Browser Observability & QA — lean defensive verification kernel",
   "main": "server.js",
   "scripts": {
@@ -17,7 +17,8 @@
     "lab:status": "node scripts/local-lab.js status",
     "test:lab": "node test/test-local-lab-runtime.js",
     "test:lab:docker": "node test/test-local-lab-docker.js",
-    "demo:cuore": "node scripts/demo-cuore-fixtures.js"
+    "demo:cuore": "node scripts/demo-cuore-fixtures.js",
+    "check:publication": "node scripts/check-publication.js"
   },
   "keywords": [
     "observability",
