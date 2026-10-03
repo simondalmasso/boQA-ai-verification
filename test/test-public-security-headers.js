@@ -64,6 +64,32 @@ async function run() {
   assert.equal(apiUnavailable.status, 503);
   assertCommonHeaders(apiUnavailable, '/api/health');
 
+  const originalFetch = global.fetch;
+  try {
+    global.fetch = async () => new Response('<html>upstream timeout</html>', {
+      status: 522,
+      headers: {
+        'Content-Type': 'text/html; charset=UTF-8',
+        'Retry-After': '120',
+      },
+    });
+    const upstreamUnavailable = await worker.fetch(
+      new Request('https://public.invalid/api/health'),
+      {
+        BOQA_BACKEND_URL: 'https://backend.invalid',
+        BOQA_API_KEY: 'fixture-api-key',
+        BOQA_HMAC_SECRET: 'fixture-hmac-secret',
+      }
+    );
+    assert.equal(upstreamUnavailable.status, 504, 'non-JSON upstream 5xx must be normalized');
+    assert.match(upstreamUnavailable.headers.get('content-type') || '', /^application\/json/i);
+    assert.equal(upstreamUnavailable.headers.get('retry-after'), '120');
+    assert.deepEqual(await upstreamUnavailable.json(), { error: 'backend_unreachable' });
+    assertCommonHeaders(upstreamUnavailable, '/api/health upstream 522');
+  } finally {
+    global.fetch = originalFetch;
+  }
+
   const concealed = await worker.fetch(new Request('https://public.invalid/%2563obros.html'), assetEnv);
   assert.equal(concealed.status, 404);
   assert.equal(concealed.headers.get('strict-transport-security'), 'max-age=31536000; includeSubDomains');
