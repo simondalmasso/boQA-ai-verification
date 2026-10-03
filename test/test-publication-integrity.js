@@ -33,7 +33,7 @@ function check(root, env = {}) {
   return spawnSync(process.execPath, [checker, '--root', root], {
     cwd: projectRoot,
     encoding: 'utf8',
-    env: { ...process.env, ...env },
+    env: { ...process.env, BOQA_READINESS_DATE: '2026-10-03', ...env },
   });
 }
 
