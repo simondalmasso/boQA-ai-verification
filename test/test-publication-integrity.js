@@ -72,4 +72,19 @@ expectFailure({ 'README.md': 'MODEL_OUTPUT != AUTHORIZATION\nCodex proposes.\nBO
   assert.notEqual(result.status, 0, 'release tag SHA mismatch must fail');
 }
 
+const workflowPath = path.join(projectRoot, '.github', 'workflows', 'boqa-publication-integrity-v1.yml');
+assert.equal(fs.existsSync(workflowPath), true, 'publication-integrity CI workflow must exist');
+const workflow = fs.readFileSync(workflowPath, 'utf8');
+assert.match(workflow, /pull_request:/);
+assert.match(workflow, /contents:\s*read/);
+assert.doesNotMatch(workflow, /contents:\s*write/);
+assert.match(workflow, /npm ci/);
+assert.match(workflow, /npm audit/);
+assert.match(workflow, /npm run check:publication/);
+assert.match(workflow, /npm run demo:cuore/);
+assert.match(workflow, /target_asset_network_requests=0/);
+assert.match(workflow, /findings\.json/);
+assert.match(workflow, /confirmed_release_blockers/);
+assert.match(workflow, /coverage-ledger\.json/);
+
 console.log('publication integrity contract: PASS');
