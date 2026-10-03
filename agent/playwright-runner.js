@@ -21,6 +21,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 const fs = require('fs');
+const { isNetworkUrlAllowed } = require('../lib/browser-network-scope');
 
 // Auth-related URL patterns for signal detection
 const AUTH_PATTERNS = [
@@ -160,6 +161,7 @@ class PlaywrightRunner {
     const contextOpts = {
       viewport: this.options.viewport,
       ignoreHTTPSErrors: true,
+      serviceWorkers: 'block',
     };
 
     if (this.options.recordHar) {
@@ -178,6 +180,43 @@ class PlaywrightRunner {
     });
 
     this.context = await this.browser.newContext(contextOpts);
+
+    await this.context.route('**/*', async (route) => {
+      const request = route.request();
+      const requestUrl = request.url();
+      if (!isNetworkUrlAllowed(requestUrl, this.options.allowedOrigins)) {
+        this.bus?.emit?.({
+          type: 'network_failure',
+          url: requestUrl,
+          method: request.method(),
+          source: 'scope_guard',
+          meta: {
+            failure: 'BROWSER_NETWORK_SCOPE_BLOCKED',
+            resourceType: request.resourceType(),
+          },
+        });
+        await route.abort('blockedbyclient');
+        return;
+      }
+      await route.continue();
+    });
+
+    await this.context.routeWebSocket(/.*/, async (webSocketRoute) => {
+      const socketUrl = webSocketRoute.url();
+      if (!isNetworkUrlAllowed(socketUrl, this.options.allowedOrigins)) {
+        this.bus?.emit?.({
+          type: 'network_failure',
+          url: socketUrl,
+          method: 'WEBSOCKET',
+          source: 'scope_guard',
+          meta: { failure: 'BROWSER_NETWORK_SCOPE_BLOCKED', resourceType: 'websocket' },
+        });
+        await webSocketRoute.close({ code: 1008, reason: 'BOQA scope blocked' });
+        return;
+      }
+      webSocketRoute.connectToServer();
+    });
+
     this.page = await this.context.newPage();
 
     console.log('[Runner] Browser launched in headed mode');
