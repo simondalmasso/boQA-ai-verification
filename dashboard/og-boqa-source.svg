@@ -14,7 +14,7 @@
   <text x="80" y="489" fill="#f5f7fa" font-family="DejaVu Sans Mono, monospace" font-size="13" font-weight="700">MODEL_OUTPUT != AUTHORIZATION</text>
   <rect x="782" y="110" width="354" height="410" rx="15" fill="#101419" stroke="#26303a"/>
   <text x="804" y="148" fill="#f5f7fa" font-family="DejaVu Sans, Arial, sans-serif" font-size="16" font-weight="600">Authority path</text>
-  <text x="1117" y="148" text-anchor="end" fill="#68e0c1" font-family="DejaVu Sans Mono, monospace" font-size="12" font-weight="700">v1.5.0</text>
+  <text x="1117" y="148" text-anchor="end" fill="#68e0c1" font-family="DejaVu Sans Mono, monospace" font-size="12" font-weight="700">v1.5.1</text>
   <line x1="804" y1="168" x2="1114" y2="168" stroke="#26303a"/>
   <g font-family="DejaVu Sans Mono, monospace" font-size="10" font-weight="700">
     <g><circle cx="807" cy="204" r="3" fill="#68e0c1"/><text x="821" y="208" fill="#f5f7fa">MODEL</text><text x="1114" y="208" text-anchor="end" fill="#9ca8b4" font-weight="400">proposes</text></g>
@@ -31,5 +31,5 @@
     <line x1="804" y1="451" x2="1114" y2="451" stroke="#26303a"/>
     <g><circle cx="807" cy="474" r="3" fill="#68e0c1"/><text x="821" y="478" fill="#f5f7fa">EVIDENCE</text><text x="1114" y="478" text-anchor="end" fill="#9ca8b4" font-weight="400">records</text></g>
   </g>
-  <text x="64" y="594" fill="#9ca8b4" font-family="DejaVu Sans Mono, monospace" font-size="12">release v1.5.0 · exact-head · reproducible evidence</text>
+  <text x="64" y="594" fill="#9ca8b4" font-family="DejaVu Sans Mono, monospace" font-size="12">release v1.5.1 · exact-head · reproducible evidence</text>
 </svg>
