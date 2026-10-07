@@ -31,7 +31,7 @@ assert.match(landing, /Models can suggest tests, fixes and reproductions\./);
 assert.match(landing, /Deterministic policy, HumanGate and reproducible evidence decide what is accepted\./);
 assert.match(landing, /MODEL_OUTPUT\s*!=\s*AUTHORIZATION/);
 
-for (const label of ['How it works', 'Evidence', 'Safe demo', 'GitHub', 'v1.5.0']) {
+for (const label of ['How it works', 'Evidence', 'Safe demo', 'GitHub', 'v1.5.1']) {
   assert(landing.includes(`>${label}<`), 'missing header navigation label: ' + label);
 }
 assert.match(landing, /href=["']#how-it-works["']/);
@@ -42,7 +42,7 @@ for (const [label, href] of [
   ['View GitHub', 'https://github.com/simondalmasso/boqa'],
   ['Run safe demo', '#safe-demo'],
   ['System status', '/status/'],
-  ['v1.5.0', 'https://github.com/simondalmasso/boqa/releases/tag/v1.5.0'],
+  ['v1.5.1', 'https://github.com/simondalmasso/boqa/releases/tag/v1.5.1'],
 ]) {
   assert(landing.includes(`>${label}<`), 'missing visible link label: ' + label);
   assert(landing.includes(`href="${href}"`), 'missing href: ' + href);
@@ -55,7 +55,7 @@ const trace = landing.slice(traceStart, traceEnd);
 for (const label of ['MODEL', 'CUORE', 'POLICY / SCOPE', 'HUMANGATE', 'EXECUTE', 'VERIFY', 'EVIDENCE']) {
   assert(trace.includes(label), 'missing trace stage: ' + label);
 }
-for (const evidence of ['v1.5.0', 'exact-head', 'target_asset_network_requests=0']) {
+for (const evidence of ['v1.5.1', 'exact-head', 'target_asset_network_requests=0']) {
   assert(trace.includes(evidence), 'missing verified evidence: ' + evidence);
 }
 assert.match(trace, /browser[\s\S]*PASS/i, 'missing browser PASS evidence');
@@ -94,7 +94,7 @@ for (const href of [
   'https://github.com/simondalmasso/boqa/blob/main/CONTRIBUTING.md',
   'https://github.com/simondalmasso/boqa/blob/main/LICENSE',
   'https://github.com/simondalmasso/boqa/blob/main/scripts/demo-cuore-fixtures.js',
-  'https://github.com/simondalmasso/boqa/releases/tag/v1.5.0',
+  'https://github.com/simondalmasso/boqa/releases/tag/v1.5.1',
   '/status/',
 ]) {
   assert(landing.includes(`href="${href}"`), 'missing project link: ' + href);
