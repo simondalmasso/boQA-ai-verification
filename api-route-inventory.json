@@ -1,20 +1,103 @@
 {
-  "schema_version": 2,
-  "generated_at": "2026-09-24",
-  "order_id": "BOQA-RESTORE-001-RECONCILE-PRUNE-LEAN-KERNEL-V1",
+  "schema_version": 3,
+  "generated_at": "2026-10-07",
+  "release_line": "v1.5.1",
   "status": "LEAN_SUPPORTED_KERNEL",
-  "node_routes": [
-    {"method":"GET","path":"/health","scope":"public_local_status","source":"server.js"},
-    {"method":"GET","path":"/api/health","scope":"public_read","source":"server.js"},
-    {"method":"GET","path":"/api/defensive/status","scope":"public_read","source":"server.js"},
-    {"method":"GET","path":"/api/hunter/status","scope":"public_read","source":"routes/hunter-v1.js"},
-    {"method":"POST","path":"/api/hunter/cycle","scope":"strong_auth_manual_control","source":"routes/hunter-v1.js"},
-    {"method":"POST","path":"/api/private/billing/auth","scope":"strong_proxy_auth","source":"server.js"},
-    {"method":"GET","path":"/api/private/billing/session","scope":"private_session","source":"server.js"},
-    {"method":"GET","path":"/api/private/billing/data","scope":"private_session","source":"server.js"},
-    {"method":"POST","path":"/api/private/billing/logout","scope":"private_session","source":"server.js"}
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "scope": "PUBLIC_READ",
+      "source": "server.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "scope": "PUBLIC_READ",
+      "source": "server.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/defensive/status",
+      "scope": "INTERNAL",
+      "source": "server.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/hunter/status",
+      "scope": "PUBLIC_READ",
+      "source": "routes/hunter-v1.js"
+    },
+    {
+      "method": "POST",
+      "path": "/api/hunter/cycle",
+      "scope": "MANUAL_CONTROL",
+      "source": "routes/hunter-v1.js"
+    },
+    {
+      "method": "GET",
+      "path": "/api/private/human-gates",
+      "scope": "MANUAL_CONTROL",
+      "source": "server.js"
+    },
+    {
+      "method": "GET",
+      "path": "/cobros",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    },
+    {
+      "method": "GET",
+      "path": "/cobros.html",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    },
+    {
+      "method": "GET",
+      "path": "/cobros.js",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    },
+    {
+      "method": "GET",
+      "path": "/private.css",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    },
+    {
+      "method": "POST",
+      "path": "/api/private/billing/auth",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    },
+    {
+      "method": "GET",
+      "path": "/api/private/billing/session",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    },
+    {
+      "method": "GET",
+      "path": "/api/private/billing/data",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    },
+    {
+      "method": "POST",
+      "path": "/api/private/billing/logout",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    },
+    {
+      "method": "WS",
+      "path": "/ws",
+      "scope": "REMOVED",
+      "source": "legacy-negative-regression"
+    }
   ],
-  "public_edge_api_allowlist": ["GET /api/health", "GET /api/hunter/status"],
-  "historical_versioned_routes_removed": 10,
+  "public_edge_api_allowlist": [
+    "GET /api/health",
+    "GET /api/hunter/status"
+  ],
   "external_default_targets": 0
 }
