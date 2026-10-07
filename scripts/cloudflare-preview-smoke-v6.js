@@ -287,6 +287,8 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
     assert(allowedUnavailableReasons.has(hunterReason), `${label}:HUNTER_UNAVAILABLE_REASON:${hunterReason}`);
     result.health_reason = healthReason;
     result.hunter_reason = hunterReason;
+    assert.equal(await page.locator('#empty-state').isVisible(), true, `${label}:EMPTY_STATE_NOT_VISIBLE`);
+    assert.equal(await page.locator('#status-grid').isHidden(), true, `${label}:STATUS_GRID_VISIBLE_WHILE_UNAVAILABLE`);
   } else {
     throw new Error(`UNKNOWN_CLASSIFICATION:${classification}`);
   }
