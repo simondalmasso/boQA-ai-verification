@@ -73,6 +73,7 @@ jobs:
           evidence="$(find output/production-deploy/preview -name preview-smoke-evidence.json -print -quit)"
           test -f "$candidate"
           test -f "$evidence"
+          node scripts/production-promotion-policy.js "$candidate" "$evidence" "$EXPECTED_SHA"
 
           jq -e --arg sha "$EXPECTED_SHA" '
             .head_sha == $sha and
