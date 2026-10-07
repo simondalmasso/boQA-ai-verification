@@ -84,6 +84,8 @@ jobs:
 
           jq -e '
             .gate_status == "PASS" and
+            .static_publication_valid == true and
+            .production_promotion_allowed == true and
             .production_changed == false and
             .deploy_performed == false
           ' "$evidence" >/dev/null
