@@ -28,6 +28,8 @@ jobs:
       EXPECTED_SHA: ${{ inputs.expected_sha }}
       GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     outputs:
       production_run_id: ${{ steps.production.outputs.run_id }}
       production_artifact_id: ${{ steps.production.outputs.artifact_id }}
@@ -68,7 +70,7 @@ jobs:
           test "$(node -p "require('./package.json').version")" = "1.5.1"
           npm test
           npm audit --audit-level=low
-          BOQA_READINESS_DATE="$(date -u +%F)" npm run check:publication
+          npm run check:publication
           npm run check:security-audit
           demo="$(npm run demo:cuore)"
           printf '%s\n' "$demo"
@@ -115,10 +117,20 @@ jobs:
           mkdir -p output/release/production
           curl -fsSL -L "${auth[@]}" "$api/actions/artifacts/$artifact_id/zip" -o /tmp/production.zip
           unzip -q /tmp/production.zip -d output/release/production
-          evidence="$(find output/release/production -name evidence.json -print -quit)"
-          preview_evidence="$(find output/release/production -name preview-smoke-evidence.json -print -quit)"
-          test -f "$evidence"
-          test -f "$preview_evidence"
+          (
+            cd output/release/production
+            test -f SHA256SUMS
+            sha256sum -c SHA256SUMS
+          )
+          evidence=output/release/production/evidence.json
+          candidate=output/release/production/preview/candidate.json
+          preview_evidence=output/release/production/preview/browser/preview-smoke-evidence.json
+          build=output/release/production/preview/build.json
+          # The preview artifact's browser evidence may be stored at its root
+          if [ ! -f "$preview_evidence" ]; then
+            preview_evidence=output/release/production/preview/preview-smoke-evidence.json
+          fi
+          for file in "$evidence" "$candidate" "$preview_evidence" "$build"; do test -f "$file"; done
 
           jq -e --arg sha "$EXPECTED_SHA" '
             .canonical_main_sha == $sha and
@@ -127,15 +139,44 @@ jobs:
             .status_byte_equal == true and
             .assets_byte_equal == true and
             .deployed_version_id == .verified_preview_version_id and
-            (.deployed_version_id | type == "string")
+            (.deployed_version_id | type == "string") and
+            (.source_preview_run_id | type == "string")
           ' "$evidence" >/dev/null
+          jq -e --arg sha "$EXPECTED_SHA" --arg version "$(jq -r '.deployed_version_id' "$evidence")" '
+            .head_sha == $sha and .version_id == $version and
+            .production_changed == false and .deploy_performed == false
+          ' "$candidate" >/dev/null
+          jq -e --arg sha "$EXPECTED_SHA" '
+            .success == true and .result.metadata.commit_hash == $sha and
+            .result.build_outcome == "success"
+          ' "$build" >/dev/null
+          node scripts/production-promotion-policy.js "$candidate" "$preview_evidence" "$EXPECTED_SHA"
+          preview_run_id="$(jq -r '.source_preview_run_id' "$evidence")"
+          preview_run="$(curl -fsSL "${auth[@]}" "$api/actions/runs/$preview_run_id")"
+          jq -e --arg sha "$EXPECTED_SHA" '
+            .head_sha == $sha and .conclusion == "success" and
+            .path == ".github/workflows/boqa-cloudflare-preview-v6.yml"
+          ' <<<"$preview_run" >/dev/null
 
           worker_version="$(jq -r '.deployed_version_id' "$evidence")"
-          preview_run_id="$(jq -r '.source_preview_run_id' "$evidence")"
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}"
+          test -n "${CLOUDFLARE_API_TOKEN:-}"
+          cf="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/boqa/deployments"
+          deployments="$(curl -fsSL -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "$cf")"
+          jq -e --arg version "$worker_version" '
+            .success == true and (.result.deployments[0].versions | length) == 1 and
+            .result.deployments[0].versions[0].version_id == $version
+          ' <<<"$deployments" >/dev/null
+          curl -fsSL --max-time 30 https://boqa.simondalmasso44.workers.dev/ -o /tmp/boqa-release-root.html
+          curl -fsSL --max-time 30 https://boqa.simondalmasso44.workers.dev/status/ -o /tmp/boqa-release-status.html
+          curl -fsSL --max-time 30 https://boqa.simondalmasso44.workers.dev/og-boqa.png -o /tmp/boqa-release-og.png
+          cmp dashboard/index.html /tmp/boqa-release-root.html
+          cmp dashboard/status/index.html /tmp/boqa-release-status.html
+          cmp dashboard/og-boqa.png /tmp/boqa-release-og.png
+
           runtime_classification="$(jq -r '.classification' "$preview_evidence")"
           preview_sha256="$(sha256sum "$preview_evidence" | awk '{print $1}')"
           production_sha256="$(sha256sum "$evidence" | awk '{print $1}')"
-
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
           echo "artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"
           echo "worker_version=$worker_version" >> "$GITHUB_OUTPUT"
@@ -162,6 +203,8 @@ jobs:
       PREVIEW_EVIDENCE_SHA256: ${{ needs.verify.outputs.preview_evidence_sha256 }}
       PRODUCTION_EVIDENCE_SHA256: ${{ needs.verify.outputs.production_evidence_sha256 }}
       RUNTIME_STATE_CLASSIFICATION: ${{ needs.verify.outputs.runtime_state_classification }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - name: Checkout exact candidate
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -178,20 +221,25 @@ jobs:
           remote_main="$(git ls-remote "https://github.com/$REPO.git" refs/heads/main | awk '{print $1}')"
           test "$remote_main" = "$EXPECTED_SHA"
 
-      - name: Create v1.5.1 release if absent
+      - name: Prepare draft v1.5.1 release
         shell: bash
         run: |
           set -Eeuo pipefail
           remote_tag_sha="$(git ls-remote "https://github.com/$REPO.git" refs/tags/v1.5.1 | awk '{print $1}')"
-
           if [ -n "$remote_tag_sha" ]; then
             test "$remote_tag_sha" = "$EXPECTED_SHA"
-            if ! gh release view v1.5.1 --repo "$REPO" >/dev/null 2>&1; then
-              gh release create v1.5.1                 --repo "$REPO"                 --verify-tag                 --title "BOQA v1.5.1"                 --notes "Release-integrity remediation: explicit production promotion authority, secure/fail-closed backend transport, removed billing/WebSocket surfaces, current security/publication evidence, and exact production verification. MODEL_OUTPUT != AUTHORIZATION. Codex proposes. BOQA verifies."
-            fi
-          else
-            gh release create v1.5.1               --repo "$REPO"               --target "$EXPECTED_SHA"               --title "BOQA v1.5.1"               --notes "Release-integrity remediation: explicit production promotion authority, secure/fail-closed backend transport, removed billing/WebSocket surfaces, current security/publication evidence, and exact production verification. MODEL_OUTPUT != AUTHORIZATION. Codex proposes. BOQA verifies."               --latest
           fi
+          if gh release view v1.5.1 --repo "$REPO" --json isDraft >/tmp/release-before.json 2>/dev/null; then
+            jq -e '.isDraft == true' /tmp/release-before.json >/dev/null
+          elif [ -n "$remote_tag_sha" ]; then
+            gh release create v1.5.1 --repo "$REPO" --verify-tag --draft \
+              --title "BOQA v1.5.1" --notes "Release-integrity remediation; verified exact SHA."
+          else
+            gh release create v1.5.1 --repo "$REPO" --target "$EXPECTED_SHA" --draft \
+              --title "BOQA v1.5.1" --notes "Release-integrity remediation; verified exact SHA."
+          fi
+          tag="$(git ls-remote "https://github.com/$REPO.git" refs/tags/v1.5.1 | awk '{print $1}')"
+          test "$tag" = "$EXPECTED_SHA"
 
       - name: Build sanitized durable release evidence
         shell: bash
@@ -229,7 +277,7 @@ jobs:
           set -Eeuo pipefail
           gh release upload v1.5.1             output/release/boqa-v1.5.1-evidence.json             output/release/boqa-v1.5.1-evidence.sha256             --repo "$REPO"             --clobber
 
-      - name: Verify exact release equality and durable assets
+      - name: Verify bytes and publish only after final production check
         shell: bash
         run: |
           set -Eeuo pipefail
@@ -237,19 +285,36 @@ jobs:
           remote_tag_sha="$(git ls-remote "https://github.com/$REPO.git" refs/tags/v1.5.1 | awk '{print $1}')"
           test "$remote_main" = "$EXPECTED_SHA"
           test "$remote_tag_sha" = "$EXPECTED_SHA"
+          BOQA_CANONICAL_SHA="$remote_main" BOQA_RELEASE_TAG_SHA="$remote_tag_sha" npm run check:publication
 
-          BOQA_READINESS_DATE="$(date -u +%F)"           BOQA_CANONICAL_SHA="$remote_main"           BOQA_RELEASE_TAG_SHA="$remote_tag_sha"             npm run check:publication
+          mkdir -p output/release/downloaded
+          gh release download v1.5.1 --repo "$REPO" \
+            --dir output/release/downloaded \
+            --pattern 'boqa-v1.5.1-evidence.*'
+          (
+            cd output/release/downloaded
+            sha256sum -c boqa-v1.5.1-evidence.sha256
+          )
+          cmp output/release/boqa-v1.5.1-evidence.json output/release/downloaded/boqa-v1.5.1-evidence.json
+          cmp output/release/boqa-v1.5.1-evidence.sha256 output/release/downloaded/boqa-v1.5.1-evidence.sha256
 
+          : "${CLOUDFLARE_ACCOUNT_ID:?missing account}"
+          : "${CLOUDFLARE_API_TOKEN:?missing token}"
+          deployments="$(curl -fsSL -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/scripts/boqa/deployments")"
+          jq -e --arg version "$PRODUCTION_WORKER_VERSION_ID" '
+            .success == true and (.result.deployments[0].versions | length) == 1 and
+            .result.deployments[0].versions[0].version_id == $version
+          ' <<<"$deployments" >/dev/null
+          test "$(git ls-remote "https://github.com/$REPO.git" refs/heads/main | awk '{print $1}')" = "$EXPECTED_SHA"
+          gh release edit v1.5.1 --repo "$REPO" --draft=false --latest
           gh release view v1.5.1 --repo "$REPO" --json tagName,name,isDraft,isPrerelease,assets >/tmp/release.json
           jq -e '
-            .tagName == "v1.5.1" and
-            .name == "BOQA v1.5.1" and
-            .isDraft == false and
-            .isPrerelease == false and
+            .tagName == "v1.5.1" and .name == "BOQA v1.5.1" and
+            .isDraft == false and .isPrerelease == false and
             ((.assets | map(.name) | index("boqa-v1.5.1-evidence.json")) != null) and
             ((.assets | map(.name) | index("boqa-v1.5.1-evidence.sha256")) != null)
           ' /tmp/release.json >/dev/null
-
           echo "RELEASE_TAG=v1.5.1"
           echo "RELEASE_TAG_SHA=$remote_tag_sha"
           echo "FINAL_MAIN_SHA=$remote_main"
