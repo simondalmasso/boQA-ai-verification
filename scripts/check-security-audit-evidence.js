@@ -2,7 +2,7 @@
 'use strict';
 const crypto=require('crypto'),fs=require('fs'),path=require('path'),{execFileSync}=require('child_process');
 function verifyAudit(rootDir){
- const root=path.resolve(rootDir),auditDir=path.join(root,'evidence','security-audit-v1.5.0');
+ const root=path.resolve(rootDir),auditDir=path.join(root,'evidence','security-audit-v1.5.1');
  const readJson=n=>JSON.parse(fs.readFileSync(path.join(auditDir,n),'utf8'));
  const blob=(ref,rel)=>{try{return execFileSync('git',['show',`${ref}:${rel}`],{cwd:root,encoding:null,maxBuffer:32*1024*1024,stdio:['ignore','pipe','pipe']});}catch(_){throw new Error(`AUDITED_GIT_BLOB_MISSING:${ref}:${rel}`);}};
  const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
