@@ -18,7 +18,7 @@ const {
   attachRawBodyCapture,
 } = require('./lib/middleware');
 
-const bus = new EventBus(null, {
+const bus = new EventBus({
   target: null,
   ndjsonPath: path.join(OUTPUT_DIR, 'sessions', 'events.ndjson'),
 });
