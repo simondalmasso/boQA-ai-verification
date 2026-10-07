@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "audited_source_ref": "63465386b1cab819145493ac72399d77f5214a73",
+  "files": {
+    ".github/workflows/boqa-cloudflare-preview-v6.yml": "30308e958fb46aa1a9baab8b0b03775fc8482d28fabd88bc8272372b204b9b9c",
+    ".github/workflows/boqa-production-deploy-v1.yml": "69fd61998546f6160be255d46d797c41376b5c5f8972f83a7e68341ad3b04a56",
+    ".github/workflows/boqa-publication-integrity-v1.yml": "d1ae170880cc5158dc8a15de310cfa505189370ca0ec8d18f4dd1f1cdfff37c2",
+    ".github/workflows/boqa-release-v1.5.1.yml": "86b7ba549c2263531c23e120f6e8fa9976f8fb6395c724efa4af57e9f6f2e328",
+    ".github/workflows/boqa-security-audit-v1.yml": "501b51bee60d284ebd1c360d10a4f2e13353676c50eaa9b65d11ccc1cd91e62d",
+    "api-route-inventory.json": "70b20c0173f50c016d5df2e93efcae2044a26b2a7944dd557a97f8f3597dba77",
+    "dashboard/index.html": "856784d5232896238c249717a22e54d35aa5e42d40f3bfaf9a30794ac3025692",
+    "dashboard/og-boqa-source.svg": "e6c4740b913cc9aedcb3861d4bdf98d9a07cd0e300b4f472c23c9ca334257079",
+    "dashboard/og-boqa.png": "a2f88eca34b8c3526d200f541aa066d0325669334b8b743a0ba9e1e80f340ad3",
+    "dashboard/status/index.html": "2afad489db4ede161b0f565850177486b30e84377bebb53be48644cf66eff706",
+    "docs/openai-codex-oss/READINESS.md": "5f34c09f3004e04a73d62654e6653f529a982b06249945080dfdc325ba89b975",
+    "package-lock.json": "9782f37c231010c667b1df06b7cab074a54ee830b4974619971993c2036735a2",
+    "scripts/check-publication.js": "5833faf1beb0e5e6524a7c2c858b4132eb10eb0bd8b53897beb424526d3f63db",
+    "scripts/check-security-audit-evidence.js": "61d1f99e58386f0e97ef37874e5043d81a7f399be33f8cc62f1115687de5ca59",
+    "scripts/cloudflare-preview-build-v6.sh": "b63d5abbff27aa5e3f0bd5066ffde13163f798164f935bc0555610034ee58f18",
+    "scripts/cloudflare-preview-smoke-v6.js": "535fa17572edace3df71d8df6aa383d8e7459df2515d988eaaa3a4700bfd8470",
+    "scripts/production-promotion-policy.js": "222921c2a29972a0220b7a6d12975727cc5a4d22f295ca5ac8171d4f238fa090",
+    "server.js": "d305338a7ad50a5b1d7ffb7edc7439ce57329c53e6e4bf1411976ed91c28492b",
+    "test/test-production-promotion-behavioral.js": "3af7aa2776f583bf17fdb6977f50a7f02f7724f6a567e99b5e96fd4c2d743fb3",
+    "test/test-public-private-boundary.js": "fbb51c50a3054e3dbee49486666f7dda561ae0746badb46a7760b80f49734750",
+    "test/test-public-security-headers.js": "b4e08f8e569c13c4b952d11934adc9bd2a15b4db51419c18e9f125ce6ab828e6",
+    "test/test-publication-integrity.js": "f4855e526eb916f9cb4a64283bb562a3de201bbb7414e389ecb90ec8febb0e0b",
+    "test/test-security-audit-scope-binding.js": "ab4cf612a4276225489875509839de9e280379f4611edc11459d41b9b6bf3504",
+    "test/test-security-audit-verifier-negative.js": "d5f7e21a38a9e4e9f2b5e9d1d1bccd4a8c27cc94249ea247c6ad1918da598090",
+    "test/test-security-boundary-audit.js": "f0d7d40a2512c931eb2d62cba1b1714201600fd838cd85ae08466d97a6214d8e",
+    "test/test-v1.5.1-removed-surfaces.js": "a065b7e2c4ae0e14e6e5c55cc4342166e9d7df84f3db850422337130b1f86890",
+    "worker.js": "10ea993f9620b7aa58c6185e4613a66c1f4b137f8694f957943a5b56a27e13be"
+  }
+}
