@@ -22,7 +22,7 @@ function fixture(overrides = {}) {
     'package-lock.json': JSON.stringify({ name: 'boqa', version: '1.5.1', packages: { '': { name: 'boqa', version: '1.5.1' } } }),
     'dashboard/index.html': '<a href="https://github.com/simondalmasso/boqa/releases/tag/v1.5.1">v1.5.1</a> MODEL_OUTPUT != AUTHORIZATION Codex proposes. BOQA verifies.',
     'README.md': 'MODEL_OUTPUT != AUTHORIZATION\nCodex proposes.\nBOQA verifies.\nNo broad adoption claim.',
-    'docs/openai-codex-oss/READINESS.md': 'LAST_CHECK=2026-10-07\nAPPLICATION_STATUS=READY\nRELEASE_TAG=v1.5.1 — canonical release line; a published tag is valid only when it equals exact canonical main.\n',
+    'docs/openai-codex-oss/READINESS.md': 'LAST_CHECK=2026-10-07\nAPPLICATION_STATUS=HOLD\nRELEASE_TAG=v1.5.1 — canonical release line; a published tag is valid only when it equals exact canonical main.\n',
     'compose.yaml': 'services:\n  boqa:\n    image: boqa:1.5.1\n',
   };
   Object.assign(files, overrides);
