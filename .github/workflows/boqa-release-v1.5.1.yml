@@ -1,0 +1,255 @@
+name: BOQA Release V1.5.1
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact canonical main SHA to release as v1.5.1
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: boqa-release-v1.5.1
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.repository == 'simondalmasso/boqa'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    env:
+      EXPECTED_SHA: ${{ inputs.expected_sha }}
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    outputs:
+      production_run_id: ${{ steps.production.outputs.run_id }}
+      production_artifact_id: ${{ steps.production.outputs.artifact_id }}
+      production_worker_version_id: ${{ steps.production.outputs.worker_version }}
+      source_preview_run_id: ${{ steps.production.outputs.preview_run_id }}
+      preview_evidence_sha256: ${{ steps.production.outputs.preview_sha256 }}
+      production_evidence_sha256: ${{ steps.production.outputs.production_sha256 }}
+      runtime_state_classification: ${{ steps.production.outputs.runtime_classification }}
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ inputs.expected_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Verify exact canonical main identity
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          remote_main="$(git ls-remote "https://github.com/$REPO.git" refs/heads/main | awk '{print $1}')"
+          test "$remote_main" = "$EXPECTED_SHA"
+          echo "FINAL_MAIN_SHA=$EXPECTED_SHA"
+
+      - name: Verify candidate publication contract
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npm ci
+          test "$(node -p "require('./package.json').version")" = "1.5.1"
+          npm test
+          npm audit --audit-level=low
+          BOQA_READINESS_DATE="$(date -u +%F)" npm run check:publication
+          npm run check:security-audit
+          demo="$(npm run demo:cuore)"
+          printf '%s\n' "$demo"
+          grep -F '"target_asset_network_requests": 0' <<<"$demo" >/dev/null
+          echo 'target_asset_network_requests=0'
+
+      - name: Require exact-head qualification runs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          api="https://api.github.com/repos/$REPO"
+          auth=(-H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28")
+
+          require_successful_run() {
+            workflow="$1"
+            label="$2"
+            runs="$(curl -fsSL "${auth[@]}" "$api/actions/workflows/$workflow/runs?head_sha=$EXPECTED_SHA&status=success&per_page=30")"
+            run_id="$(jq -r --arg sha "$EXPECTED_SHA" '.workflow_runs | map(select(.head_sha == $sha and .conclusion == "success")) | sort_by(.created_at) | last | .id // empty' <<<"$runs")"
+            test -n "$run_id"
+            echo "$label=$run_id"
+          }
+
+          require_successful_run boqa-browser-smoke-v1.yml BROWSER_RUN_ID
+          require_successful_run boqa-real-docker-qualification-v1.yml DOCKER_RUN_ID
+          require_successful_run boqa-cloudflare-preview-v6.yml PREVIEW_RUN_ID
+          require_successful_run boqa-publication-integrity-v1.yml PUBLICATION_RUN_ID
+          require_successful_run boqa-security-audit-v1.yml SECURITY_AUDIT_RUN_ID
+
+      - id: production
+        name: Require exact production evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          api="https://api.github.com/repos/$REPO"
+          auth=(-H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28")
+          runs="$(curl -fsSL "${auth[@]}" "$api/actions/workflows/boqa-production-deploy-v1.yml/runs?head_sha=$EXPECTED_SHA&status=success&per_page=20")"
+          run_id="$(jq -r --arg sha "$EXPECTED_SHA" '.workflow_runs | map(select(.head_sha == $sha and .conclusion == "success")) | sort_by(.created_at) | last | .id // empty' <<<"$runs")"
+          test -n "$run_id"
+
+          artifacts="$(curl -fsSL "${auth[@]}" "$api/actions/runs/$run_id/artifacts?per_page=100")"
+          artifact_id="$(jq -r --arg sha "$EXPECTED_SHA" '.artifacts | map(select(.expired == false and .name == ("boqa-production-deploy-" + $sha))) | sort_by(.created_at) | last | .id // empty' <<<"$artifacts")"
+          test -n "$artifact_id"
+
+          mkdir -p output/release/production
+          curl -fsSL -L "${auth[@]}" "$api/actions/artifacts/$artifact_id/zip" -o /tmp/production.zip
+          unzip -q /tmp/production.zip -d output/release/production
+          evidence="$(find output/release/production -name evidence.json -print -quit)"
+          preview_evidence="$(find output/release/production -name preview-smoke-evidence.json -print -quit)"
+          test -f "$evidence"
+          test -f "$preview_evidence"
+
+          jq -e --arg sha "$EXPECTED_SHA" '
+            .canonical_main_sha == $sha and
+            .production_verified == true and
+            .root_byte_equal == true and
+            .status_byte_equal == true and
+            .assets_byte_equal == true and
+            .deployed_version_id == .verified_preview_version_id and
+            (.deployed_version_id | type == "string")
+          ' "$evidence" >/dev/null
+
+          worker_version="$(jq -r '.deployed_version_id' "$evidence")"
+          preview_run_id="$(jq -r '.source_preview_run_id' "$evidence")"
+          runtime_classification="$(jq -r '.classification' "$preview_evidence")"
+          preview_sha256="$(sha256sum "$preview_evidence" | awk '{print $1}')"
+          production_sha256="$(sha256sum "$evidence" | awk '{print $1}')"
+
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+          echo "artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"
+          echo "worker_version=$worker_version" >> "$GITHUB_OUTPUT"
+          echo "preview_run_id=$preview_run_id" >> "$GITHUB_OUTPUT"
+          echo "preview_sha256=$preview_sha256" >> "$GITHUB_OUTPUT"
+          echo "production_sha256=$production_sha256" >> "$GITHUB_OUTPUT"
+          echo "runtime_classification=$runtime_classification" >> "$GITHUB_OUTPUT"
+
+  publication:
+    needs: verify
+    if: github.repository == 'simondalmasso/boqa'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: write
+    env:
+      EXPECTED_SHA: ${{ inputs.expected_sha }}
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PRODUCTION_RUN_ID: ${{ needs.verify.outputs.production_run_id }}
+      PRODUCTION_ARTIFACT_ID: ${{ needs.verify.outputs.production_artifact_id }}
+      PRODUCTION_WORKER_VERSION_ID: ${{ needs.verify.outputs.production_worker_version_id }}
+      SOURCE_PREVIEW_RUN_ID: ${{ needs.verify.outputs.source_preview_run_id }}
+      PREVIEW_EVIDENCE_SHA256: ${{ needs.verify.outputs.preview_evidence_sha256 }}
+      PRODUCTION_EVIDENCE_SHA256: ${{ needs.verify.outputs.production_evidence_sha256 }}
+      RUNTIME_STATE_CLASSIFICATION: ${{ needs.verify.outputs.runtime_state_classification }}
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ inputs.expected_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify main immediately before publication
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          remote_main="$(git ls-remote "https://github.com/$REPO.git" refs/heads/main | awk '{print $1}')"
+          test "$remote_main" = "$EXPECTED_SHA"
+
+      - name: Create v1.5.1 release if absent
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          remote_tag_sha="$(git ls-remote "https://github.com/$REPO.git" refs/tags/v1.5.1 | awk '{print $1}')"
+
+          if [ -n "$remote_tag_sha" ]; then
+            test "$remote_tag_sha" = "$EXPECTED_SHA"
+            if ! gh release view v1.5.1 --repo "$REPO" >/dev/null 2>&1; then
+              gh release create v1.5.1                 --repo "$REPO"                 --verify-tag                 --title "BOQA v1.5.1"                 --notes "Release-integrity remediation: explicit production promotion authority, secure/fail-closed backend transport, removed billing/WebSocket surfaces, current security/publication evidence, and exact production verification. MODEL_OUTPUT != AUTHORIZATION. Codex proposes. BOQA verifies."
+            fi
+          else
+            gh release create v1.5.1               --repo "$REPO"               --target "$EXPECTED_SHA"               --title "BOQA v1.5.1"               --notes "Release-integrity remediation: explicit production promotion authority, secure/fail-closed backend transport, removed billing/WebSocket surfaces, current security/publication evidence, and exact production verification. MODEL_OUTPUT != AUTHORIZATION. Codex proposes. BOQA verifies."               --latest
+          fi
+
+      - name: Build sanitized durable release evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p output/release
+          remote_main="$(git ls-remote "https://github.com/$REPO.git" refs/heads/main | awk '{print $1}')"
+          remote_tag_sha="$(git ls-remote "https://github.com/$REPO.git" refs/tags/v1.5.1 | awk '{print $1}')"
+          test "$remote_main" = "$EXPECTED_SHA"
+          test "$remote_tag_sha" = "$EXPECTED_SHA"
+          timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          jq -n             --arg contract_version "boqa-release-evidence-v1"             --arg timestamp "$timestamp"             --arg canonical_main_sha "$remote_main"             --arg release_tag_sha "$remote_tag_sha"             --arg production_source_sha "$EXPECTED_SHA"             --arg production_worker_version_id "$PRODUCTION_WORKER_VERSION_ID"             --arg source_preview_run_id "$SOURCE_PREVIEW_RUN_ID"             --arg production_run_id "$PRODUCTION_RUN_ID"             --arg preview_evidence_sha256 "$PREVIEW_EVIDENCE_SHA256"             --arg production_evidence_sha256 "$PRODUCTION_EVIDENCE_SHA256"             --arg runtime_state_classification "$RUNTIME_STATE_CLASSIFICATION"             '{
+              contract_version:$contract_version,
+              timestamp:$timestamp,
+              canonical_main_sha:$canonical_main_sha,
+              release_tag_sha:$release_tag_sha,
+              production_source_sha:$production_source_sha,
+              production_worker_version_id:$production_worker_version_id,
+              source_preview_run_id:$source_preview_run_id,
+              production_run_id:$production_run_id,
+              preview_evidence_sha256:$preview_evidence_sha256,
+              production_evidence_sha256:$production_evidence_sha256,
+              runtime_state_classification:$runtime_state_classification
+            }' > output/release/boqa-v1.5.1-evidence.json
+
+          (
+            cd output/release
+            sha256sum boqa-v1.5.1-evidence.json > boqa-v1.5.1-evidence.sha256
+          )
+
+      - name: Upload durable release evidence
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          gh release upload v1.5.1             output/release/boqa-v1.5.1-evidence.json             output/release/boqa-v1.5.1-evidence.sha256             --repo "$REPO"             --clobber
+
+      - name: Verify exact release equality and durable assets
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          remote_main="$(git ls-remote "https://github.com/$REPO.git" refs/heads/main | awk '{print $1}')"
+          remote_tag_sha="$(git ls-remote "https://github.com/$REPO.git" refs/tags/v1.5.1 | awk '{print $1}')"
+          test "$remote_main" = "$EXPECTED_SHA"
+          test "$remote_tag_sha" = "$EXPECTED_SHA"
+
+          BOQA_READINESS_DATE="$(date -u +%F)"           BOQA_CANONICAL_SHA="$remote_main"           BOQA_RELEASE_TAG_SHA="$remote_tag_sha"             npm run check:publication
+
+          gh release view v1.5.1 --repo "$REPO" --json tagName,name,isDraft,isPrerelease,assets >/tmp/release.json
+          jq -e '
+            .tagName == "v1.5.1" and
+            .name == "BOQA v1.5.1" and
+            .isDraft == false and
+            .isPrerelease == false and
+            ((.assets | map(.name) | index("boqa-v1.5.1-evidence.json")) != null) and
+            ((.assets | map(.name) | index("boqa-v1.5.1-evidence.sha256")) != null)
+          ' /tmp/release.json >/dev/null
+
+          echo "RELEASE_TAG=v1.5.1"
+          echo "RELEASE_TAG_SHA=$remote_tag_sha"
+          echo "FINAL_MAIN_SHA=$remote_main"
