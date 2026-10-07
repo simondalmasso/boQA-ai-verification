@@ -1,7 +1,7 @@
 # BOQA — OpenAI Codex for Open Source Readiness
 
 LAST_CHECK=2026-10-07
-APPLICATION_STATUS=READY
+APPLICATION_STATUS=HOLD
 
 MAIN_CANONICAL=YES — GitHub main is the lean BOQA canon: lean kernel + CORE001 + OSS hardening + public landing. Historical engine-zoo modules are not part of the canonical tree.
 LICENSE=PRESENT_ROOT_MIT
@@ -9,19 +9,19 @@ README=PRESENT_ROOT
 SECURITY_MD=PRESENT_ROOT
 CONTRIBUTING_MD=PRESENT_ROOT
 RELEASE_TAG=v1.5.1 — target canonical remediation release; a published tag is valid only when it resolves to the exact canonical main SHA.
-PUBLIC_DEMO=PASS — the release process requires the OSS landing at / and the preserved operational dashboard at /status/ to be verified from the same exact Cloudflare Worker version. The public landing is intentionally usable when the hunter backend is unavailable; /status/ must expose degradation rather than invent health.
-CI_TESTS=PASS — promotion requires full regression, publication integrity, Browser Smoke, Real Docker Qualification, Cloudflare exact-preview evidence, and bounded security-audit evidence on the exact release head.
+PUBLIC_DEMO=STATIC_SOURCE_PASS_RUNTIME_NOT_VERIFIED — the release process requires the OSS landing at / and the preserved operational dashboard at /status/ to be verified from the same exact Cloudflare Worker version. The public landing is intentionally usable when the hunter backend is unavailable; /status/ must expose degradation rather than invent health.
+CI_TESTS=NOT_YET_QUALIFIED — promotion requires full regression, publication integrity, Browser Smoke, Real Docker Qualification, Cloudflare exact-preview evidence, and bounded security-audit evidence on the exact release head.
 DETERMINISTIC_REPLAY=PASS
 HUMAN_GATE=PASS
 ACTIVE_MAINTENANCE=YES
 REPO_HYGIENE=P1_DEBT_NON_BLOCKING — canonical main is lean, but historical branches/PR cleanup remains a post-release governance task. External-tool triage remains documentation-only with zero admitted runtime frameworks.
 SECURITY_ADVISORIES=PASS — qs is pinned to 6.16.0 and proxy-addr to 2.0.8; release qualification requires npm audit to report zero known vulnerabilities.
 OPENAI_ORG_ID=org-KdoYdnEmMXzusYpXDoqgJdbv
-FORM_TEXTS=READY_FOR_OWNER_SUBMISSION
-BACKEND_TRANSPORT=PASS — production defaults fail closed with no plaintext public origin; Worker rejects public HTTP upstreams.
-COBROS_REMOVED=PASS — billing implementation, frontend, PIN configuration and private billing API are removed; only negative legacy-route regressions remain.
-WEBSOCKET_REMOVED=PASS — BOQA no longer exposes or proxies a WebSocket endpoint.
-ROUTE_INVENTORY=PASS — active and removed network surfaces are explicitly classified.
+FORM_TEXTS=DRAFT_HOLD_OWNER_SUBMISSION
+BACKEND_TRANSPORT=SOURCE_PASS_PRODUCTION_PENDING — production defaults fail closed with no plaintext public origin; Worker rejects public HTTP upstreams.
+COBROS_REMOVED=SOURCE_PASS — billing implementation, frontend, PIN configuration and private billing API are removed; only negative legacy-route regressions remain.
+WEBSOCKET_REMOVED=SOURCE_PASS — BOQA no longer exposes or proxies a WebSocket endpoint.
+ROUTE_INVENTORY=SOURCE_PASS — active and removed network surfaces are explicitly classified.
 RELEASE_EVIDENCE=DURABLE_SANITIZED_ASSET_REQUIRED — v1.5.1 publication uploads a sanitized evidence JSON and checksum to the GitHub Release.
 
 ## Direction to preserve
@@ -75,10 +75,10 @@ Backend availability is a separate operational signal. v1.5.1 ships with no inse
 
 ## BLOCKERS
 
-SOURCE_BLOCKERS=NONE
+SOURCE_BLOCKERS=PENDING_VERIFICATION
 RELEASE_SEAL_REQUIREMENT=MAIN=TAG=PROD
 
-The OpenAI application itself remains an explicit owner submission. `READY` does not mean `SUBMITTED` or selected by OpenAI.
+The OpenAI application itself remains an explicit owner submission. `HOLD` must remain until the independent terminal MAIN=TAG=PROD verification. Release qualification does not authorize self-declared readiness.
 
 ## NEXT_MINIMAL_ACTIONS
 
