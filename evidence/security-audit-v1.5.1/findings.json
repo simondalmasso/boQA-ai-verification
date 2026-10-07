@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "audited_source_ref": "63465386b1cab819145493ac72399d77f5214a73",
+  "confirmed_release_blockers": 0,
+  "confirmed_count": 0,
+  "needs_validation_count": 4,
+  "rejected_count": 0,
+  "candidates": [
+    {
+      "id": "NV-001",
+      "classification": "needs_validation",
+      "topic": "Live Worker-to-origin transport and authentication",
+      "independent_verifier": "test/test-public-private-boundary.js; Cloudflare live probe still pending"
+    },
+    {
+      "id": "NV-002",
+      "classification": "needs_validation",
+      "topic": "End-to-end draft release and current deployed Worker version",
+      "independent_verifier": "test/test-release-v1.5.1-contract.js; manual exact-head release gate still pending"
+    },
+    {
+      "id": "NV-003",
+      "classification": "needs_validation",
+      "topic": "Exact preview/browser degraded UI at 1440/390/360",
+      "independent_verifier": "test/test-dashboard-smoke.js and Cloudflare Preview required after PR"
+    },
+    {
+      "id": "NV-004",
+      "classification": "needs_validation",
+      "topic": "Direct-origin bypass and live public path concealment",
+      "independent_verifier": "test/test-public-private-boundary.js; independent live origin check pending"
+    }
+  ]
+}
