@@ -4,8 +4,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const EXPECTED_VERSION = '1.5.0';
-const EXPECTED_TAG = 'v1.5.0';
+const EXPECTED_VERSION = '1.5.1';
+const EXPECTED_TAG = 'v1.5.1';
 
 function argValue(name, fallback = null) {
   const at = process.argv.indexOf(name);
@@ -104,8 +104,8 @@ const currentReleaseSurfaces = [
 ];
 for (const rel of currentReleaseSurfaces) {
   const text = read(rel, false);
-  if (text && /v1\.4\.0|boqa:1\.4\.0/i.test(text)) {
-    fail('stale_v1_4_current_surface', rel);
+  if (text && /v1\.4\.0|v1\.5\.0|boqa:1\.4\.0|boqa:1\.5\.0/i.test(text)) {
+    fail('stale_prior_release_current_surface', rel);
   }
 }
 
