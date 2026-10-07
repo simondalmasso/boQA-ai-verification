@@ -167,7 +167,7 @@ jobs:
 
           grep -F 'Codex proposes. BOQA verifies.' output/production-deploy/public/root >/dev/null
           grep -F 'MODEL_OUTPUT != AUTHORIZATION' output/production-deploy/public/root >/dev/null
-          grep -F 'v1.5.0' output/production-deploy/public/root >/dev/null
+          grep -F 'v1.5.1' output/production-deploy/public/root >/dev/null
           grep -F 'id="overall-state"' output/production-deploy/public/status >/dev/null
 
           for header_file in root status landing_css favicon og health; do
