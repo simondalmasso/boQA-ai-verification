@@ -2,7 +2,7 @@
 const assert=require('assert'),crypto=require('crypto'),fs=require('fs'),path=require('path'),{execFileSync}=require('child_process');
 
 const root=path.join(__dirname,'..');
-const manifest=JSON.parse(fs.readFileSync(path.join(root,'evidence','security-audit-v1.5.0','audited-scope-sha256.json'),'utf8'));
+const manifest=JSON.parse(fs.readFileSync(path.join(root,'evidence','security-audit-v1.5.1','audited-scope-sha256.json'),'utf8'));
 const verifier=fs.readFileSync(path.join(root,'scripts','check-security-audit-evidence.js'),'utf8');
 
 assert.equal(manifest.schema_version,1);
