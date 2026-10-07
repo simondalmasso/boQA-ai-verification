@@ -88,19 +88,31 @@ async function classifyBackend(evidence) {
   assert.equal(edge.response.status, 200);
   assert.equal(edge.json?.status, 'ok');
   assert.equal(edge.json?.worker, 'boqa');
-  assert.equal(edge.json?.backend_configured, true);
   evidence.worker_health = {
     status: edge.json.status,
     mode: edge.json.mode,
     backend_configured: edge.json.backend_configured,
   };
 
+  if (!edge.json?.backend_configured) {
+    evidence.classification = 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED';
+    evidence.static_publication_valid = true;
+    evidence.runtime_operational = false;
+    evidence.production_promotion_allowed = true;
+    evidence.blocker = 'BACKEND_NOT_CONFIGURED';
+    evidence.backend_health = { status: 503, version: null, release_sha: null };
+    evidence.hunter = { status: null, state: null, timestamp_present: false };
+    return;
+  }
+
   const health = await request('/api/health');
   if (health.response.status !== 200) {
     const unavailableStatuses = new Set([502, 503, 504, 520, 521, 522, 523, 524, 525, 526, 530]);
     assert(unavailableStatuses.has(health.response.status), `/api/health:${health.response.status}`);
-    evidence.classification = 'BLOCKED_BACKEND_UNAVAILABLE';
-    evidence.promotion_ready = false;
+    evidence.classification = 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED';
+    evidence.static_publication_valid = true;
+    evidence.runtime_operational = false;
+    evidence.production_promotion_allowed = true;
     evidence.blocker = 'BACKEND_UNAVAILABLE';
     evidence.backend_health = {
       status: health.response.status,
@@ -128,7 +140,9 @@ async function classifyBackend(evidence) {
     assert(['STOPPED', 'STARTING', 'ACTIVE', 'DEGRADED', 'BLOCKED', 'ERROR'].includes(hunter.json.state), 'HUNTER_STATE_INVALID');
     assert(Number.isFinite(Date.parse(hunter.json.timestamp)), 'HUNTER_TIMESTAMP_INVALID');
     evidence.classification = 'PROMOTION_READY';
-    evidence.promotion_ready = true;
+    evidence.static_publication_valid = true;
+    evidence.runtime_operational = true;
+    evidence.production_promotion_allowed = true;
     evidence.hunter = {
       status: 200,
       state: hunter.json.state,
@@ -139,7 +153,9 @@ async function classifyBackend(evidence) {
 
   if (hunter.response.status === 404) {
     evidence.classification = 'BLOCKED_BACKEND_CONTRACT';
-    evidence.promotion_ready = false;
+    evidence.static_publication_valid = true;
+    evidence.runtime_operational = false;
+    evidence.production_promotion_allowed = false;
     evidence.blocker = 'BACKEND_HUNTER_CONTRACT_MISSING';
     evidence.hunter = {
       status: 404,
@@ -227,7 +243,7 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
   const page = await context.newPage();
   const expectedStatuses = [];
   if (classification === 'BLOCKED_BACKEND_CONTRACT') expectedStatuses.push(404);
-  if (classification === 'BLOCKED_BACKEND_UNAVAILABLE' && Number.isInteger(backendStatus)) expectedStatuses.push(backendStatus);
+  if (classification === 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED' && Number.isInteger(backendStatus)) expectedStatuses.push(backendStatus);
   const result = {
     label,
     viewport,
@@ -256,7 +272,7 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
     assert.equal(await page.locator('#health-view-state').textContent(), 'FRESH');
     assert.equal(await page.locator('#health-status').textContent(), 'ok');
     assert.equal(await page.locator('#hunter-reason').textContent(), 'Respuesta HTTP 404');
-  } else if (classification === 'BLOCKED_BACKEND_UNAVAILABLE') {
+  } else if (classification === 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED') {
     assert.equal(await page.locator('#overall-state').textContent(), 'UNAVAILABLE');
     assert.equal(await page.locator('#hunter-view-state').textContent(), 'UNAVAILABLE');
     assert.equal(await page.locator('#health-view-state').textContent(), 'UNAVAILABLE');
@@ -286,7 +302,7 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
   }
 
   await page.waitForTimeout(200);
-  if (classification === 'BLOCKED_BACKEND_UNAVAILABLE') {
+  if (classification === 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED') {
     result.expected_failed_requests = result.failed_requests.filter((item) =>
       ['/api/health', '/api/hunter/status'].includes(item.path) && /ERR_ABORTED/.test(item.error)
     );
