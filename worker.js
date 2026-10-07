@@ -151,6 +151,12 @@ async function proxyToBackend(request, env) {
     return jsonResponse({ error: 'invalid_backend_configuration' }, 502);
   }
 
+  const loopbackHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
+  if (parsedBackend.protocol !== 'https:' &&
+      !(parsedBackend.protocol === 'http:' && loopbackHosts.has(parsedBackend.hostname))) {
+    return jsonResponse({ error: 'insecure_backend_transport' }, 502);
+  }
+
   const incomingUrl = new URL(request.url);
   const targetUrl = new URL(incomingUrl.pathname + incomingUrl.search, parsedBackend);
   const proxyHeaders = new Headers(request.headers);
