@@ -3,9 +3,7 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const { WebSocketServer } = require('ws');
 const { EventBus } = require('./bus');
-const { createBillingAuth, setPrivateHeaders } = require('./lib/billing-auth');
 const { DefensiveValidationService } = require('./lib/defensive-validation');
 const { HunterRuntime } = require('./lib/hunter-runtime');
 const { HumanGateBus } = require('./cuore');
@@ -61,43 +59,14 @@ ctx.hunterRuntime = new HunterRuntime({
   lockPath: path.join(OUTPUT_DIR, 'hunter-runtime.lock'),
 });
 
-const billingAuth = createBillingAuth();
 const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 app.use(express.json(attachRawBodyCapture({ limit: process.env.BOQA_JSON_LIMIT || '256kb' })));
 
-function setPrivatePageHeaders(res, contentType) {
-  setPrivateHeaders(res);
-  res.set(
-    'Content-Security-Policy',
-    "default-src 'self'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'none'; font-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
-  );
-  res.set('Cross-Origin-Opener-Policy', 'same-origin');
-  res.set('Cross-Origin-Resource-Policy', 'same-origin');
-  res.set('Referrer-Policy', 'no-referrer');
-  res.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=(), usb=()');
-  if (contentType) res.type(contentType);
-}
-
 const server = http.createServer(app);
-const wss = new WebSocketServer({ server, path: '/ws' });
-ctx.wss = wss;
 ctx.server = server;
-bus.wsServer = wss;
 
-app.get(['/cobros', '/cobros.html'], (_req, res) => {
-  setPrivatePageHeaders(res, 'html');
-  res.sendFile(path.join(__dirname, 'dashboard', 'cobros.html'));
-});
-app.get('/cobros.js', (_req, res) => {
-  setPrivatePageHeaders(res, 'application/javascript');
-  res.sendFile(path.join(__dirname, 'dashboard', 'cobros.js'));
-});
-app.get('/private.css', (_req, res) => {
-  setPrivatePageHeaders(res, 'text/css');
-  res.sendFile(path.join(__dirname, 'dashboard', 'private.css'));
-});
 app.use(express.static(path.join(__dirname, 'dashboard')));
 
 const healthHandler = createHealthHandler(ctx);
@@ -107,22 +76,6 @@ app.get('/api/defensive/status', (_req, res) => {
   res.json(ctx.hunterRuntime.publicStatus());
 });
 
-app.use('/api/private/billing', requireStrongProxyAuth, rateLimiter);
-app.post('/api/private/billing/auth', billingAuth.authenticate);
-app.get('/api/private/billing/session', billingAuth.requireSession, (req, res) => res.json({
-  authenticated: true,
-  csrf_token: req.billingSession.csrf,
-  expires_at: new Date(req.billingSession.expiresAt).toISOString(),
-}));
-app.get('/api/private/billing/data', billingAuth.requireSession, (_req, res) => res.json({
-  schema_version: 1,
-  view: {
-    title: 'Centro de Cobros',
-    empty_message: 'No hay datos privados disponibles.',
-  },
-  sections: [],
-}));
-app.post('/api/private/billing/logout', billingAuth.logout);
 app.get('/api/private/human-gates', requireStrongProxyAuth, rateLimiter, (_req, res) => {
   res.set('Cache-Control', 'no-store');
   try {
@@ -137,7 +90,6 @@ app.get('/api/private/human-gates', requireStrongProxyAuth, rateLimiter, (_req, 
 
 const PUBLIC_READ_PATHS = new Set(['/health', '/defensive/status', '/hunter/status']);
 app.use('/api', (req, res, next) => {
-  if (req.path.startsWith('/private/billing/')) return next();
   if (req.method === 'GET' && PUBLIC_READ_PATHS.has(req.path)) return next();
   verifyHmac(req, res, (hmacError) => {
     if (hmacError) return next(hmacError);
@@ -159,10 +111,6 @@ function shutdown(signal) {
     await ctx.hunterRuntime.stop(signal);
     ctx.defensiveValidation.stop();
     await bus.flush();
-    for (const client of wss.clients) {
-      try { client.close(); } catch (_) {}
-    }
-    await new Promise((resolve) => wss.close(() => resolve()));
     await new Promise((resolve) => server.close(() => resolve()));
   })();
   return shutdownPromise;
