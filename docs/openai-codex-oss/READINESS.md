@@ -1,6 +1,6 @@
 # BOQA — OpenAI Codex for Open Source Readiness
 
-LAST_CHECK=2026-10-03
+LAST_CHECK=2026-10-07
 APPLICATION_STATUS=READY
 
 MAIN_CANONICAL=YES — GitHub main is the lean BOQA canon: lean kernel + CORE001 + OSS hardening + public landing. Historical engine-zoo modules are not part of the canonical tree.
@@ -8,16 +8,21 @@ LICENSE=PRESENT_ROOT_MIT
 README=PRESENT_ROOT
 SECURITY_MD=PRESENT_ROOT
 CONTRIBUTING_MD=PRESENT_ROOT
-RELEASE_TAG=v1.5.0 — target canonical release line; a published tag is valid only when it resolves to the exact canonical main SHA.
+RELEASE_TAG=v1.5.1 — target canonical remediation release; a published tag is valid only when it resolves to the exact canonical main SHA.
 PUBLIC_DEMO=PASS — the release process requires the OSS landing at / and the preserved operational dashboard at /status/ to be verified from the same exact Cloudflare Worker version. The public landing is intentionally usable when the hunter backend is unavailable; /status/ must expose degradation rather than invent health.
 CI_TESTS=PASS — promotion requires full regression, publication integrity, Browser Smoke, Real Docker Qualification, Cloudflare exact-preview evidence, and bounded security-audit evidence on the exact release head.
 DETERMINISTIC_REPLAY=PASS
 HUMAN_GATE=PASS
 ACTIVE_MAINTENANCE=YES
-REPO_HYGIENE=PASS — canonical main excludes the historical prediction/campaign/optimizer/allocator/scheduler engine zoo. External-tool triage remains documentation-only with zero admitted runtime frameworks.
-SECURITY_ADVISORIES=PASS — the reachable qs advisory chain was classified as runtime/reachable and remediated by pinning qs 6.16.0; release qualification requires npm audit to report zero known vulnerabilities.
+REPO_HYGIENE=P1_DEBT_NON_BLOCKING — canonical main is lean, but historical branches/PR cleanup remains a post-release governance task. External-tool triage remains documentation-only with zero admitted runtime frameworks.
+SECURITY_ADVISORIES=PASS — qs is pinned to 6.16.0 and proxy-addr to 2.0.8; release qualification requires npm audit to report zero known vulnerabilities.
 OPENAI_ORG_ID=org-KdoYdnEmMXzusYpXDoqgJdbv
 FORM_TEXTS=READY_FOR_OWNER_SUBMISSION
+BACKEND_TRANSPORT=PASS — production defaults fail closed with no plaintext public origin; Worker rejects public HTTP upstreams.
+COBROS_REMOVED=PASS — billing implementation, frontend, PIN configuration and private billing API are removed; only negative legacy-route regressions remain.
+WEBSOCKET_REMOVED=PASS — BOQA no longer exposes or proxies a WebSocket endpoint.
+ROUTE_INVENTORY=PASS — active and removed network surfaces are explicitly classified.
+RELEASE_EVIDENCE=DURABLE_SANITIZED_ASSET_REQUIRED — v1.5.1 publication uploads a sanitized evidence JSON and checksum to the GitHub Release.
 
 ## Direction to preserve
 
@@ -66,7 +71,7 @@ A release is readiness evidence only when all of the following refer to the same
 7. the release tag resolves to that canonical main SHA;
 8. repository metadata describes BOQA as open-source verification infrastructure without adoption or performance claims that are not evidenced.
 
-Backend availability is a separate operational signal. A backend outage must be shown as unavailable/degraded on `/status/`; it does not authorize fabricated healthy state and does not make the static OSS landing depend on the hunter runtime.
+Backend availability is a separate operational signal. v1.5.1 ships with no insecure public backend origin configured; the public Worker rejects non-loopback plaintext HTTP upstreams. Until a verified HTTPS/private origin is configured, `/status/` must show the runtime unavailable/degraded while static publication remains valid.
 
 ## BLOCKERS
 
@@ -77,8 +82,8 @@ The OpenAI application itself remains an explicit owner submission. `READY` does
 
 ## NEXT_MINIMAL_ACTIONS
 
-1. For v1.5.0, execute exact-head Browser/Docker/preview/publication/security gates and exact production evidence before tag publication.
-2. Treat a release as sealed only when the immutable tag SHA equals canonical main and production source.
+1. For v1.5.1, execute exact-head Browser/Docker/preview/publication/security gates and exact production evidence before tag publication.
+2. Treat the release as sealed only when the tag SHA equals canonical main and production source, and the sanitized durable release-evidence assets are attached.
 3. Preserve `MODEL_OUTPUT != AUTHORIZATION` and keep model output advisory.
 
 ## FORM_TEXTS
