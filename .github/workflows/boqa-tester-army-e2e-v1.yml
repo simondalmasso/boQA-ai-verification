@@ -95,6 +95,10 @@ jobs:
             ([.run.results[] | select(.kind == "test" and .targetId == "desktop-1440" and .status == "passed")] | length) == 5 and
             ([.run.results[] | select(.kind == "test" and .targetId == "mobile-390" and .status == "passed")] | length) == 5
           ' "$report" >/dev/null
+          mkdir -p ../../output/tester-army-e2e
+          cp "$report" ../../output/tester-army-e2e/tester-army-report.json
+          test -s .e2e/junit.xml
+          cp .e2e/junit.xml ../../output/tester-army-e2e/tester-army-junit.xml
           echo "TESTER_ARMY_PREVIEW_E2E=10/10"
           echo "E2E_360_CHECK=INCLUDED_IN_MOBILE_390_FIFTH_CASE"
       - name: Produce sanitized provenance and artifact hashes
@@ -103,6 +107,9 @@ jobs:
         run: |
           set -Eeuo pipefail
           mkdir -p output/tester-army-e2e
+          if [ -s output/tester-army-e2e/tester-army-report.json ] && [ -s output/tester-army-e2e/tester-army-junit.xml ]; then
+            sha256sum output/tester-army-e2e/tester-army-report.json output/tester-army-e2e/tester-army-junit.xml > output/tester-army-e2e/results.sha256
+          fi
           jq -n --arg head "$EXPECTED_SHA" --arg preview "${BOQA_PREVIEW_URL:-}" \
             --arg preview_run "${SOURCE_PREVIEW_RUN_ID:-}" \
             --arg preview_version "${BOQA_PREVIEW_VERSION_ID:-}" \
