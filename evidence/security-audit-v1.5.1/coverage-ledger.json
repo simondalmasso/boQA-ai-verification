@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "6aea3a9b2fc2355c40d9cba9583aecd9cad12e88",
-  "methodology": "bounded static and fixture review; exact source SHA-256 binding; independent GitHub CI plus direct browser probe required for runtime claims",
+  "audited_source_ref": "818ab9bc43bf2256720908e91d9c2403f0afe951",
+  "methodology": "bounded source and fixtures; exact committed SHA-256; independent same-head CI and external tester-army browser test required",
   "independent_verifier": "independent Node child-process regressions and separate GitHub exact-head workflow gates required; no external security reviewer represented",
   "reviewed_surfaces": [
     ".github/workflows/boqa-cloudflare-preview-v6.yml",
@@ -9,13 +9,19 @@
     ".github/workflows/boqa-publication-integrity-v1.yml",
     ".github/workflows/boqa-release-v1.5.1.yml",
     ".github/workflows/boqa-security-audit-v1.yml",
+    ".github/workflows/boqa-tester-army-e2e-v1.yml",
     "api-route-inventory.json",
     "dashboard/index.html",
     "dashboard/og-boqa-source.svg",
     "dashboard/og-boqa.png",
     "dashboard/status/index.html",
     "docs/openai-codex-oss/READINESS.md",
+    "lib/health.js",
     "package-lock.json",
+    "qualification/tester-army/README.md",
+    "qualification/tester-army/e2e.config.ts",
+    "qualification/tester-army/package.json",
+    "qualification/tester-army/tests/preview.e2e.ts",
     "scripts/browser-smoke-public-edge-v2.js",
     "scripts/check-publication.js",
     "scripts/check-security-audit-evidence.js",
@@ -25,6 +31,7 @@
     "scripts/production-promotion-policy.js",
     "server.js",
     "test/test-browser-public-edge-shim.js",
+    "test/test-health-no-websocket-clients.js",
     "test/test-preview-degraded-network-evidence.js",
     "test/test-production-promotion-behavioral.js",
     "test/test-public-private-boundary.js",
@@ -53,10 +60,11 @@
     "fail-closed behavior"
   ],
   "coverage_limitations": [
-    "Bounded source review; not an exhaustive or independently certified penetration test.",
-    "Previous PR head 39c524b had Browser Smoke and Cloudflare Preview failures; fresh exact-head CI is required after these repairs.",
-    "Independent live direct-origin bypass and Worker-to-origin secret/transport review are pending.",
-    "Four needs_validation candidates remain unresolved pending independent adjudication.",
-    "Production deploy, tag and release v1.5.1 are neither executed nor authorized."
+    "Bounded source review is not an exhaustive penetration test or independent human certification.",
+    "Browser Smoke on ceda922d exposed stale lib/health.js WebSocket-client registry access; fixed and regression-tested at this source ref; exact-head CI must still pass.",
+    "Cloudflare Preview at ceda922d was SUCCESS with static-valid degraded runtime; fresh exact-head preview+TesterArmy external E2E remain mandatory.",
+    "Independent Worker-to-origin transport/authentication, live direct-origin bypass and deployed Worker version checks remain pending.",
+    "Four needs_validation candidates remain unclassified beyond needs_validation pending independent reviewer.",
+    "Merge, production deploy, tag, release and OSS form submission are neither completed nor authorized."
   ]
 }

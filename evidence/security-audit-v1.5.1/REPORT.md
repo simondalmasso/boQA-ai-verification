@@ -1,19 +1,21 @@
 # BOQA v1.5.1 bounded security source review
 
-AUDITED_SOURCE_REF=6aea3a9b2fc2355c40d9cba9583aecd9cad12e88
+AUDITED_SOURCE_REF=818ab9bc43bf2256720908e91d9c2403f0afe951
 
 ## Scope and evidence
-Source binding includes 31 committed paths with SHA-256, including the Worker/backend, production and release authority, Cloudflare exact preview, browser concealment shim, degraded-network validator and negative regressions.
+Source manifest binds 38 committed paths by SHA-256, including public API transport, authorization, Cloudflare versioning and promotion, browser/private concealment, proof-producing negative regressions, the health endpoint after WebSocket removal, and the isolated external TesterArmy harness/workflow.
 
-The source remediation is narrowly motivated by two witnessed exact-head CI failures at `39c524b328070cc8a72985034fc73b42f1a2fe6c`:
-- Browser Smoke failed at `PRIVATE_SMOKE_BOUNDARY_NOT_FOUND` because a public-edge shim expected a function removed from the base test; the replacement runs complete private concealment inside the existing browser lifecycle, before marking evidence PASS.
-- Cloudflare preview uploaded an exact 0%-traffic version but failed at `EXPECTED_BACKEND_ABORT_MISSING`. An HTTP 503 is a completed failed-response status, not a Playwright requestfailed event. The new validator requires an observed expected HTTP error or an expected abort, rejects unexpected API responses and preserves fail-closed status/UI/private-path checks.
+Witnessed exact-head CI root causes (not hypothetical):
+- Browser Smoke at 39c524b: `PRIVATE_SMOKE_BOUNDARY_NOT_FOUND` due to stale shim; repaired by injecting the full private concealment function into the current smoke main() lifecycle without skipping assertions.
+- Cloudflare Preview at 39c524b: `EXPECTED_BACKEND_ABORT_MISSING` because completed HTTP 503 does not fire requestfailed; repaired by validating actual backend HTTP response status, expected aborts, unexpected responses and missing evidence.
+- Browser Smoke at ceda922d: `BACKEND_NOT_HEALTHY:500` due to `ctx.bus.clients.size` dereference in `lib/health.js` after WebSocket client removal; repaired with explicit 0 active WebSocket clients and a negative regression ensuring no registry exists.
+- Cloudflare exact preview at ceda922d: successful 0%-traffic version build and UI gate; this does NOT qualify the new source or approve deployment.
 
-Coverage includes fixtures that reject absent degraded-network evidence, wrong HTTP outcomes and non-abort errors. CI requalification and any preview E2E result must be tied to the eventual evidence-only head, not this source-stage commit.
+New isolated TesterArmy open-source e2e@0.15.2 / @e2e-dev/web@0.11.1 tests are no-agent/no-model, require verified exact preview of the same SHA, and fail unless 5 cases in each 1440/390 viewport pass plus 360 status overflow/hidden check inside mobile case. The runner remains unproven until its actual GitHub Action completes with a 10/10 report and artifacts.
 
 ## Findings
-CONFIRMED_RELEASE_BLOCKERS=0 in this bounded source review only.
-NEEDS_VALIDATION=4: see findings.json. Worker→origin live transport/auth, release/deployment provenance, preview status UI and direct-origin bypass require independent review; do not infer resolution from this manifest.
+CONFIRMED_RELEASE_BLOCKERS=0 in this bounded *source* review only.
+NEEDS_VALIDATION=4: see findings.json. NV-001 live Worker→origin, NV-002 eventual release→version→production, NV-003 exact-preview degraded UI and NV-004 direct-origin bypass require independent evidence and reviewer decisions; this report does not close them.
 
 ## LIMITATIONS
-No exhaustive security audit is claimed. This report does not certify an actual deployment or release. The five exact-head workflows, independent external tester-army E2E, live origin bypass check and four NV decisions require subsequent evidence. Production, merge, release and OSS submission remain prohibited; APPLICATION_STATUS=HOLD.
+No exhaustive security assurance, no external independent pentest and no release readiness are claimed. The five exact-head workflows, external TesterArmy 10/10, independent direct-origin bypass assessment and final main/tag/production seal remain separate gates. APPLICATION_STATUS=HOLD; merge/deploy/tag/release/OSS submission denied until new AUD and owner authorization.
