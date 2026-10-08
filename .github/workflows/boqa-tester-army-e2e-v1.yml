@@ -90,10 +90,10 @@ jobs:
           test -s "$report"
           jq -e '
             .run.status == "passed" and .run.exitCode == 0 and
-            ([.results[] | select(.kind == "test" and .selected == true)] | length) == 10 and
-            ([.results[] | select(.kind == "test" and .selected == true and .status == "passed")] | length) == 10 and
-            ([.results[] | select(.kind == "test" and .targetId == "desktop-1440" and .status == "passed")] | length) == 5 and
-            ([.results[] | select(.kind == "test" and .targetId == "mobile-390" and .status == "passed")] | length) == 5
+            ([.run.results[] | select(.kind == "test" and .selected == true)] | length) == 10 and
+            ([.run.results[] | select(.kind == "test" and .selected == true and .status == "passed")] | length) == 10 and
+            ([.run.results[] | select(.kind == "test" and .targetId == "desktop-1440" and .status == "passed")] | length) == 5 and
+            ([.run.results[] | select(.kind == "test" and .targetId == "mobile-390" and .status == "passed")] | length) == 5
           ' "$report" >/dev/null
           echo "TESTER_ARMY_PREVIEW_E2E=10/10"
           echo "E2E_360_CHECK=INCLUDED_IN_MOBILE_390_FIFTH_CASE"
