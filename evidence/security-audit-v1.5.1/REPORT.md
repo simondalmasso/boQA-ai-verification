@@ -1,6 +1,6 @@
 # BOQA v1.5.1 bounded security source review
 
-AUDITED_SOURCE_REF=19c56042d999824c51b73efbda72ba4a9c9ef974
+AUDITED_SOURCE_REF=7535601780197a80098b5c3f8bec1801e1811234
 
 ## Scope and evidence
 Source manifest binds 38 committed paths by SHA-256. Includes Worker/backend transport and auth, Cloudflare preview/production/release workflows, test harness, WebSocket removal health response, and isolated TesterArmy E2E.
@@ -9,7 +9,7 @@ Observed CI red-to-green history:
 - 39c524b Browser failed `PRIVATE_SMOKE_BOUNDARY_NOT_FOUND`; shim now injects private-route concealment into current Browser Smoke main lifecycle.
 - 39c524b Cloudflare Preview failed `EXPECTED_BACKEND_ABORT_MISSING` on completed HTTP 503; validator now requires HTTP error response or expected abort and rejects missing, unexpected outcomes.
 - ceda922d Browser failed `BACKEND_NOT_HEALTHY:500` due to stale WebSocket bus.clients.size; health now reports zero removed clients without reopening WebSockets.
-- On 639dce4, all five original exact-head CI workflows PASS and Cloudflare exact-preview produces 0%-traffic version, but TesterArmy E2E fails BEFORE its tests during installer setup: upstream `@e2e-dev/web` has named `e2e-web` binary; this source ref changes installer to explicit `./node_modules/.bin/e2e-web install chromium --with-deps`. New same-head CI and E2E 10/10 are REQUIRED and NOT YET PROVEN for this commit.
+- On 639dce4, all five original exact-head CI workflows PASS and Cloudflare exact-preview produces 0%-traffic version, but TesterArmy E2E fails BEFORE its tests during installer setup: upstream `@e2e-dev/web` has named `e2e-web` binary; this source ref changes installer to explicit `./node_modules/.bin/e2e-web install chromium --with-deps`. The runner selector now consumes canonical report-1 `.run.results` instead of nonexistent root-level `.results`. Fresh same-head CI and E2E 10/10 are REQUIRED and NOT YET PROVEN for this commit.
 
 ## Findings
 CONFIRMED_RELEASE_BLOCKERS=0 in this bounded source review, not a release certification.
