@@ -1,17 +1,19 @@
 # BOQA v1.5.1 bounded security source review
 
-AUDITED_SOURCE_REF=63465386b1cab819145493ac72399d77f5214a73
+AUDITED_SOURCE_REF=6aea3a9b2fc2355c40d9cba9583aecd9cad12e88
 
 ## Scope and evidence
-Review bound to 27 committed files by SHA-256, including production promotion and release workflows, trust boundaries, exact-source audit verifier, transport, billing/WebSocket negative regressions, and the Open Graph artifact.
+Source binding includes 31 committed paths with SHA-256, including the Worker/backend, production and release authority, Cloudflare exact preview, browser concealment shim, degraded-network validator and negative regressions.
 
-Observed before evidence creation: dependency audit reported zero known vulnerabilities; 27 of 28 source-stage JS tests passed, with the sole failure due to the intentionally not-yet-created audited-scope manifest. This report is not a post-seal test result.
+The source remediation is narrowly motivated by two witnessed exact-head CI failures at `39c524b328070cc8a72985034fc73b42f1a2fe6c`:
+- Browser Smoke failed at `PRIVATE_SMOKE_BOUNDARY_NOT_FOUND` because a public-edge shim expected a function removed from the base test; the replacement runs complete private concealment inside the existing browser lifecycle, before marking evidence PASS.
+- Cloudflare preview uploaded an exact 0%-traffic version but failed at `EXPECTED_BACKEND_ABORT_MISSING`. An HTTP 503 is a completed failed-response status, not a Playwright requestfailed event. The new validator requires an observed expected HTTP error or an expected abort, rejects unexpected API responses and preserves fail-closed status/UI/private-path checks.
 
-Known remediations at this source ref include a behavioral promotion selector that rejects blocked backend contract, fail-closed authority validation before deployment, a conservative HOLD readiness contract, regenerated v1.5.1 PNG, nonempty security scope verification, and draft-first release asset verification.
+Coverage includes fixtures that reject absent degraded-network evidence, wrong HTTP outcomes and non-abort errors. CI requalification and any preview E2E result must be tied to the eventual evidence-only head, not this source-stage commit.
 
 ## Findings
-CONFIRMED_RELEASE_BLOCKERS=0 among the inspected source surfaces.
-NEEDS_VALIDATION=4: see findings.json. These are unresolved independent runtime/release validation obligations, not proof of an operational or secure production release.
+CONFIRMED_RELEASE_BLOCKERS=0 in this bounded source review only.
+NEEDS_VALIDATION=4: see findings.json. Worker→origin live transport/auth, release/deployment provenance, preview status UI and direct-origin bypass require independent review; do not infer resolution from this manifest.
 
 ## LIMITATIONS
-This is a bounded static and fixture-based security review, not an exhaustive security audit. Cloudflare exact-preview, Browser, Docker, production Worker identity, live direct-origin bypass, and actual v1.5.1 release are not yet verified. No independent human security audit is claimed. Final readiness remains HOLD and depends on future exact-SHA qualification plus MAIN=TAG=PROD proof.
+No exhaustive security audit is claimed. This report does not certify an actual deployment or release. The five exact-head workflows, independent external tester-army E2E, live origin bypass check and four NV decisions require subsequent evidence. Production, merge, release and OSS submission remain prohibited; APPLICATION_STATUS=HOLD.

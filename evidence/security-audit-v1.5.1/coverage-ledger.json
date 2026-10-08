@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "63465386b1cab819145493ac72399d77f5214a73",
-  "methodology": "bounded source/security review; deterministic fixtures; exact committed-source SHA-256; npm dependency audit",
+  "audited_source_ref": "6aea3a9b2fc2355c40d9cba9583aecd9cad12e88",
+  "methodology": "bounded static and fixture review; exact source SHA-256 binding; independent GitHub CI plus direct browser probe required for runtime claims",
   "independent_verifier": "independent Node child-process regressions and separate GitHub exact-head workflow gates required; no external security reviewer represented",
   "reviewed_surfaces": [
     ".github/workflows/boqa-cloudflare-preview-v6.yml",
@@ -16,12 +16,16 @@
     "dashboard/status/index.html",
     "docs/openai-codex-oss/READINESS.md",
     "package-lock.json",
+    "scripts/browser-smoke-public-edge-v2.js",
     "scripts/check-publication.js",
     "scripts/check-security-audit-evidence.js",
     "scripts/cloudflare-preview-build-v6.sh",
     "scripts/cloudflare-preview-smoke-v6.js",
+    "scripts/preview-degraded-network-evidence.js",
     "scripts/production-promotion-policy.js",
     "server.js",
+    "test/test-browser-public-edge-shim.js",
+    "test/test-preview-degraded-network-evidence.js",
     "test/test-production-promotion-behavioral.js",
     "test/test-public-private-boundary.js",
     "test/test-public-security-headers.js",
@@ -49,9 +53,10 @@
     "fail-closed behavior"
   ],
   "coverage_limitations": [
-    "Bounded source review is not an exhaustive penetration test.",
-    "No exact-head Cloudflare Preview, Browser, Docker, Production or Release workflow run exists at audit time.",
-    "No live independent direct-origin bypass test or Cloudflare control-plane release test is claimed.",
-    "Four needs_validation candidates are not classified as rejected or confirmed."
+    "Bounded source review; not an exhaustive or independently certified penetration test.",
+    "Previous PR head 39c524b had Browser Smoke and Cloudflare Preview failures; fresh exact-head CI is required after these repairs.",
+    "Independent live direct-origin bypass and Worker-to-origin secret/transport review are pending.",
+    "Four needs_validation candidates remain unresolved pending independent adjudication.",
+    "Production deploy, tag and release v1.5.1 are neither executed nor authorized."
   ]
 }
