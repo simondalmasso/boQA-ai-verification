@@ -16,7 +16,6 @@ HUMAN_GATE=PASS
 ACTIVE_MAINTENANCE=YES
 REPO_HYGIENE=P1_DEBT_NON_BLOCKING — canonical main is lean, but historical branches/PR cleanup remains a post-release governance task. External-tool triage remains documentation-only with zero admitted runtime frameworks.
 SECURITY_ADVISORIES=PASS — qs is pinned to 6.16.0 and proxy-addr to 2.0.8; release qualification requires npm audit to report zero known vulnerabilities.
-OPENAI_ORG_ID=org-KdoYdnEmMXzusYpXDoqgJdbv
 FORM_TEXTS=DRAFT_HOLD_OWNER_SUBMISSION
 BACKEND_TRANSPORT=SOURCE_PASS_PRODUCTION_PENDING — production defaults fail closed with no plaintext public origin; Worker rejects public HTTP upstreams.
 COBROS_REMOVED=SOURCE_PASS — billing implementation, frontend, PIN configuration and private billing API are removed; only negative legacy-route regressions remain.

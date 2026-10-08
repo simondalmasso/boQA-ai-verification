@@ -4,6 +4,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { verifyDegradedNetworkEvidence } = require('./preview-degraded-network-evidence');
 
 const ROOT = path.join(__dirname, '..');
 const OUTPUT = path.join(ROOT, 'output', 'cloudflare-preview-v6', 'browser');
@@ -183,6 +184,13 @@ function wireDiagnostics(page, result, expectedStatuses = []) {
   page.on('requestfailed', (request) => {
     result.failed_requests.push({ path: new URL(request.url()).pathname, error: request.failure()?.errorText || 'unknown' });
   });
+  page.on('response', (response) => {
+    const path = new URL(response.url()).pathname;
+    if (Array.isArray(result.backend_responses) &&
+        ['/api/health', '/api/hunter/status'].includes(path)) {
+      result.backend_responses.push({ path, status: response.status() });
+    }
+  });
 }
 
 async function smokeLanding(browser, viewport, label) {
@@ -251,6 +259,7 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
     console_errors: [],
     expected_console_errors: [],
     failed_requests: [],
+    backend_responses: [],
   };
   wireDiagnostics(page, result, expectedStatuses);
 
@@ -305,13 +314,10 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
 
   await page.waitForTimeout(200);
   if (classification === 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED') {
-    result.expected_failed_requests = result.failed_requests.filter((item) =>
-      ['/api/health', '/api/hunter/status'].includes(item.path) && /ERR_ABORTED/.test(item.error)
-    );
-    result.failed_requests = result.failed_requests.filter((item) =>
-      !(['/api/health', '/api/hunter/status'].includes(item.path) && /ERR_ABORTED/.test(item.error))
-    );
-    assert(result.expected_failed_requests.length >= 1, `${label}:EXPECTED_BACKEND_ABORT_MISSING`);
+    // HTTP 503/504 are completed requests and do NOT trigger requestfailed.
+    // Accept a witnessed expected HTTP failure OR an expected aborted request,
+    // but reject missing evidence and every unexpected backend/network failure.
+    verifyDegradedNetworkEvidence(result, backendStatus);
   }
   assert.equal(result.page_errors.length, 0, `${label}:PAGE_ERRORS:${result.page_errors.join('|')}`);
   assert.equal(result.console_errors.length, 0, `${label}:CONSOLE_ERRORS:${result.console_errors.join('|')}`);
