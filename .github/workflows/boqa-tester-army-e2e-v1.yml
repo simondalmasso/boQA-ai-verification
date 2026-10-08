@@ -79,7 +79,7 @@ jobs:
           set -Eeuo pipefail
           npm install --ignore-scripts --no-audit --no-fund
           npm ls e2e @e2e-dev/web --depth=0
-          npx @e2e-dev/web install chromium --with-deps
+          ./node_modules/.bin/e2e-web install chromium --with-deps
       - name: Run five cases on each viewport and require 10 of 10
         working-directory: qualification/tester-army
         shell: bash
