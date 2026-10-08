@@ -1,21 +1,19 @@
 # BOQA v1.5.1 bounded security source review
 
-AUDITED_SOURCE_REF=818ab9bc43bf2256720908e91d9c2403f0afe951
+AUDITED_SOURCE_REF=19c56042d999824c51b73efbda72ba4a9c9ef974
 
 ## Scope and evidence
-Source manifest binds 38 committed paths by SHA-256, including public API transport, authorization, Cloudflare versioning and promotion, browser/private concealment, proof-producing negative regressions, the health endpoint after WebSocket removal, and the isolated external TesterArmy harness/workflow.
+Source manifest binds 38 committed paths by SHA-256. Includes Worker/backend transport and auth, Cloudflare preview/production/release workflows, test harness, WebSocket removal health response, and isolated TesterArmy E2E.
 
-Witnessed exact-head CI root causes (not hypothetical):
-- Browser Smoke at 39c524b: `PRIVATE_SMOKE_BOUNDARY_NOT_FOUND` due to stale shim; repaired by injecting the full private concealment function into the current smoke main() lifecycle without skipping assertions.
-- Cloudflare Preview at 39c524b: `EXPECTED_BACKEND_ABORT_MISSING` because completed HTTP 503 does not fire requestfailed; repaired by validating actual backend HTTP response status, expected aborts, unexpected responses and missing evidence.
-- Browser Smoke at ceda922d: `BACKEND_NOT_HEALTHY:500` due to `ctx.bus.clients.size` dereference in `lib/health.js` after WebSocket client removal; repaired with explicit 0 active WebSocket clients and a negative regression ensuring no registry exists.
-- Cloudflare exact preview at ceda922d: successful 0%-traffic version build and UI gate; this does NOT qualify the new source or approve deployment.
-
-New isolated TesterArmy open-source e2e@0.15.2 / @e2e-dev/web@0.11.1 tests are no-agent/no-model, require verified exact preview of the same SHA, and fail unless 5 cases in each 1440/390 viewport pass plus 360 status overflow/hidden check inside mobile case. The runner remains unproven until its actual GitHub Action completes with a 10/10 report and artifacts.
+Observed CI red-to-green history:
+- 39c524b Browser failed `PRIVATE_SMOKE_BOUNDARY_NOT_FOUND`; shim now injects private-route concealment into current Browser Smoke main lifecycle.
+- 39c524b Cloudflare Preview failed `EXPECTED_BACKEND_ABORT_MISSING` on completed HTTP 503; validator now requires HTTP error response or expected abort and rejects missing, unexpected outcomes.
+- ceda922d Browser failed `BACKEND_NOT_HEALTHY:500` due to stale WebSocket bus.clients.size; health now reports zero removed clients without reopening WebSockets.
+- On 639dce4, all five original exact-head CI workflows PASS and Cloudflare exact-preview produces 0%-traffic version, but TesterArmy E2E fails BEFORE its tests during installer setup: upstream `@e2e-dev/web` has named `e2e-web` binary; this source ref changes installer to explicit `./node_modules/.bin/e2e-web install chromium --with-deps`. New same-head CI and E2E 10/10 are REQUIRED and NOT YET PROVEN for this commit.
 
 ## Findings
-CONFIRMED_RELEASE_BLOCKERS=0 in this bounded *source* review only.
-NEEDS_VALIDATION=4: see findings.json. NV-001 live Worker→origin, NV-002 eventual release→version→production, NV-003 exact-preview degraded UI and NV-004 direct-origin bypass require independent evidence and reviewer decisions; this report does not close them.
+CONFIRMED_RELEASE_BLOCKERS=0 in this bounded source review, not a release certification.
+NEEDS_VALIDATION=4: independent assessment of NV-001 Worker→origin, NV-002 release→Worker→production, NV-003 preview degraded UI and NV-004 direct-origin bypass still required. Passing automated source tests alone does not close them.
 
 ## LIMITATIONS
-No exhaustive security assurance, no external independent pentest and no release readiness are claimed. The five exact-head workflows, external TesterArmy 10/10, independent direct-origin bypass assessment and final main/tag/production seal remain separate gates. APPLICATION_STATUS=HOLD; merge/deploy/tag/release/OSS submission denied until new AUD and owner authorization.
+Bounded static/fixture review, not exhaustive security certification. No live direct-origin bypass or production identity verification; no human independent approval. Merge, production deploy, release/tag and OSS submission denied, APPLICATION_STATUS=HOLD. Same-SHA qualification gates, real external tester-army report and reviewer decisions must be rechecked after this commit.

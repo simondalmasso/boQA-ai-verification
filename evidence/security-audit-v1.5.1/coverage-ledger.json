@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "818ab9bc43bf2256720908e91d9c2403f0afe951",
+  "audited_source_ref": "19c56042d999824c51b73efbda72ba4a9c9ef974",
   "methodology": "bounded source and fixtures; exact committed SHA-256; independent same-head CI and external tester-army browser test required",
   "independent_verifier": "independent Node child-process regressions and separate GitHub exact-head workflow gates required; no external security reviewer represented",
   "reviewed_surfaces": [
@@ -65,6 +65,7 @@
     "Cloudflare Preview at ceda922d was SUCCESS with static-valid degraded runtime; fresh exact-head preview+TesterArmy external E2E remain mandatory.",
     "Independent Worker-to-origin transport/authentication, live direct-origin bypass and deployed Worker version checks remain pending.",
     "Four needs_validation candidates remain unclassified beyond needs_validation pending independent reviewer.",
-    "Merge, production deploy, tag, release and OSS form submission are neither completed nor authorized."
+    "Merge, production deploy, tag, release and OSS form submission are neither completed nor authorized.",
+    "TesterArmy upstream package binary is e2e-web; initial 639dce run failed before tests while using ambiguous npx @e2e-dev/web; exact binary path changed. Rerun and 10/10 evidence are not established by this source review."
   ]
 }
