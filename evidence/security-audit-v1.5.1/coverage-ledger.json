@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "7535601780197a80098b5c3f8bec1801e1811234",
+  "audited_source_ref": "935cb00b29d72ec82eda13eb626d1703bdfe9205",
   "methodology": "bounded source and fixtures; exact committed SHA-256; independent same-head CI and external tester-army browser test required",
   "independent_verifier": "independent Node child-process regressions and separate GitHub exact-head workflow gates required; no external security reviewer represented",
   "reviewed_surfaces": [
@@ -67,6 +67,7 @@
     "Four needs_validation candidates remain unclassified beyond needs_validation pending independent reviewer.",
     "Merge, production deploy, tag, release and OSS form submission are neither completed nor authorized.",
     "TesterArmy upstream package binary is e2e-web; initial 639dce run failed before tests while using ambiguous npx @e2e-dev/web; exact binary path changed. Rerun and 10/10 evidence are not established by this source review.",
-    "The TesterArmy report is schemaVersion report-1 with cases at .run.results; this source ref corrects the verification selector. Only exact-head runner output can confirm 10/10."
+    "The TesterArmy report is schemaVersion report-1 with cases at .run.results; this source ref corrects the verification selector. Only exact-head runner output can confirm 10/10.",
+    "TesterArmy e2e@0.15.2 and web@0.11.1 use playwright as peer, not named e2e-web CLI. This source pins playwright@1.63.0 and invokes its local CLI; same-head runner 10/10 remains unverified."
   ]
 }
