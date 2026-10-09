@@ -16,5 +16,5 @@ Exactly 38 source paths are cryptographically bound to this audited source ref a
 CONFIRMED_RELEASE_BLOCKERS=0 in this bounded static source review only.
 NEEDS_VALIDATION=4 (NV-001 Worker-to-origin transport and auth, NV-002 release/version/prod provenance, NV-003 preview degraded UI, NV-004 direct-origin and removed surfaces). An independent verifier must classify all four with evidence. Tests do not automatically close them.
 
-## Limitations
+## LIMITATIONS
 No exhaustive human security audit or production identity assurance. No independent direct-origin bypass test. Do not claim READY solely from green CI. The five exact-head workflows, independently inspectable external TesterArmy report, four NV determinations, and authority review must all be satisfied separately. MERGE=NO; DEPLOY=NO; RELEASE=NO; OSS_FORM_SUBMIT=NO; APPLICATION_STATUS=HOLD.
