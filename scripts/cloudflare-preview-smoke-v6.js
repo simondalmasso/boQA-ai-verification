@@ -209,8 +209,10 @@ async function smokeLanding(browser, viewport, label) {
   const response = await page.goto(PREVIEW_URL, { waitUntil: 'networkidle', timeout: 60_000 });
   assert(response && response.ok(), `${label}:LANDING_NAVIGATION_FAILED`);
   assert.equal(await page.locator('h1').count(), 1, `${label}:H1_COUNT`);
+  assert.equal(await page.locator('.phage-figure img').count(), 1, `${label}:PHAGE_ART_MISSING`);
+  assert.equal(await page.locator('.phage-figure img').getAttribute('src'), '/phage-engraving.svg');
   const heroTitle = (await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim();
-  assert.equal(heroTitle, 'Verification infrastructure for AI-assisted software work.');
+  assert.equal(heroTitle, 'Evidence before acceptance.');
   const thesis = (await page.locator('.thesis').innerText()).replace(/\s+/g, ' ').trim();
   assert.equal(thesis, 'Codex proposes. BOQA verifies.');
   assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);

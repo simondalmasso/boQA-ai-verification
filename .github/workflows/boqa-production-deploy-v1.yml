@@ -157,6 +157,7 @@ jobs:
           fetch_public status "$prod/status/"
           fetch_public landing_css "$prod/landing.css"
           fetch_public favicon "$prod/favicon.svg"
+          fetch_public phage "$prod/phage-engraving.svg"
           fetch_public og "$prod/og-boqa.png"
           fetch_public health "$prod/health"
 
@@ -164,14 +165,16 @@ jobs:
           cmp dashboard/status/index.html output/production-deploy/public/status
           cmp dashboard/landing.css output/production-deploy/public/landing_css
           cmp dashboard/favicon.svg output/production-deploy/public/favicon
+          cmp dashboard/phage-engraving.svg output/production-deploy/public/phage
           cmp dashboard/og-boqa.png output/production-deploy/public/og
 
-          grep -F 'Codex proposes. BOQA verifies.' output/production-deploy/public/root >/dev/null
+          grep -F 'Evidence before' output/production-deploy/public/root >/dev/null
+          grep -F 'phage-engraving.svg' output/production-deploy/public/root >/dev/null
           grep -F 'MODEL_OUTPUT != AUTHORIZATION' output/production-deploy/public/root >/dev/null
           grep -F 'v1.5.1' output/production-deploy/public/root >/dev/null
           grep -F 'id="overall-state"' output/production-deploy/public/status >/dev/null
 
-          for header_file in root status landing_css favicon og health; do
+          for header_file in root status landing_css favicon phage og health; do
             assert_public_headers "output/production-deploy/headers/$header_file.txt"
           done
 
