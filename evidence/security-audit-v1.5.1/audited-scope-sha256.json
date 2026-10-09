@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "2353caee01a6ab8e11c2a33ffac349c05e4225dd",
+  "audited_source_ref": "1e9dacc37c1f71c13e833ba759cb90b93d40a582",
   "files": {
     ".github/workflows/boqa-cloudflare-preview-v6.yml": "30308e958fb46aa1a9baab8b0b03775fc8482d28fabd88bc8272372b204b9b9c",
     ".github/workflows/boqa-production-deploy-v1.yml": "b16545b1963d60852ec80a46a7a4c2a577560a8e6076dd360e19e5bf11670a2a",
@@ -12,7 +12,7 @@
     "api-route-inventory.json": "70b20c0173f50c016d5df2e93efcae2044a26b2a7944dd557a97f8f3597dba77",
     "compose.yaml": "00c109ba60ba5ea1286dea4ae1738c75e2c2f5442b10ab2f7c546b2bb8907ddd",
     "dashboard/favicon.svg": "da89221d34474b18da0b90d1ec21bb7b7e0b655ec17cd2a25ba06176cb8a3561",
-    "dashboard/index.html": "2a3efb19c4cf3ae4a0c3887edf5e6218756386fc019cb119f376fe2664806062",
+    "dashboard/index.html": "5ca38a010105d8fc36df2a96e423778b299665feb1daf915dc2a65f103638b21",
     "dashboard/landing.css": "fa8ff500929f4258ab0462a5bbe5d8931f9821c7e5feb0af7776ceb61c3988d2",
     "dashboard/og-boqa-source.svg": "e6c4740b913cc9aedcb3861d4bdf98d9a07cd0e300b4f472c23c9ca334257079",
     "dashboard/og-boqa.png": "a2f88eca34b8c3526d200f541aa066d0325669334b8b743a0ba9e1e80f340ad3",
