@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "1e9dacc37c1f71c13e833ba759cb90b93d40a582",
+  "audited_source_ref": "c5a41b0e19514444ff63705274757266000f5ff1",
   "methodology": "Bounded SHA-256 source review, direct Express HTTP negative tests, resolved Docker Compose internal network test, independent exact-head CI; live origin ingress requires separate owner evidence.",
   "independent_verifier": "AUD_NV_REVIEW independently adjudicated NV003 PASS. Real CI reruns origin fixture and normalized Compose network gate; live NV001/NV004 require independently authorized production control-plane inspection.",
   "reviewed_surfaces": [
@@ -43,6 +43,7 @@
     "test/test-browser-public-edge-shim.js",
     "test/test-health-no-websocket-clients.js",
     "test/test-origin-direct-auth-boundary.js",
+    "test/test-oss-landing.js",
     "test/test-preview-degraded-network-evidence.js",
     "test/test-production-promotion-behavioral.js",
     "test/test-public-private-boundary.js",

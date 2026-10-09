@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "1e9dacc37c1f71c13e833ba759cb90b93d40a582",
+  "audited_source_ref": "c5a41b0e19514444ff63705274757266000f5ff1",
   "files": {
     ".github/workflows/boqa-cloudflare-preview-v6.yml": "30308e958fb46aa1a9baab8b0b03775fc8482d28fabd88bc8272372b204b9b9c",
     ".github/workflows/boqa-production-deploy-v1.yml": "b16545b1963d60852ec80a46a7a4c2a577560a8e6076dd360e19e5bf11670a2a",
@@ -41,6 +41,7 @@
     "test/test-browser-public-edge-shim.js": "ba09cf5902ffb965c424155e326f9a58fb937793d73797c003c63c410669622d",
     "test/test-health-no-websocket-clients.js": "50a6b4175a1c84f9fae46d2b3052998b89312e9b8935d6fe8ea358b8395fae2b",
     "test/test-origin-direct-auth-boundary.js": "a0de76f05e12d0a8b4bf6127b2e27c67e02bba4d679636226ad32903609abc35",
+    "test/test-oss-landing.js": "13cb3aba144d5656f218b8f6767fc3c4e016cc68ce40577ac75af0648751051d",
     "test/test-preview-degraded-network-evidence.js": "4c36a8d6de5e33b004526cafdac7d29ba7c972291457613e80e7f74338b3c776",
     "test/test-production-promotion-behavioral.js": "3af7aa2776f583bf17fdb6977f50a7f02f7724f6a567e99b5e96fd4c2d743fb3",
     "test/test-public-private-boundary.js": "fbb51c50a3054e3dbee49486666f7dda561ae0746badb46a7760b80f49734750",
