@@ -1,20 +1,25 @@
-# BOQA v1.5.1 bounded security source review
+# BOQA v1.5.1 — AUD NV001/NV004 origin-boundary remediation
 
-AUDITED_SOURCE_REF=0693ad2d471a1a1dc71e85eefc05e6e7587e55c4
+AUDITED_SOURCE_REF=7921e19dbdbe8404333170a4689100931e7e479f
+PR=71
+ORDER=AUD_BOQA_NV_REVIEW
+APPLICATION_STATUS=HOLD
 
-## Source and scope
-Exactly 38 source paths are cryptographically bound to this audited source ref and checked against final PR HEAD. This is a bounded source and regression review, not exhaustive security certification.
+## Root causes
+The route GET /api/defensive/status was INTERNAL according to api-route-inventory.json yet registered before authentication. It now applies requireStrongProxyAuth (API key plus HMAC), with rate limiting, and is removed from public-read bypass. lib/middleware.js no longer allows protected routes to continue when BOQA_API_KEY or BOQA_HMAC_SECRET is unset: 503 fail-closed.
 
-## Root causes and bounded remediations
-1. Original Browser Smoke at 39c524b: PRIVATE_SMOKE_BOUNDARY_NOT_FOUND (shim expected a removed function). Remediated by injecting the privacy smoke into the current test lifecycle.
-2. Original Cloudflare Exact Preview at 39c524b: EXPECTED_BACKEND_ABORT_MISSING (HTTP 503 is a completed response, not a requestfailed event). Remediated by asserting actual backend HTTP error or expected abort while rejecting other failures.
-3. Browser Smoke at ceda922d: BACKEND_NOT_HEALTHY:500 (stale bus.clients.size after WebSocket removal). Health now reports zero WebSocket clients without restoring that runtime.
-4. TesterArmy installer failures before tests: ambiguous npm executable and missing e2e-web binary in @e2e-dev/web@0.11.1. Isolated harness now uses pinned playwright@1.63.0 and its actual CLI.
-5. TesterArmy at d730ea54: GitHub Actions and test report checks showed 10/10 PASS, but the uploaded artifact omitted the hidden .e2e/report.json. This source change copies the canonical TesterArmy report and JUnit to output/tester-army-e2e/ with SHA-256 checksums for independent inspection. The new exact-head CI run and artifact verification are still required.
+compose.yaml previously published "80:7070" to all host interfaces. The revised Compose topology has zero published host ports, only expose 7070 within one internal:true Docker network. GitHub Real Docker qualification resolves the real Compose JSON and rejects any host port, non-internal network or network_mode. An adversarial model fixture rejects misconfiguration.
 
-## Open security validation
-CONFIRMED_RELEASE_BLOCKERS=0 in this bounded static source review only.
-NEEDS_VALIDATION=4 (NV-001 Worker-to-origin transport and auth, NV-002 release/version/prod provenance, NV-003 preview degraded UI, NV-004 direct-origin and removed surfaces). An independent verifier must classify all four with evidence. Tests do not automatically close them.
+The direct-origin test binds only temporary 127.0.0.1, sends real HTTP calls to Express, and requires 503 for missing auth, 401 for invalid key/HMAC, and 200 for an authenticated internal-status read. No external target is scanned. This is a source plus isolated test contract, NOT a deployed-host isolation claim.
+
+## Evidence manifest
+Exactly 46 paths are SHA-256 bound to this source commit, including lib/middleware.js, compose.yaml, Dockerfile, wrangler.toml, scripts/check-origin-compose-isolation.js, test/test-origin-direct-auth-boundary.js, the Docker qualification workflow, and the audit verifier. All hashes must be verified by fresh exact-head CI.
+
+## AUD adjudications
+NV001=PENDING_LIVE_AUTH_TRANSPORT: live Worker-to-origin ingress/authentication and deployed secret configuration unverified.
+NV002=PREVIEW_PASS_PRODUCTION_PENDING: source and preview gates do not constitute MAIN=TAG=PRODUCTION; that future action is denied.
+NV003=PASS_INDEPENDENTLY_VERIFIED_BY_AUD: independent AUD disposition; rejected as an outstanding finding.
+NV004=SOURCE_AUTH_BOUNDARY_REMEDIATED_LIVE_ISOLATION_PENDING: source port/auth defects fixed; actual host/Northflank/firewall ingress/direct-origin bypass unverified.
 
 ## LIMITATIONS
-No exhaustive human security audit or production identity assurance. No independent direct-origin bypass test. Do not claim READY solely from green CI. The five exact-head workflows, independently inspectable external TesterArmy report, four NV determinations, and authority review must all be satisfied separately. MERGE=NO; DEPLOY=NO; RELEASE=NO; OSS_FORM_SUBMIT=NO; APPLICATION_STATUS=HOLD.
+Source/Compose evidence is insufficient to prove a running production origin is inaccessible; Cloudflare Worker alone is not an origin firewall. Do not invent origin hostname/IP, probe unknown targets, or expose secrets in evidence. A separately authorized operator must inspect the deployed origin configuration and execute an authorized direct-origin check before NV001/NV004 close. Exact-head Browser/Docker/Security/Publication/Preview/TesterArmy must all pass after this seal. MERGE=NO; DEPLOY=NO; RELEASE=NO; OSS_SUBMIT=NO; APPLICATION_STATUS=HOLD.

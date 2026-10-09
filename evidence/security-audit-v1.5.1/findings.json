@@ -1,34 +1,38 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "0693ad2d471a1a1dc71e85eefc05e6e7587e55c4",
+  "audited_source_ref": "7921e19dbdbe8404333170a4689100931e7e479f",
   "confirmed_release_blockers": 0,
   "confirmed_count": 0,
-  "needs_validation_count": 4,
-  "rejected_count": 0,
+  "needs_validation_count": 3,
+  "rejected_count": 1,
   "candidates": [
     {
       "id": "NV-001",
       "classification": "needs_validation",
       "topic": "Live Worker-to-origin transport and authentication",
-      "independent_verifier": "test/test-public-private-boundary.js; Cloudflare live probe still pending"
+      "independent_verifier": "Direct-origin HTTP auth fixture and Worker source contract; live Cloudflare/origin secrets and HTTPS ingress require independent operator attestation.",
+      "disposition": "PENDING_LIVE_AUTH_TRANSPORT"
     },
     {
       "id": "NV-002",
       "classification": "needs_validation",
       "topic": "End-to-end draft release and current deployed Worker version",
-      "independent_verifier": "test/test-release-v1.5.1-contract.js; manual exact-head release gate still pending"
+      "independent_verifier": "Exact-head preview artifact. MAIN=TAG=PRODUCTION version requires separately authorized future deployment and release.",
+      "disposition": "PREVIEW_PASS_PRODUCTION_PENDING"
     },
     {
       "id": "NV-003",
-      "classification": "needs_validation",
+      "classification": "rejected",
       "topic": "Exact preview/browser degraded UI at 1440/390/360",
-      "independent_verifier": "test/test-dashboard-smoke.js and Cloudflare Preview required after PR"
+      "independent_verifier": "AUD_BOQA_NV_REVIEW verified degraded UI independently at 1440/390/360.",
+      "disposition": "PASS_INDEPENDENTLY_VERIFIED_BY_AUD"
     },
     {
       "id": "NV-004",
       "classification": "needs_validation",
       "topic": "Direct-origin bypass and live public path concealment",
-      "independent_verifier": "test/test-public-private-boundary.js; independent live origin check pending"
+      "independent_verifier": "test/test-origin-direct-auth-boundary.js plus real Compose config in GitHub Docker workflow; independent deployed ingress/direct-origin proof pending.",
+      "disposition": "SOURCE_AUTH_BOUNDARY_REMEDIATED_LIVE_ISOLATION_PENDING"
     }
   ]
 }

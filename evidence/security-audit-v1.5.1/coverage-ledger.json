@@ -1,28 +1,34 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "0693ad2d471a1a1dc71e85eefc05e6e7587e55c4",
-  "methodology": "bounded source and fixtures; exact committed SHA-256; independent same-head CI and external tester-army browser test required",
-  "independent_verifier": "independent Node child-process regressions and separate GitHub exact-head workflow gates required; no external security reviewer represented",
+  "audited_source_ref": "7921e19dbdbe8404333170a4689100931e7e479f",
+  "methodology": "Bounded SHA-256 source review, direct Express HTTP negative tests, resolved Docker Compose internal network test, independent exact-head CI; live origin ingress requires separate owner evidence.",
+  "independent_verifier": "AUD_NV_REVIEW independently adjudicated NV003 PASS. Real CI reruns origin fixture and normalized Compose network gate; live NV001/NV004 require independently authorized production control-plane inspection.",
   "reviewed_surfaces": [
     ".github/workflows/boqa-cloudflare-preview-v6.yml",
     ".github/workflows/boqa-production-deploy-v1.yml",
     ".github/workflows/boqa-publication-integrity-v1.yml",
+    ".github/workflows/boqa-real-docker-qualification-v1.yml",
     ".github/workflows/boqa-release-v1.5.1.yml",
     ".github/workflows/boqa-security-audit-v1.yml",
     ".github/workflows/boqa-tester-army-e2e-v1.yml",
+    "Dockerfile",
     "api-route-inventory.json",
+    "compose.yaml",
     "dashboard/index.html",
     "dashboard/og-boqa-source.svg",
     "dashboard/og-boqa.png",
     "dashboard/status/index.html",
     "docs/openai-codex-oss/READINESS.md",
+    "docs/security-origin-isolation-v1.5.1.md",
     "lib/health.js",
+    "lib/middleware.js",
     "package-lock.json",
     "qualification/tester-army/README.md",
     "qualification/tester-army/e2e.config.ts",
     "qualification/tester-army/package.json",
     "qualification/tester-army/tests/preview.e2e.ts",
     "scripts/browser-smoke-public-edge-v2.js",
+    "scripts/check-origin-compose-isolation.js",
     "scripts/check-publication.js",
     "scripts/check-security-audit-evidence.js",
     "scripts/cloudflare-preview-build-v6.sh",
@@ -32,6 +38,7 @@
     "server.js",
     "test/test-browser-public-edge-shim.js",
     "test/test-health-no-websocket-clients.js",
+    "test/test-origin-direct-auth-boundary.js",
     "test/test-preview-degraded-network-evidence.js",
     "test/test-production-promotion-behavioral.js",
     "test/test-public-private-boundary.js",
@@ -41,7 +48,8 @@
     "test/test-security-audit-verifier-negative.js",
     "test/test-security-boundary-audit.js",
     "test/test-v1.5.1-removed-surfaces.js",
-    "worker.js"
+    "worker.js",
+    "wrangler.toml"
   ],
   "areas": [
     "promotion authority",
@@ -60,15 +68,12 @@
     "fail-closed behavior"
   ],
   "coverage_limitations": [
-    "Bounded source review is not an exhaustive penetration test or independent human certification.",
-    "Browser Smoke on ceda922d exposed stale lib/health.js WebSocket-client registry access; fixed and regression-tested at this source ref; exact-head CI must still pass.",
-    "Cloudflare Preview at ceda922d was SUCCESS with static-valid degraded runtime; fresh exact-head preview+TesterArmy external E2E remain mandatory.",
-    "Independent Worker-to-origin transport/authentication, live direct-origin bypass and deployed Worker version checks remain pending.",
-    "Four needs_validation candidates remain unclassified beyond needs_validation pending independent reviewer.",
-    "Merge, production deploy, tag, release and OSS form submission are neither completed nor authorized.",
-    "TesterArmy upstream package binary is e2e-web; initial 639dce run failed before tests while using ambiguous npx @e2e-dev/web; exact binary path changed. Rerun and 10/10 evidence are not established by this source review.",
-    "The TesterArmy report is schemaVersion report-1 with cases at .run.results; this source ref corrects the verification selector. Only exact-head runner output can confirm 10/10.",
-    "TesterArmy e2e@0.15.2 and web@0.11.1 use playwright as peer, not named e2e-web CLI. This source pins playwright@1.63.0 and invokes its local CLI; same-head runner 10/10 remains unverified.",
-    "TesterArmy run 37852877631 passed 10/10 at d730ea54, but the uploaded artifact omitted hidden .e2e/report.json. This patch copies the report and JUnit XML into a nonhidden artifact location and records SHA-256; a new exact-head run must verify persisted evidence."
+    "Source Docker Compose proof cannot certify current Northflank/host firewall, alternative stack, or external load balancer.",
+    "Checked-in wrangler.toml backend URL empty is not deployed Cloudflare control-plane proof of origin bindings and rotated secrets.",
+    "Direct-origin HTTP fixture runs only on ephemeral 127.0.0.1; it is not an external origin probe.",
+    "NV001 live Worker-to-origin authentication/transport PENDING; NV004 source-boundary remediation requires independent live origin isolation attestation.",
+    "NV002 preview PASS but production/tag identity is a later unauthorized gate.",
+    "NV003 PASS is an independent AUD disposition; exact-head CI rerun still mandatory.",
+    "Merge, production deployment, release/tag and OSS submission denied."
   ]
 }
