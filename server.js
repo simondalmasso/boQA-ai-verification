@@ -71,7 +71,7 @@ app.use(express.static(path.join(__dirname, 'dashboard')));
 
 const healthHandler = createHealthHandler(ctx);
 app.get('/health', healthHandler);
-app.get('/api/defensive/status', (_req, res) => {
+app.get('/api/defensive/status', requireStrongProxyAuth, rateLimiter, (_req, res) => {
   res.set('Cache-Control', 'no-store');
   res.json(ctx.hunterRuntime.publicStatus());
 });
@@ -88,7 +88,7 @@ app.get('/api/private/human-gates', requireStrongProxyAuth, rateLimiter, (_req, 
   }
 });
 
-const PUBLIC_READ_PATHS = new Set(['/health', '/defensive/status', '/hunter/status']);
+const PUBLIC_READ_PATHS = new Set(['/health', '/hunter/status']);
 app.use('/api', (req, res, next) => {
   if (req.method === 'GET' && PUBLIC_READ_PATHS.has(req.path)) return next();
   verifyHmac(req, res, (hmacError) => {

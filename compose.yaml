@@ -5,8 +5,12 @@ services:
       dockerfile: Dockerfile
     image: boqa:1.5.1
     restart: unless-stopped
-    ports:
-      - "80:7070"
+    # No published host ports: direct Internet access cannot bypass the Worker.
+    # Any future origin ingress requires a separate audited, authenticated design.
+    expose:
+      - "7070"
+    networks:
+      - boqa_origin_internal
     volumes:
       - /var/lib/boqa/output:/app/output
     environment:
@@ -14,3 +18,7 @@ services:
       BOQA_HMAC_SECRET: ${BOQA_HMAC_SECRET:?BOQA_HMAC_SECRET must be set externally}
       BOQA_AUTO_ANALYZE: "false"
       BOQA_LAB_ENABLED: "false"
+
+networks:
+  boqa_origin_internal:
+    internal: true

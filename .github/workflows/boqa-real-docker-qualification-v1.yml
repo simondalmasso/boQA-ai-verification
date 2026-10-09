@@ -67,6 +67,17 @@ jobs:
           node test/test-defensive-private.js
           node scripts/gate-status.js focused_tests PASS
 
+      - name: Verify no direct-origin published ports
+        id: origin_isolation
+        run: |
+          set -Eeuo pipefail
+          trap 'node scripts/gate-status.js origin_isolation FAIL' ERR
+          test "$(git rev-parse HEAD)" = "$BOQA_HEAD_SHA"
+          BOQA_API_KEY=fixture-only-key BOQA_HMAC_SECRET=fixture-only-hmac \
+            docker compose -f compose.yaml config --format json \
+            | node scripts/check-origin-compose-isolation.js
+          node scripts/gate-status.js origin_isolation PASS
+
       - name: Full regression suite
         id: full_suite
         continue-on-error: true
@@ -198,7 +209,7 @@ jobs:
         if: always()
         run: |
           set -Eeuo pipefail
-          if [ "${{ steps.full_suite.outcome }}" != "success" ] || [ "${{ steps.diff_integrity.outcome }}" != "success" ] || [ "${{ steps.candidate_identity.outcome }}" != "success" ] || [ "${{ steps.candidate_startup.outcome }}" != "success" ] || [ "${{ steps.docker_qualification.outcome }}" != "success" ]; then
+          if [ "${{ steps.origin_isolation.outcome }}" != "success" ] || [ "${{ steps.full_suite.outcome }}" != "success" ] || [ "${{ steps.diff_integrity.outcome }}" != "success" ] || [ "${{ steps.candidate_identity.outcome }}" != "success" ] || [ "${{ steps.candidate_startup.outcome }}" != "success" ] || [ "${{ steps.docker_qualification.outcome }}" != "success" ]; then
             node scripts/gate-status.js workflow FAIL
             exit 1
           fi
