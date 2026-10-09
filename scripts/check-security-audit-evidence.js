@@ -8,7 +8,10 @@ const { execFileSync } = require('node:child_process');
 // Must be independently reviewed: exact files needed to bind the security
 // findings to promotion, trust boundaries, release and executable validators.
 const REQUIRED_FILES = [
-  'worker.js', 'server.js', 'package-lock.json', 'api-route-inventory.json',
+  'worker.js', 'server.js', 'lib/middleware.js', 'compose.yaml',
+  'Dockerfile', 'wrangler.toml', 'package-lock.json', 'api-route-inventory.json',
+  '.github/workflows/boqa-real-docker-qualification-v1.yml',
+  'scripts/check-origin-compose-isolation.js', 'test/test-origin-direct-auth-boundary.js',
   'scripts/check-security-audit-evidence.js', 'scripts/check-publication.js',
   'scripts/production-promotion-policy.js', 'scripts/cloudflare-preview-smoke-v6.js',
   '.github/workflows/boqa-cloudflare-preview-v6.yml',
