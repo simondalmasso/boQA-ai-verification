@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /status/
+Sitemap: https://boqa.simondalmasso44.workers.dev/sitemap.xml

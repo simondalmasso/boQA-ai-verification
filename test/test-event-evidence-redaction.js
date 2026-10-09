@@ -3,7 +3,7 @@
 const assert = require('assert');
 const { EventBus } = require('../bus');
 
-const bus = new EventBus(null, { maxLogSize: 10 });
+const bus = new EventBus({ maxLogSize: 10 });
 bus.emit({
   type: 'network_response',
   url: 'https://fixture.invalid/token',

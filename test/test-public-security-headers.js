@@ -90,6 +90,28 @@ async function run() {
     global.fetch = originalFetch;
   }
 
+  let insecureFetchCalled = false;
+  const originalFetchForTransport = global.fetch;
+  try {
+    global.fetch = async () => {
+      insecureFetchCalled = true;
+      return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
+    };
+    const insecureBackend = await worker.fetch(
+      new Request('https://public.invalid/api/health'),
+      {
+        BOQA_BACKEND_URL: 'http://backend.invalid',
+        BOQA_API_KEY: 'fixture-api-key',
+        BOQA_HMAC_SECRET: 'fixture-hmac-secret',
+      }
+    );
+    assert.equal(insecureBackend.status, 502, 'public plaintext backend transport must be rejected');
+    assert.deepEqual(await insecureBackend.json(), { error: 'insecure_backend_transport' });
+    assert.equal(insecureFetchCalled, false, 'insecure backend transport must fail before fetch');
+  } finally {
+    global.fetch = originalFetchForTransport;
+  }
+
   const concealed = await worker.fetch(new Request('https://public.invalid/%2563obros.html'), assetEnv);
   assert.equal(concealed.status, 404);
   assert.equal(concealed.headers.get('strict-transport-security'), 'max-age=31536000; includeSubDomains');

@@ -12,8 +12,6 @@ jobs:
   publication-integrity:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      BOQA_READINESS_DATE: '2026-10-03'
     steps:
       - name: Checkout exact PR head
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683

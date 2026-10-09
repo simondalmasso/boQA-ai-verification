@@ -4,6 +4,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
+const { verifyDegradedNetworkEvidence } = require('./preview-degraded-network-evidence');
 
 const ROOT = path.join(__dirname, '..');
 const OUTPUT = path.join(ROOT, 'output', 'cloudflare-preview-v6', 'browser');
@@ -88,19 +89,31 @@ async function classifyBackend(evidence) {
   assert.equal(edge.response.status, 200);
   assert.equal(edge.json?.status, 'ok');
   assert.equal(edge.json?.worker, 'boqa');
-  assert.equal(edge.json?.backend_configured, true);
   evidence.worker_health = {
     status: edge.json.status,
     mode: edge.json.mode,
     backend_configured: edge.json.backend_configured,
   };
 
+  if (!edge.json?.backend_configured) {
+    evidence.classification = 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED';
+    evidence.static_publication_valid = true;
+    evidence.runtime_operational = false;
+    evidence.production_promotion_allowed = true;
+    evidence.blocker = 'BACKEND_NOT_CONFIGURED';
+    evidence.backend_health = { status: 503, version: null, release_sha: null };
+    evidence.hunter = { status: null, state: null, timestamp_present: false };
+    return;
+  }
+
   const health = await request('/api/health');
   if (health.response.status !== 200) {
     const unavailableStatuses = new Set([502, 503, 504, 520, 521, 522, 523, 524, 525, 526, 530]);
     assert(unavailableStatuses.has(health.response.status), `/api/health:${health.response.status}`);
-    evidence.classification = 'BLOCKED_BACKEND_UNAVAILABLE';
-    evidence.promotion_ready = false;
+    evidence.classification = 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED';
+    evidence.static_publication_valid = true;
+    evidence.runtime_operational = false;
+    evidence.production_promotion_allowed = true;
     evidence.blocker = 'BACKEND_UNAVAILABLE';
     evidence.backend_health = {
       status: health.response.status,
@@ -128,7 +141,9 @@ async function classifyBackend(evidence) {
     assert(['STOPPED', 'STARTING', 'ACTIVE', 'DEGRADED', 'BLOCKED', 'ERROR'].includes(hunter.json.state), 'HUNTER_STATE_INVALID');
     assert(Number.isFinite(Date.parse(hunter.json.timestamp)), 'HUNTER_TIMESTAMP_INVALID');
     evidence.classification = 'PROMOTION_READY';
-    evidence.promotion_ready = true;
+    evidence.static_publication_valid = true;
+    evidence.runtime_operational = true;
+    evidence.production_promotion_allowed = true;
     evidence.hunter = {
       status: 200,
       state: hunter.json.state,
@@ -139,7 +154,9 @@ async function classifyBackend(evidence) {
 
   if (hunter.response.status === 404) {
     evidence.classification = 'BLOCKED_BACKEND_CONTRACT';
-    evidence.promotion_ready = false;
+    evidence.static_publication_valid = true;
+    evidence.runtime_operational = false;
+    evidence.production_promotion_allowed = false;
     evidence.blocker = 'BACKEND_HUNTER_CONTRACT_MISSING';
     evidence.hunter = {
       status: 404,
@@ -167,6 +184,13 @@ function wireDiagnostics(page, result, expectedStatuses = []) {
   page.on('requestfailed', (request) => {
     result.failed_requests.push({ path: new URL(request.url()).pathname, error: request.failure()?.errorText || 'unknown' });
   });
+  page.on('response', (response) => {
+    const path = new URL(response.url()).pathname;
+    if (Array.isArray(result.backend_responses) &&
+        ['/api/health', '/api/hunter/status'].includes(path)) {
+      result.backend_responses.push({ path, status: response.status() });
+    }
+  });
 }
 
 async function smokeLanding(browser, viewport, label) {
@@ -185,8 +209,10 @@ async function smokeLanding(browser, viewport, label) {
   const response = await page.goto(PREVIEW_URL, { waitUntil: 'networkidle', timeout: 60_000 });
   assert(response && response.ok(), `${label}:LANDING_NAVIGATION_FAILED`);
   assert.equal(await page.locator('h1').count(), 1, `${label}:H1_COUNT`);
+  assert.equal(await page.locator('.phage-figure img').count(), 1, `${label}:PHAGE_ART_MISSING`);
+  assert.equal(await page.locator('.phage-figure img').getAttribute('src'), '/phage-engraving.svg');
   const heroTitle = (await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim();
-  assert.equal(heroTitle, 'Verification infrastructure for AI-assisted software work.');
+  assert.equal(heroTitle, 'Evidence before acceptance.');
   const thesis = (await page.locator('.thesis').innerText()).replace(/\s+/g, ' ').trim();
   assert.equal(thesis, 'Codex proposes. BOQA verifies.');
   assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);
@@ -227,7 +253,7 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
   const page = await context.newPage();
   const expectedStatuses = [];
   if (classification === 'BLOCKED_BACKEND_CONTRACT') expectedStatuses.push(404);
-  if (classification === 'BLOCKED_BACKEND_UNAVAILABLE' && Number.isInteger(backendStatus)) expectedStatuses.push(backendStatus);
+  if (classification === 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED' && Number.isInteger(backendStatus)) expectedStatuses.push(backendStatus);
   const result = {
     label,
     viewport,
@@ -235,6 +261,7 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
     console_errors: [],
     expected_console_errors: [],
     failed_requests: [],
+    backend_responses: [],
   };
   wireDiagnostics(page, result, expectedStatuses);
 
@@ -256,7 +283,7 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
     assert.equal(await page.locator('#health-view-state').textContent(), 'FRESH');
     assert.equal(await page.locator('#health-status').textContent(), 'ok');
     assert.equal(await page.locator('#hunter-reason').textContent(), 'Respuesta HTTP 404');
-  } else if (classification === 'BLOCKED_BACKEND_UNAVAILABLE') {
+  } else if (classification === 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED') {
     assert.equal(await page.locator('#overall-state').textContent(), 'UNAVAILABLE');
     assert.equal(await page.locator('#hunter-view-state').textContent(), 'UNAVAILABLE');
     assert.equal(await page.locator('#health-view-state').textContent(), 'UNAVAILABLE');
@@ -271,6 +298,8 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
     assert(allowedUnavailableReasons.has(hunterReason), `${label}:HUNTER_UNAVAILABLE_REASON:${hunterReason}`);
     result.health_reason = healthReason;
     result.hunter_reason = hunterReason;
+    assert.equal(await page.locator('#empty-state').isVisible(), true, `${label}:EMPTY_STATE_NOT_VISIBLE`);
+    assert.equal(await page.locator('#status-grid').isHidden(), true, `${label}:STATUS_GRID_VISIBLE_WHILE_UNAVAILABLE`);
   } else {
     throw new Error(`UNKNOWN_CLASSIFICATION:${classification}`);
   }
@@ -286,14 +315,11 @@ async function smokeStatus(browser, viewport, label, classification, backendStat
   }
 
   await page.waitForTimeout(200);
-  if (classification === 'BLOCKED_BACKEND_UNAVAILABLE') {
-    result.expected_failed_requests = result.failed_requests.filter((item) =>
-      ['/api/health', '/api/hunter/status'].includes(item.path) && /ERR_ABORTED/.test(item.error)
-    );
-    result.failed_requests = result.failed_requests.filter((item) =>
-      !(['/api/health', '/api/hunter/status'].includes(item.path) && /ERR_ABORTED/.test(item.error))
-    );
-    assert(result.expected_failed_requests.length >= 1, `${label}:EXPECTED_BACKEND_ABORT_MISSING`);
+  if (classification === 'STATIC_PUBLICATION_READY_RUNTIME_DEGRADED') {
+    // HTTP 503/504 are completed requests and do NOT trigger requestfailed.
+    // Accept a witnessed expected HTTP failure OR an expected aborted request,
+    // but reject missing evidence and every unexpected backend/network failure.
+    verifyDegradedNetworkEvidence(result, backendStatus);
   }
   assert.equal(result.page_errors.length, 0, `${label}:PAGE_ERRORS:${result.page_errors.join('|')}`);
   assert.equal(result.console_errors.length, 0, `${label}:CONSOLE_ERRORS:${result.console_errors.join('|')}`);

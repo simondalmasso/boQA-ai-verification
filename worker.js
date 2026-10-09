@@ -151,6 +151,12 @@ async function proxyToBackend(request, env) {
     return jsonResponse({ error: 'invalid_backend_configuration' }, 502);
   }
 
+  const loopbackHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
+  if (parsedBackend.protocol !== 'https:' &&
+      !(parsedBackend.protocol === 'http:' && loopbackHosts.has(parsedBackend.hostname))) {
+    return jsonResponse({ error: 'insecure_backend_transport' }, 502);
+  }
+
   const incomingUrl = new URL(request.url);
   const targetUrl = new URL(incomingUrl.pathname + incomingUrl.search, parsedBackend);
   const proxyHeaders = new Headers(request.headers);
@@ -180,12 +186,6 @@ async function proxyToBackend(request, env) {
       body: bodyForProxy,
       redirect: 'manual',
     }));
-
-    const websocketUpgrade = backendResponse.status === 101 ||
-      (backendResponse.headers.get('upgrade') || '').toLowerCase() === 'websocket';
-    if (websocketUpgrade) {
-      return jsonResponse({ error: 'websocket_not_supported_via_worker', fallback: 'http_polling' }, 426);
-    }
 
     const backendContentType = (backendResponse.headers.get('content-type') || '').toLowerCase();
     if (backendResponse.status >= 500 && !backendContentType.includes('application/json')) {
@@ -240,11 +240,6 @@ export default {
       const allowed = isAllowedApiRequest(request, url.pathname);
       if (!allowed) return jsonResponse({ error: 'not_found' }, 404);
       if (!backendConfigured) return failClosedApi(url.pathname);
-      return proxyToBackend(request, env);
-    }
-
-    if (url.pathname === '/ws') {
-      if (!backendConfigured) return jsonResponse({ error: 'websocket_unavailable', fallback: 'http_polling' }, 426);
       return proxyToBackend(request, env);
     }
 

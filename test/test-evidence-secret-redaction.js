@@ -9,7 +9,7 @@ const { EventBus } = require('../bus');
 async function run() {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'boqa-secret-redaction-'));
   const ndjson = path.join(tmp, 'events.ndjson');
-  const bus = new EventBus(null, { ndjsonPath: ndjson });
+  const bus = new EventBus({ ndjsonPath: ndjson });
 
   bus.emit({
     type: 'network_request',

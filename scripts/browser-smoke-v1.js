@@ -59,6 +59,9 @@ function assetResponse(request) {
     ['/', 'dashboard/index.html'],
     ['/index.html', 'dashboard/index.html'],
     ['/landing.css', 'dashboard/landing.css'],
+    ['/phage-engraving.svg', 'dashboard/phage-engraving.svg'],
+    ['/robots.txt', 'dashboard/robots.txt'],
+    ['/sitemap.xml', 'dashboard/sitemap.xml'],
     ['/favicon.svg', 'dashboard/favicon.svg'],
     ['/og-boqa.png', 'dashboard/og-boqa.png'],
     ['/status', 'dashboard/status/index.html'],
@@ -66,10 +69,6 @@ function assetResponse(request) {
     ['/style.css', 'dashboard/style.css'],
     ['/dashboard-state.js', 'dashboard/dashboard-state.js'],
     ['/app.js', 'dashboard/app.js'],
-    ['/cobros', 'dashboard/cobros.html'],
-    ['/cobros.html', 'dashboard/cobros.html'],
-    ['/cobros.js', 'dashboard/cobros.js'],
-    ['/private.css', 'dashboard/private.css'],
   ]);
   const relative = files.get(pathname);
   if (!relative) return new Response('not found', { status: 404 });
@@ -169,8 +168,10 @@ async function landingSmoke(browser, viewport, label) {
   assert(response && response.ok(), `${label}:LANDING_NAVIGATION_FAILED`);
 
   assert.equal(await page.locator('h1').count(), 1, `${label}:H1_COUNT`);
+  assert.equal(await page.locator('.phage-figure img').count(), 1, `${label}:PHAGE_ART_MISSING`);
+  assert.equal(await page.locator('.phage-figure img').getAttribute('src'), '/phage-engraving.svg');
   const heroTitle = (await page.locator('h1').innerText()).replace(/\s+/g, ' ').trim();
-  assert.equal(heroTitle, 'Verification infrastructure for AI-assisted software work.');
+  assert.equal(heroTitle, 'Evidence before acceptance.');
   const thesis = (await page.locator('.thesis').innerText()).replace(/\s+/g, ' ').trim();
   assert.equal(thesis, 'Codex proposes. BOQA verifies.');
   assert.equal(await page.getByText('MODEL_OUTPUT != AUTHORIZATION', { exact: true }).isVisible(), true);
@@ -252,92 +253,9 @@ async function statusSmoke(browser, viewport, label) {
   return result;
 }
 
-async function privateSmoke(browser, billingPin) {
-  const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
-  const page = await context.newPage();
-  const result = { page_errors: [], console_errors: [], expected_auth_console_errors: [] };
-  wireDiagnostics(page, result, { allowExpectedAuthErrors: true });
-  const response = await page.goto(`${EDGE_URL}/cobros`, { waitUntil: 'networkidle' });
-  assert(response && response.ok(), 'PRIVATE_NAVIGATION_FAILED');
-  const headers = response.headers();
-  assert.match(headers['cache-control'] || '', /no-store/);
-  assert.match(headers['x-robots-tag'] || '', /noindex/);
-  assert.match(headers['content-security-policy'] || '', /frame-ancestors 'none'/);
-  assert.equal(headers['referrer-policy'], 'no-referrer');
-  const anonymousText = await page.locator('body').innerText();
-  assert(!/Centro de Cobros|Movimientos|saldo|monto|ingreso/i.test(anonymousText), 'PRIVATE_LABEL_LEAKED_BEFORE_AUTH');
-  assert.equal(await page.locator('#private-root').isHidden(), true);
-  const anonymousDataStatus = await page.evaluate(() => fetch('/api/private/billing/data', {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  }).then((response) => response.status));
-  assert.equal(anonymousDataStatus, 401);
-  await page.screenshot({ path: path.join(OUTPUT, 'private-anonymous-mobile.png'), fullPage: true });
-
-  await page.fill('#pin', 'invalid');
-  await page.click('#access-form button[type="submit"]');
-  await page.waitForFunction(() => document.getElementById('auth-error')?.textContent.length > 0);
-  assert.match(await page.locator('#auth-error').textContent(), /No fue posible autorizar/);
-
-  await page.fill('#pin', billingPin);
-  await page.click('#access-form button[type="submit"]');
-  await page.waitForFunction(() => !document.getElementById('private-root')?.hidden, null, { timeout: 15_000 });
-  assert.equal(await page.locator('#gate').isHidden(), true);
-  assert.equal(await page.locator('#private-view h1').textContent(), 'Centro de Cobros');
-  const sessionCookie = (await context.cookies()).find((cookie) => cookie.name === 'boqa_billing_session');
-  assert(sessionCookie, 'SESSION_COOKIE_MISSING');
-  assert.equal(sessionCookie.httpOnly, true);
-  assert.equal(sessionCookie.secure, true);
-  assert.equal(sessionCookie.sameSite, 'Strict');
-
-  const csrfRejected = await page.evaluate(() => fetch('/api/private/billing/logout', {
-    method: 'POST',
-    credentials: 'same-origin',
-    cache: 'no-store',
-  }).then((response) => response.status));
-  assert.equal(csrfRejected, 403);
-  const sessionStillValid = await page.evaluate(() => fetch('/api/private/billing/session', {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  }).then((response) => response.status));
-  assert.equal(sessionStillValid, 200);
-
-  await page.click('#logout');
-  await page.waitForFunction(() => !document.getElementById('gate')?.hidden);
-  assert.equal(await page.locator('#private-root').isHidden(), true);
-  assert.equal((await context.cookies()).some((cookie) => cookie.name === 'boqa_billing_session'), false);
-
-  await context.addCookies([{
-    name: 'boqa_billing_session',
-    value: 'A'.repeat(43),
-    domain: 'localhost',
-    path: '/',
-    secure: true,
-    httpOnly: true,
-    sameSite: 'Strict',
-  }]);
-  const tamperedStatus = await page.evaluate(() => fetch('/api/private/billing/session', {
-    credentials: 'same-origin',
-    cache: 'no-store',
-  }).then((response) => response.status));
-  assert.equal(tamperedStatus, 401);
-  assert.equal(result.page_errors.length, 0, `PRIVATE_PAGEERROR:${result.page_errors.join('|')}`);
-  assert.equal(result.console_errors.length, 0, `PRIVATE_CRITICAL_CONSOLE:${result.console_errors.join('|')}`);
-  assert(result.expected_auth_console_errors.length >= 4, 'EXPECTED_AUTH_CONSOLE_EVENTS_MISSING');
-  result.anonymous_data_status = anonymousDataStatus;
-  result.authenticated = true;
-  result.cookie = { http_only: true, secure: true, same_site: 'Strict' };
-  result.csrf_rejected = true;
-  result.logout_cleared = true;
-  result.tampered_cookie_rejected = true;
-  await context.close();
-  return result;
-}
-
 async function main() {
   const apiKey = secret();
   const hmacSecret = secret();
-  const billingPin = secret();
   const serverLog = fs.createWriteStream(path.join(OUTPUT, 'server.log'), { flags: 'wx' });
   const backend = spawn(process.execPath, ['server.js'], {
     cwd: ROOT,
@@ -348,7 +266,6 @@ async function main() {
       BOQA_PORT: String(BACKEND_PORT),
       BOQA_API_KEY: apiKey,
       BOQA_HMAC_SECRET: hmacSecret,
-      BOQA_BILLING_PIN: billingPin,
       BOQA_HMAC_LOG_FAILURES: 'false',
       BOQA_RELEASE_SHA: HEAD_SHA,
       BOQA_AUTO_ANALYZE: 'false',
@@ -395,14 +312,10 @@ async function main() {
     evidence.status.push(await statusSmoke(browser, { width: 1440, height: 900 }, 'desktop-1440'));
     evidence.status.push(await statusSmoke(browser, { width: 390, height: 844 }, 'mobile-390'));
     evidence.status.push(await statusSmoke(browser, { width: 360, height: 800 }, 'mobile-360'));
-    evidence.private = await privateSmoke(browser, billingPin);
     evidence.page_errors = evidence.public.reduce((sum, item) => sum + item.page_errors.length, 0)
-      + evidence.status.reduce((sum, item) => sum + item.page_errors.length, 0)
-      + evidence.private.page_errors.length;
+      + evidence.status.reduce((sum, item) => sum + item.page_errors.length, 0);
     evidence.console_errors = evidence.public.reduce((sum, item) => sum + item.console_errors.length, 0)
-      + evidence.status.reduce((sum, item) => sum + item.console_errors.length, 0)
-      + evidence.private.console_errors.length;
-    evidence.expected_auth_console_errors = evidence.private.expected_auth_console_errors.length;
+      + evidence.status.reduce((sum, item) => sum + item.console_errors.length, 0);
     evidence.status = 'PASS';
   } catch (error) {
     evidence.status = 'FAIL';

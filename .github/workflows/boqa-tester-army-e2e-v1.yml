@@ -1,0 +1,134 @@
+name: BOQA TesterArmy E2E Exact Preview V1
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: boqa-tester-army-e2e-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  external-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CI: 'true'
+      E2E_TELEMETRY_DISABLED: '1'
+      EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - name: Setup Node 24 for external harness
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Require a successful same-head Cloudflare preview
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+          test "$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq '.head.sha')" = "$EXPECTED_SHA"
+          preview_run=""
+          for attempt in $(seq 1 80); do
+            runs="$(gh api "repos/$REPO/actions/workflows/boqa-cloudflare-preview-v6.yml/runs?head_sha=$EXPECTED_SHA&per_page=30")"
+            preview_run="$(jq -r --arg sha "$EXPECTED_SHA" '
+              [.workflow_runs[] | select(.head_sha == $sha and .conclusion == "success")]
+              | sort_by(.created_at) | last | .id // empty' <<<"$runs")"
+            if [ -n "$preview_run" ]; then break; fi
+            latest="$(jq -r '.workflow_runs | sort_by(.created_at) | last | .conclusion // empty' <<<"$runs")"
+            if [ "$latest" = "failure" ] || [ "$latest" = "cancelled" ]; then
+              echo "PREVIEW_NOT_QUALIFIED=$latest"; exit 1
+            fi
+            sleep 15
+          done
+          test -n "$preview_run"
+          name="boqa-cloudflare-preview-v6-$EXPECTED_SHA"
+          mkdir -p "$RUNNER_TEMP/boqa-preview"
+          gh run download "$preview_run" --repo "$REPO" --name "$name" --dir "$RUNNER_TEMP/boqa-preview"
+          cd "$RUNNER_TEMP/boqa-preview"
+          test -f SHA256SUMS
+          sha256sum -c SHA256SUMS
+          jq -e --arg sha "$EXPECTED_SHA" '
+            .head_sha == $sha and .production_changed == false and .deploy_performed == false
+            and (.preview_url | test("^https://[a-zA-Z0-9.-]+\\.workers\\.dev/?$"))
+          ' candidate.json >/dev/null
+          jq -e --arg sha "$EXPECTED_SHA" '
+            .head_sha == $sha and .gate_status == "PASS"
+            and .production_changed == false and .deploy_performed == false
+          ' browser/preview-smoke-evidence.json >/dev/null
+          preview_url="$(jq -r '.preview_url' candidate.json)"
+          echo "BOQA_PREVIEW_URL=$preview_url" >> "$GITHUB_ENV"
+          echo "BOQA_PREVIEW_VERSION_ID=$(jq -r '.version_id' candidate.json)" >> "$GITHUB_ENV"
+          echo "SOURCE_PREVIEW_RUN_ID=$preview_run" >> "$GITHUB_ENV"
+          echo "EXACT_PREVIEW_EVIDENCE_VERIFIED=YES"
+      - name: Install isolated pinned TesterArmy harness
+        working-directory: qualification/tester-army
+        run: |
+          set -Eeuo pipefail
+          npm install --ignore-scripts --no-audit --no-fund
+          npm ls e2e @e2e-dev/web --depth=0
+          ./node_modules/.bin/playwright install chromium --with-deps
+      - name: Run five cases on each viewport and require 10 of 10
+        working-directory: qualification/tester-army
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          npx e2e run --reporter list,junit --retries 0 --no-cache
+          report=.e2e/report.json
+          test -s "$report"
+          jq -e '
+            .run.status == "passed" and .run.exitCode == 0 and
+            ([.run.results[] | select(.kind == "test" and .selected == true)] | length) == 10 and
+            ([.run.results[] | select(.kind == "test" and .selected == true and .status == "passed")] | length) == 10 and
+            ([.run.results[] | select(.kind == "test" and .targetId == "desktop-1440" and .status == "passed")] | length) == 5 and
+            ([.run.results[] | select(.kind == "test" and .targetId == "mobile-390" and .status == "passed")] | length) == 5
+          ' "$report" >/dev/null
+          mkdir -p ../../output/tester-army-e2e
+          cp "$report" ../../output/tester-army-e2e/tester-army-report.json
+          test -s .e2e/junit.xml
+          cp .e2e/junit.xml ../../output/tester-army-e2e/tester-army-junit.xml
+          echo "TESTER_ARMY_PREVIEW_E2E=10/10"
+          echo "E2E_360_CHECK=INCLUDED_IN_MOBILE_390_FIFTH_CASE"
+      - name: Produce sanitized provenance and artifact hashes
+        if: always()
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p output/tester-army-e2e
+          if [ -s output/tester-army-e2e/tester-army-report.json ] && [ -s output/tester-army-e2e/tester-army-junit.xml ]; then
+            sha256sum output/tester-army-e2e/tester-army-report.json output/tester-army-e2e/tester-army-junit.xml > output/tester-army-e2e/results.sha256
+          fi
+          jq -n --arg head "$EXPECTED_SHA" --arg preview "${BOQA_PREVIEW_URL:-}" \
+            --arg preview_run "${SOURCE_PREVIEW_RUN_ID:-}" \
+            --arg preview_version "${BOQA_PREVIEW_VERSION_ID:-}" \
+            '{head_sha:$head,preview_url:$preview,source_preview_run_id:$preview_run,
+              worker_version_id:$preview_version,production_changed:false,
+              merge_performed:false,release_created:false}' > output/tester-army-e2e/provenance.json
+          if [ -f qualification/tester-army/package-lock.json ]; then
+            sha256sum qualification/tester-army/package-lock.json > output/tester-army-e2e/package-lock.sha256
+          fi
+          sha256sum qualification/tester-army/e2e.config.ts qualification/tester-army/tests/preview.e2e.ts \
+            .github/workflows/boqa-tester-army-e2e-v1.yml > output/tester-army-e2e/sources.sha256
+      - name: Upload external harness evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: boqa-tester-army-e2e-${{ github.event.pull_request.head.sha }}
+          path: |
+            output/tester-army-e2e/
+            qualification/tester-army/.e2e/
+            qualification/tester-army/package-lock.json
+          if-no-files-found: warn
+          retention-days: 30

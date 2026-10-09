@@ -4,7 +4,7 @@ compatibility_date = "2024-12-01"
 account_id = "b21fa81d12acb663798f9f7c51801955"
 
 [vars]
-BOQA_BACKEND_URL = "http://136.248.117.15.nip.io"
+BOQA_BACKEND_URL = ""
 
 [assets]
 directory = "./dashboard"

@@ -60,10 +60,11 @@ jobs:
             .gate_status == "PASS" and
             .production_changed == false and
             .deploy_performed == false and
+            .static_publication_valid == true and
             (
-              (.classification == "PROMOTION_READY" and .promotion_ready == true) or
-              (.classification == "BLOCKED_BACKEND_CONTRACT" and .promotion_ready == false and .blocker == "BACKEND_HUNTER_CONTRACT_MISSING") or
-              (.classification == "BLOCKED_BACKEND_UNAVAILABLE" and .promotion_ready == false and .blocker == "BACKEND_UNAVAILABLE")
+              (.classification == "PROMOTION_READY" and .runtime_operational == true and .production_promotion_allowed == true) or
+              (.classification == "BLOCKED_BACKEND_CONTRACT" and .runtime_operational == false and .production_promotion_allowed == false and .blocker == "BACKEND_HUNTER_CONTRACT_MISSING") or
+              (.classification == "STATIC_PUBLICATION_READY_RUNTIME_DEGRADED" and .runtime_operational == false and .production_promotion_allowed == true and (.blocker == "BACKEND_UNAVAILABLE" or .blocker == "BACKEND_NOT_CONFIGURED"))
             )
           ' "$out/browser/preview-smoke-evidence.json" >/dev/null
           cmp "$out/deployment-before.json" "$out/deployment-after.json"

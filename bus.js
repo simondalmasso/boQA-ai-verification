@@ -110,9 +110,8 @@ const EVENT_TYPES = new Set([
 ]);
 
 class EventBus extends EventEmitter {
-  constructor(wsServer = null, options = {}) {
+  constructor(options = {}) {
     super();
-    this.wsServer = wsServer;
     this.sessionId = options.sessionId || this._generateUUID();
     this.target = options.target || null;
     this.sessionStart = Date.now();
@@ -120,8 +119,6 @@ class EventBus extends EventEmitter {
     this.eventIndex = 0;
     this.eventLog = [];
     this.maxLogSize = options.maxLogSize || 50000;
-    this.clients = new Set();
-    this.paused = false;
 
     // Session metrics
     this.metrics = {
@@ -176,10 +173,6 @@ class EventBus extends EventEmitter {
       fs.mkdirSync(path.dirname(this.ndjsonPath), { recursive: true });
       this.ndjsonStream = fs.createWriteStream(this.ndjsonPath, { flags: 'a' });
     }
-
-    if (wsServer) {
-      this._attachWsServer(wsServer);
-    }
   }
 
   _generateUUID() {
@@ -188,43 +181,6 @@ class EventBus extends EventEmitter {
         const r = Math.random() * 16 | 0;
         return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
       });
-  }
-
-  _attachWsServer(wsServer) {
-    wsServer.on('connection', (ws) => {
-      this.clients.add(ws);
-
-      this._sendToClient(ws, {
-        type: 'session_meta',
-        sessionId: this.sessionId,
-        target: this.target,
-        sessionStart: this.sessionStart,
-        eventCount: this.eventIndex,
-      });
-
-      const replay = this.eventLog.slice(-300);
-      if (replay.length > 0) {
-        this._sendToClient(ws, { type: 'replay', events: replay });
-      }
-
-      // v0.3: Send finding stream to new clients
-      if (this.findingStream.length > 0) {
-        this._sendToClient(ws, {
-          type: 'finding_replay',
-          findings: this.findingStream.slice(-100),
-        });
-      }
-
-      ws.on('close', () => this.clients.delete(ws));
-      ws.on('message', (raw) => {
-        try {
-          const msg = JSON.parse(raw);
-          if (msg.action === 'pause') this.paused = true;
-          if (msg.action === 'resume') this.paused = false;
-          if (msg.action === 'export') this._handleExportRequest(ws);
-        } catch (_) {}
-      });
-    });
   }
 
   emit(event) {
@@ -246,7 +202,6 @@ class EventBus extends EventEmitter {
     super.emit('event', normalized);
     super.emit(normalized.type, normalized);
 
-    if (!this.paused) this._broadcast(normalized);
   }
 
   /**
@@ -276,7 +231,6 @@ class EventBus extends EventEmitter {
     this.metrics.findings_by_severity[finding.severity] =
       (this.metrics.findings_by_severity[finding.severity] || 0) + 1;
 
-    if (!this.paused) this._broadcast(findingEvent);
     super.emit('finding', finding);
   }
 
@@ -301,7 +255,6 @@ class EventBus extends EventEmitter {
     this.evidenceStream.push(evidencePackage);
     this.metrics.evidence_count++;
 
-    if (!this.paused) this._broadcast(evidenceEvent);
     super.emit('evidence', evidencePackage);
   }
 
@@ -448,20 +401,6 @@ class EventBus extends EventEmitter {
     }
   }
 
-  _broadcast(event) {
-    const msg = JSON.stringify(event);
-    for (const ws of this.clients) {
-      if (ws.readyState === 1) ws.send(msg);
-    }
-  }
-
-  _sendToClient(ws, data) {
-    if (ws.readyState === 1) ws.send(JSON.stringify(data));
-  }
-
-  _handleExportRequest(ws) {
-    this._sendToClient(ws, { type: 'export', data: this.exportSession() });
-  }
 
   getStats() {
     const byType = {};
@@ -476,8 +415,6 @@ class EventBus extends EventEmitter {
       totalEvents: this.eventIndex,
       inMemory: this.eventLog.length,
       byType,
-      clients: this.clients.size,
-      paused: this.paused,
       metrics: this.metrics,
     };
   }
@@ -535,8 +472,8 @@ class SessionManager {
     this.sessions = new Map(); // sessionId → EventBus
   }
 
-  create(wsServer, options = {}) {
-    const bus = new EventBus(wsServer, options);
+  create(options = {}) {
+    const bus = new EventBus(options);
     this.sessions.set(bus.sessionId, bus);
     return bus;
   }

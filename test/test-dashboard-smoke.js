@@ -33,6 +33,9 @@ assert.match(app, /release\.slice\(0, 10\)/, 'visible release SHA must be abbrev
 assert.match(app, /Release completa:/, 'complete release SHA must remain accessible');
 assert.match(css, /@keyframes hunt-sweep/, 'live trace must include the lightweight sweep animation');
 assert.match(css, /prefers-reduced-motion:reduce/, 'live trace must respect reduced-motion preferences');
+const previewSmoke = fs.readFileSync(path.join(root, 'scripts', 'cloudflare-preview-smoke-v6.js'), 'utf8');
+assert.match(previewSmoke, /#empty-state[\s\S]*isVisible\(\)/, 'degraded preview must assert empty state visibility');
+assert.match(previewSmoke, /#status-grid[\s\S]*isHidden\(\)/, 'degraded preview must assert operational grid is hidden');
 assert.match(mobileCss, /grid-template-columns:\s*repeat\(2/, 'mobile sources and secondary panels must compact into two columns');
 assert.match(mobileCss, /max-width:\s*340px/, 'narrow-device fallback must remain single-column');
 assert.doesNotMatch(css + mobileCss, /@import|https?:\/\//i, 'dashboard CSS must not load remote fonts or visual dependencies');

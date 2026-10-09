@@ -4,8 +4,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const EXPECTED_VERSION = '1.5.0';
-const EXPECTED_TAG = 'v1.5.0';
+const EXPECTED_VERSION = '1.5.1';
+const EXPECTED_TAG = 'v1.5.1';
 
 function argValue(name, fallback = null) {
   const at = process.argv.indexOf(name);
@@ -16,7 +16,7 @@ const customRootProvided = process.argv.includes('--root');
 const root = path.resolve(argValue('--root', process.cwd()));
 const expectedReadinessDate = argValue(
   '--readiness-date',
-  process.env.BOQA_READINESS_DATE || new Date().toISOString().slice(0, 10)
+  process.env.BOQA_READINESS_DATE || null
 );
 
 const failures = [];
@@ -82,12 +82,17 @@ for (const [label, text] of [
 const readinessDateMatch = readiness.match(/^LAST_CHECK=(\d{4}-\d{2}-\d{2})$/m);
 if (!readinessDateMatch) {
   fail('missing_readiness_date', 'LAST_CHECK');
-} else if (readinessDateMatch[1] !== expectedReadinessDate) {
-  fail('stale_readiness_date', `actual=${readinessDateMatch[1]} expected=${expectedReadinessDate}`);
+} else {
+  const observed = readinessDateMatch[1];
+  const current = new Date().toISOString().slice(0, 10);
+  if (Number.isNaN(Date.parse(observed)) || observed > current ||
+      (expectedReadinessDate && observed !== expectedReadinessDate)) {
+    fail('readiness_date_invalid', `actual=${observed} expected=${expectedReadinessDate || 'not-in-future'}`);
+  }
 }
 
-if (!/^APPLICATION_STATUS=READY$/m.test(readiness)) {
-  fail('readiness_status_not_ready', 'APPLICATION_STATUS must be READY');
+if (!/^APPLICATION_STATUS=HOLD$/m.test(readiness)) {
+  fail('premature_readiness_claim', 'APPLICATION_STATUS must remain HOLD until independent terminal seal');
 }
 if (!new RegExp(`^RELEASE_TAG=${EXPECTED_TAG}\\b`, 'm').test(readiness)) {
   fail('readiness_release_tag_mismatch', `RELEASE_TAG must be ${EXPECTED_TAG}`);
@@ -104,8 +109,8 @@ const currentReleaseSurfaces = [
 ];
 for (const rel of currentReleaseSurfaces) {
   const text = read(rel, false);
-  if (text && /v1\.4\.0|boqa:1\.4\.0/i.test(text)) {
-    fail('stale_v1_4_current_surface', rel);
+  if (text && /v1\.4\.0|v1\.5\.0|boqa:1\.4\.0|boqa:1\.5\.0/i.test(text)) {
+    fail('stale_prior_release_current_surface', rel);
   }
 }
 

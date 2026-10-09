@@ -36,11 +36,12 @@ if (source === originalSource) {
   throw new Error('BROWSER_SMOKE_MOBILE_TRANSFORM_NOT_APPLIED');
 }
 
-const start = source.indexOf('async function privateSmoke(');
-const end = source.indexOf('\nasync function main()', start);
-
-if (start < 0 || end < 0 || end <= start) {
-  throw new Error('PRIVATE_SMOKE_BOUNDARY_NOT_FOUND');
+// Base V1 intentionally contains no privateSmoke: inject the complete
+// concealment test into its existing main() before evidence is marked PASS.
+const mainAnchor = '\nasync function main()';
+const passAnchor = "    evidence.status = 'PASS';";
+if (!source.includes(mainAnchor) || source.split(passAnchor).length !== 2) {
+  throw new Error('PUBLIC_EDGE_SMOKE_HOOK_MISSING');
 }
 
 const replacement = String.raw`async function privateSmoke(browser) {
@@ -155,7 +156,13 @@ const replacement = String.raw`async function privateSmoke(browser) {
 }
 `;
 
-const transformed = source.slice(0, start) + replacement + source.slice(end);
+const injected = source.replace(passAnchor,
+  "    evidence.private = await privateSmoke(browser);\n" + passAnchor);
+const transformed = injected.replace(mainAnchor, '\n' + replacement + mainAnchor);
+if (!transformed.includes('evidence.private = await privateSmoke(browser)') ||
+    !transformed.includes('async function privateSmoke(browser)')) {
+  throw new Error('PUBLIC_EDGE_SMOKE_HOOK_FAILED');
+}
 const compiled = new Module(originalPath, module);
 compiled.filename = originalPath;
 compiled.paths = Module._nodeModulePaths(path.dirname(originalPath));

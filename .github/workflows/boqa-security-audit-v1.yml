@@ -40,4 +40,4 @@ jobs:
           node test/test-public-private-boundary.js
           node test/test-browser-network-scope.js
           node test/test-event-evidence-redaction.js
-          node test/test-release-v1.5.0-contract.js
+          node test/test-release-v1.5.1-contract.js

@@ -1,6 +1,29 @@
-# BOQA
+# BOQA — Verification before acceptance
 
-BOQA is a bounded autonomous QA and software-verification kernel for work that must be authorized, reproducible, and evidence-backed.
+**A proposed software change is not evidence that it works.**
+
+BOQA is an open-source verification kernel for bounded, reproducible software work. It applies deterministic policy decisions, explicit human approval where required, isolated regressions, and evidence tied to exact revisions. The model may propose; it cannot grant authorization.
+
+## Try one safe example
+
+```bash
+git clone https://github.com/simondalmasso/boqa.git
+cd boqa
+npm ci
+npm run demo:cuore
+```
+
+The demo reads local fixtures, prints policy decisions and records `target_asset_network_requests: 0`. It does not scan external targets or submit findings.
+
+**What to inspect:** the `decisions` array, its `blockers` and `next_safe_step`, and the zero-target-network counter. Ambiguous work is deferred or skipped, not self-authorized.
+
+[Website](https://boqa.simondalmasso44.workers.dev/) · [Safe demo source](scripts/demo-cuore-fixtures.js) · [CI runs](https://github.com/simondalmasso/boqa/actions) · [Security policy](SECURITY.md)
+
+**Release distinction:** latest published GitHub release is **v1.5.0**; **v1.5.1** is a qualified release candidate under review. Preview results are not production attestations.
+
+## Technical overview
+
+BOQA is a bounded QA and software-verification kernel for work that must be authorized, reproducible, and evidence-backed.
 
 Its operating rule is simple:
 
