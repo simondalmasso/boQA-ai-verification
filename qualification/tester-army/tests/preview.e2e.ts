@@ -3,8 +3,9 @@ import { expect } from 'e2e';
 
 test('OSS landing preserves authority and fits the viewport', async ({ app, browser }) => {
   await app.open('/');
-  await expect(browser.locator('h1')).toHaveText('Verification infrastructure for AI-assisted software work.');
+  await expect(browser.locator('h1')).toHaveText('Evidence before acceptance.');
   await expect(browser.locator('.thesis')).toHaveText('Codex proposes. BOQA verifies.');
+  await expect(browser.locator('.phage-figure img')).toBeVisible();
   await expect(browser.locator('.invariant')).toBeVisible();
   expect(await browser.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
