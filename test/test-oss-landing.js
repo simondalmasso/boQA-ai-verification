@@ -15,9 +15,16 @@ const favicon = fs.readFileSync(path.join(root, 'dashboard', 'favicon.svg'), 'ut
 const phageArt = fs.readFileSync(path.join(root, 'dashboard', 'phage-engraving.svg'), 'utf8');
 const og = fs.readFileSync(path.join(root, 'dashboard', 'og-boqa.png'));
 const ogSource = fs.readFileSync(path.join(root, 'dashboard', 'og-boqa-source.svg'), 'utf8');
+const robots = fs.readFileSync(path.join(root, 'dashboard', 'robots.txt'), 'utf8');
+const sitemap = fs.readFileSync(path.join(root, 'dashboard', 'sitemap.xml'), 'utf8');
 
 assert.match(landing, /<html\s+lang=["']en["']/i);
 assert.match(landing, /<title>BOQA — Evidence before acceptance<\/title>/);
+assert.match(landing, /rel=["']canonical["'][^>]+href=["']https:\/\/boqa\.simondalmasso44\.workers\.dev\/["']/);
+assert.match(landing, /name=["']robots["'][^>]+content=["']index,follow["']/);
+assert.match(landing, /release candidate<\/dt>/);
+assert.match(landing, /v1\.5\.1 release candidate, not yet published/);
+assert.doesNotMatch(landing, /current release<\/dt>/);
 assert.match(landing, /name=["']description["'][^>]+content=["']BOQA verifies software changes with bounded scope, deterministic checks, HumanGate and reproducible evidence\.["']/i);
 assert.match(landing, /rel=["']icon["'][^>]+href=["']\/favicon\.svg["']/i);
 assert.match(landing, /property=["']og:image["'][^>]+content=["']https:\/\/boqa\.simondalmasso44\.workers\.dev\/og-boqa\.png["']/i);
@@ -127,6 +134,11 @@ assert.match(favicon, /<svg[^>]+viewBox=["']0 0 32 32["']/);
 assert.doesNotMatch(favicon, /(?:href|src)=["']https?:\/\//i, 'favicon must not load remote resources');
 assert.match(phageArt, /<svg[^>]+viewBox=["']0 0 680 680["']/);
 assert.match(phageArt, /Bacteriophage technical drawing/);
+assert.match(robots, /User-agent: \*/);
+assert.match(robots, /Disallow: \/api\//);
+assert.match(robots, /Sitemap: https:\/\/boqa\.simondalmasso44\.workers\.dev\/sitemap\.xml/);
+assert.match(sitemap, /<loc>https:\/\/boqa\.simondalmasso44\.workers\.dev\/<\/loc>/);
+assert.doesNotMatch(sitemap, /https:\/\/[^<]*\/(?:api|private|cobros)/i);
 assert.doesNotMatch(phageArt, /(?:href|src)=["']https?:\/\//i, 'phage illustration must be local');
 assert.match(css, /--bg:\s*#fbfbfa/i, 'light monochrome color system required');
 

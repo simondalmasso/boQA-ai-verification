@@ -60,6 +60,8 @@ function assetResponse(request) {
     ['/index.html', 'dashboard/index.html'],
     ['/landing.css', 'dashboard/landing.css'],
     ['/phage-engraving.svg', 'dashboard/phage-engraving.svg'],
+    ['/robots.txt', 'dashboard/robots.txt'],
+    ['/sitemap.xml', 'dashboard/sitemap.xml'],
     ['/favicon.svg', 'dashboard/favicon.svg'],
     ['/og-boqa.png', 'dashboard/og-boqa.png'],
     ['/status', 'dashboard/status/index.html'],
