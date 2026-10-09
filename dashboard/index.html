@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#090b0e">
-  <meta name="description" content="BOQA is open-source software verification infrastructure with bounded authority, HumanGate, exact-head checks, and reproducible evidence.">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#fbfbfa">
+  <meta name="description" content="BOQA verifies software changes with bounded scope, deterministic checks, HumanGate and reproducible evidence.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://boqa.simondalmasso44.workers.dev/">
-  <meta property="og:title" content="BOQA — Verification infrastructure with bounded authority">
-  <meta property="og:description" content="Codex proposes. BOQA verifies. Open-source verification infrastructure with deterministic policy, HumanGate, and reproducible evidence.">
+  <meta property="og:title" content="BOQA — Evidence before acceptance">
+  <meta property="og:description" content="Bounded execution. Exact-revision verification. Inspectable evidence. Open-source software verification.">
   <meta property="og:image" content="https://boqa.simondalmasso44.workers.dev/og-boqa.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:type" content="image/png">
   <meta name="twitter:card" content="summary_large_image">
-  <title>BOQA — Verification infrastructure with bounded authority</title>
+  <title>BOQA — Evidence before acceptance</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/landing.css">
 </head>
@@ -43,11 +43,11 @@
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow">Open-source software verification</p>
-        <span class="hero-name">BOQA</span>
-        <h1 id="hero-title">Verification infrastructure<br>for AI-assisted software work.</h1>
+        <p class="eyebrow">OPEN SOURCE / SOFTWARE VERIFICATION</p>
+        <span class="hero-name">BOQA / VERIFICATION SYSTEM</span>
+        <h1 id="hero-title">Evidence before<br>acceptance.</h1>
         <p class="thesis">Codex proposes.<br>BOQA verifies.</p>
-        <p class="hero-summary">Models can suggest tests, fixes and reproductions.<br>Deterministic policy, HumanGate and reproducible evidence decide what is accepted.</p>
+        <p class="hero-summary">Software changes pass through bounded scope, deterministic checks and HumanGate. Every accepted result points back to the revision and evidence that support it.</p>
         <div class="actions" aria-label="Project actions">
           <a class="button primary" href="https://github.com/simondalmasso/boqa">View GitHub</a>
           <a class="button secondary" href="#safe-demo">Run safe demo</a>
@@ -59,37 +59,21 @@
         </div>
       </div>
 
-      <aside class="verification-trace" aria-labelledby="trace-title">
-        <header class="trace-header">
-          <div>
-            <p class="panel-kicker">BOQA verification system</p>
-            <h2 id="trace-title">Authority path</h2>
-          </div>
-          <span class="release-badge">v1.5.0</span>
-        </header>
-        <ol class="trace-flow" aria-label="MODEL to EVIDENCE verification flow">
-          <li><span>MODEL</span><small>proposes</small></li>
-          <li><span>CUORE</span><small>normalizes</small></li>
-          <li><span>POLICY / SCOPE</span><small>bounds</small></li>
-          <li><span>HUMANGATE</span><small>escalates</small></li>
-          <li><span>EXECUTE</span><small>runs</small></li>
-          <li><span>VERIFY</span><small>checks</small></li>
-          <li><span>EVIDENCE</span><small>records</small></li>
-        </ol>
-        <dl class="evidence-grid" aria-label="Verified release evidence">
-          <div><dt>release</dt><dd>v1.5.0</dd></div>
-          <div><dt>browser</dt><dd class="pass">PASS</dd></div>
-          <div><dt>docker</dt><dd class="pass">PASS</dd></div>
-          <div><dt>scope</dt><dd>exact-head</dd></div>
-          <div class="network-row"><dt>network</dt><dd>target_asset_network_requests=0</dd></div>
-        </dl>
-      </aside>
+      <figure class="phage-figure" aria-labelledby="phage-caption">
+        <span class="phage-corner phage-corner-a" aria-hidden="true">+</span>
+        <img src="/phage-engraving.svg" width="680" height="680" alt="Monochrome technical illustration of a bacteriophage, with an icosahedral head, tail and articulated fibers.">
+        <figcaption id="phage-caption"><span>FIG. 01</span><span>Bacteriophage / technical study</span></figcaption>
+      </figure>
     </section>
+
+    <div class="hero-band" aria-label="BOQA verification principles">
+      <span>BOUNDED SCOPE</span><span>DETERMINISTIC CHECKS</span><span>HUMAN APPROVAL</span><span>INSPECTABLE EVIDENCE</span>
+    </div>
 
     <section class="why" aria-labelledby="why-title">
       <div class="section-heading">
         <p class="eyebrow">Why BOQA</p>
-        <h2 id="why-title">AI output is useful. It is not authority.</h2>
+        <h2 id="why-title">A result needs a record. Not a promise.</h2>
       </div>
       <div class="principles">
         <article>
@@ -124,6 +108,33 @@
         <li><strong>VERIFY</strong><span>Qualifies behavior against exact revisions.</span></li>
         <li><strong>EVIDENCE</strong><span>Records what was actually proven.</span></li>
       </ol>
+      <div class="method-trace">
+      <aside class="verification-trace" aria-labelledby="trace-title">
+        <header class="trace-header">
+          <div>
+            <p class="panel-kicker">BOQA verification system</p>
+            <h2 id="trace-title">Authority path</h2>
+          </div>
+          <span class="release-badge">v1.5.0</span>
+        </header>
+        <ol class="trace-flow" aria-label="MODEL to EVIDENCE verification flow">
+          <li><span>MODEL</span><small>proposes</small></li>
+          <li><span>CUORE</span><small>normalizes</small></li>
+          <li><span>POLICY / SCOPE</span><small>bounds</small></li>
+          <li><span>HUMANGATE</span><small>escalates</small></li>
+          <li><span>EXECUTE</span><small>runs</small></li>
+          <li><span>VERIFY</span><small>checks</small></li>
+          <li><span>EVIDENCE</span><small>records</small></li>
+        </ol>
+        <dl class="evidence-grid" aria-label="Verified release evidence">
+          <div><dt>release</dt><dd>v1.5.0</dd></div>
+          <div><dt>browser</dt><dd class="pass">PASS</dd></div>
+          <div><dt>docker</dt><dd class="pass">PASS</dd></div>
+          <div><dt>scope</dt><dd>exact-head</dd></div>
+          <div class="network-row"><dt>network</dt><dd>target_asset_network_requests=0</dd></div>
+        </dl>
+      </aside>
+      </div>
     </section>
 
     <section id="safe-demo" class="safe-demo" aria-labelledby="demo-title">
