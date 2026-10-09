@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "0d54f346c9c37f0ab76ec63175a803c287083e72",
+  "audited_source_ref": "2353caee01a6ab8e11c2a33ffac349c05e4225dd",
   "methodology": "Bounded SHA-256 source review, direct Express HTTP negative tests, resolved Docker Compose internal network test, independent exact-head CI; live origin ingress requires separate owner evidence.",
   "independent_verifier": "AUD_NV_REVIEW independently adjudicated NV003 PASS. Real CI reruns origin fixture and normalized Compose network gate; live NV001/NV004 require independently authorized production control-plane inspection.",
   "reviewed_surfaces": [
@@ -14,9 +14,12 @@
     "Dockerfile",
     "api-route-inventory.json",
     "compose.yaml",
+    "dashboard/favicon.svg",
     "dashboard/index.html",
+    "dashboard/landing.css",
     "dashboard/og-boqa-source.svg",
     "dashboard/og-boqa.png",
+    "dashboard/phage-engraving.svg",
     "dashboard/status/index.html",
     "docs/openai-codex-oss/READINESS.md",
     "docs/security-origin-isolation-v1.5.1.md",
@@ -28,6 +31,7 @@
     "qualification/tester-army/package.json",
     "qualification/tester-army/tests/preview.e2e.ts",
     "scripts/browser-smoke-public-edge-v2.js",
+    "scripts/browser-smoke-v1.js",
     "scripts/check-origin-compose-isolation.js",
     "scripts/check-publication.js",
     "scripts/check-security-audit-evidence.js",
@@ -77,6 +81,8 @@
     "Merge, production deployment, release/tag and OSS submission denied.",
     "STATIC OSS documentation reconciled on 2026-10-09; previous candidate 0b08b160 had six successful CI workflows, but this new source ref must be separately requalified on its final evidence-only HEAD.",
     "Cloudflare effective production Worker version, BOQA_BACKEND_URL/API key/HMAC presence and whether a production origin or tunnel exists are NOT independently attested; NV001/NV004 remain needs_validation until independent operator proof and scope-specific AUD disposition.",
-    "A successful source-only Cloudflare preview is not account-level control-plane attestation and must not be labeled STATIC_READY, LIVE_READY or OSS submitted."
+    "A successful source-only Cloudflare preview is not account-level control-plane attestation and must not be labeled STATIC_READY, LIVE_READY or OSS submitted.",
+    "Monochrome bacteriophage visualization is editorial artwork, not a scientific measurement or claim of bacteriophage research, therapies or biotech capability. No efficacy/market metrics are asserted.",
+    "The new design source ref 2353caee01a6ab8e11c2a33ffac349c05e4225dd changes only static landing assets, two UI smoke verifiers and production byte-verification of the additional static asset; it must be qualified by all six workflows on the final evidence-sealed HEAD before any change to production. PREVIEW != PRODUCTION."
   ]
 }
