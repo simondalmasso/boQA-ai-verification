@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "c5a41b0e19514444ff63705274757266000f5ff1",
+  "audited_source_ref": "fb1e1b02079c711474148f7106c1b50205d2522a",
   "methodology": "Bounded SHA-256 source review, direct Express HTTP negative tests, resolved Docker Compose internal network test, independent exact-head CI; live origin ingress requires separate owner evidence.",
   "independent_verifier": "AUD_NV_REVIEW independently adjudicated NV003 PASS. Real CI reruns origin fixture and normalized Compose network gate; live NV001/NV004 require independently authorized production control-plane inspection.",
   "reviewed_surfaces": [
