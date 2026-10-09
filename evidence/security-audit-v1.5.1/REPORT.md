@@ -1,6 +1,6 @@
 # BOQA v1.5.1 — AUD NV001/NV004 origin-boundary remediation
 
-AUDITED_SOURCE_REF=7921e19dbdbe8404333170a4689100931e7e479f
+AUDITED_SOURCE_REF=0d54f346c9c37f0ab76ec63175a803c287083e72
 PR=71
 ORDER=AUD_BOQA_NV_REVIEW
 APPLICATION_STATUS=HOLD
@@ -23,3 +23,6 @@ NV004=SOURCE_AUTH_BOUNDARY_REMEDIATED_LIVE_ISOLATION_PENDING: source port/auth d
 
 ## LIMITATIONS
 Source/Compose evidence is insufficient to prove a running production origin is inaccessible; Cloudflare Worker alone is not an origin firewall. Do not invent origin hostname/IP, probe unknown targets, or expose secrets in evidence. A separately authorized operator must inspect the deployed origin configuration and execute an authorized direct-origin check before NV001/NV004 close. Exact-head Browser/Docker/Security/Publication/Preview/TesterArmy must all pass after this seal. MERGE=NO; DEPLOY=NO; RELEASE=NO; OSS_SUBMIT=NO; APPLICATION_STATUS=HOLD.
+
+## OSS STATIC DOCUMENTATION RECONCILIATION — 2026-10-09
+READINESS.md updated from CI_TESTS=NOT_YET_QUALIFIED to candidate exact-head qualification with explicit prior SHA and rerun requirement on every HEAD change. This audited source commit 0d54f346c9c37f0ab76ec63175a803c287083e72 binds all 46 unchanged/updated paths; the seal commit changes only evidence files. PR #71 metadata will be reconciled separately after exact-head CI is observed. Cloudflare effective deployment bindings/secret presence, active tunnel/VPC, and existence or reachability of a production origin are NOT verified by repository CI and MUST be independently attested before STATIC-only NV001/NV004 N/A adjudication. No automatic N/A classification; NV001 and NV004 remain needs_validation. NV002 remains post-deploy. LIVE is out of scope. MERGE=NO; PROD_DEPLOY=NO; RELEASE=NO; OSS_SUBMISSION=HOLD.

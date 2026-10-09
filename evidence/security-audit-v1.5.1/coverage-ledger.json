@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "7921e19dbdbe8404333170a4689100931e7e479f",
+  "audited_source_ref": "0d54f346c9c37f0ab76ec63175a803c287083e72",
   "methodology": "Bounded SHA-256 source review, direct Express HTTP negative tests, resolved Docker Compose internal network test, independent exact-head CI; live origin ingress requires separate owner evidence.",
   "independent_verifier": "AUD_NV_REVIEW independently adjudicated NV003 PASS. Real CI reruns origin fixture and normalized Compose network gate; live NV001/NV004 require independently authorized production control-plane inspection.",
   "reviewed_surfaces": [
@@ -74,6 +74,9 @@
     "NV001 live Worker-to-origin authentication/transport PENDING; NV004 source-boundary remediation requires independent live origin isolation attestation.",
     "NV002 preview PASS but production/tag identity is a later unauthorized gate.",
     "NV003 PASS is an independent AUD disposition; exact-head CI rerun still mandatory.",
-    "Merge, production deployment, release/tag and OSS submission denied."
+    "Merge, production deployment, release/tag and OSS submission denied.",
+    "STATIC OSS documentation reconciled on 2026-10-09; previous candidate 0b08b160 had six successful CI workflows, but this new source ref must be separately requalified on its final evidence-only HEAD.",
+    "Cloudflare effective production Worker version, BOQA_BACKEND_URL/API key/HMAC presence and whether a production origin or tunnel exists are NOT independently attested; NV001/NV004 remain needs_validation until independent operator proof and scope-specific AUD disposition.",
+    "A successful source-only Cloudflare preview is not account-level control-plane attestation and must not be labeled STATIC_READY, LIVE_READY or OSS submitted."
   ]
 }

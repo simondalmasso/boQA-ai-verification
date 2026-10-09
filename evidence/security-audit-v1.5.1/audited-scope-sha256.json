@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "audited_source_ref": "7921e19dbdbe8404333170a4689100931e7e479f",
+  "audited_source_ref": "0d54f346c9c37f0ab76ec63175a803c287083e72",
   "files": {
     ".github/workflows/boqa-cloudflare-preview-v6.yml": "30308e958fb46aa1a9baab8b0b03775fc8482d28fabd88bc8272372b204b9b9c",
     ".github/workflows/boqa-production-deploy-v1.yml": "69fd61998546f6160be255d46d797c41376b5c5f8972f83a7e68341ad3b04a56",
@@ -16,7 +16,7 @@
     "dashboard/og-boqa.png": "a2f88eca34b8c3526d200f541aa066d0325669334b8b743a0ba9e1e80f340ad3",
     "dashboard/status/index.html": "2afad489db4ede161b0f565850177486b30e84377bebb53be48644cf66eff706",
     "Dockerfile": "065b172bf313ac9bb25ba4d5ef3171b50ea91a64325c8202e2d7be235e31ba4b",
-    "docs/openai-codex-oss/READINESS.md": "e8829101503fa16c5a9c0c3d65972916ce8cbe5a8225aae44002f0da52caf57e",
+    "docs/openai-codex-oss/READINESS.md": "0548b1369b0a1c3d6c520f001db792d680ac63d0c426fadd572216856ac7647c",
     "docs/security-origin-isolation-v1.5.1.md": "d3ab9e100dce9c89270a9b494099173361a0087a4b7f44ef4ce85d94454f7e56",
     "lib/health.js": "15302ee3cec52a036010e587ae46c576e231899979f011330fa44e6cc5fadd88",
     "lib/middleware.js": "fb07c6a1962e7f9ecba6fcf3f77ef6093dc04fbdf008a86e97072fa3bd2ae0a2",
